@@ -48,9 +48,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
     defaultValue: 'http://localhost:8080',
   );
   final TextEditingController _queryController = TextEditingController();
-  final TextEditingController _manualAreaController = TextEditingController(
-    text: 'Chennai',
-  );
+  final TextEditingController _manualAreaController = TextEditingController();
   final Map<int, TextEditingController> _manualUrlByIndex =
       <int, TextEditingController>{};
   late final AuthContext _authContext;
@@ -257,10 +255,11 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
     });
 
     try {
+      final area = _manualAreaController.text.trim();
       final results = await _suggestVendorsUseCase(
         queryText: _queryController.text.trim(),
         locationPermissionGranted: false,
-        manualArea: _manualAreaController.text.trim(),
+        manualArea: area.isEmpty ? null : area,
       );
 
       setState(() {
@@ -568,8 +567,8 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
             TextField(
               controller: _manualAreaController,
               decoration: const InputDecoration(
-                labelText: 'Manual area',
-                hintText: 'Enter city/area (e.g. Chennai)',
+                labelText: 'City or area (optional)',
+                hintText: 'e.g. Chennai — improves search links if provided',
               ),
             ),
             const SizedBox(height: 12),

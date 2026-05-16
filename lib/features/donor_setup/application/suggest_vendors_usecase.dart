@@ -13,18 +13,15 @@ class SuggestVendorsUseCase {
     double? lng,
     String? manualArea,
   }) async {
-    if (!locationPermissionGranted &&
-        (manualArea == null || manualArea.trim().isEmpty)) {
-      throw StateError(
-        'Location permission is missing. Ask user to enter area manually.',
-      );
-    }
+    final trimmedArea = manualArea?.trim();
+    final area =
+        trimmedArea != null && trimmedArea.isNotEmpty ? trimmedArea : null;
 
     final suggestions = await _repository.suggestVendors(
       queryText: queryText,
       lat: locationPermissionGranted ? lat : null,
       lng: locationPermissionGranted ? lng : null,
-      manualArea: locationPermissionGranted ? null : manualArea,
+      manualArea: locationPermissionGranted ? null : area,
     );
 
     if (suggestions.length <= 5) {

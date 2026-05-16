@@ -153,6 +153,10 @@ void main() {
       tester.widget<FilledButton>(openFinder).onPressed,
       isNotNull,
     );
+    expect(
+      find.textContaining('register donation intent'),
+      findsOneWidget,
+    );
     expect(find.textContaining('Instructions copied'), findsOneWidget);
   });
 }

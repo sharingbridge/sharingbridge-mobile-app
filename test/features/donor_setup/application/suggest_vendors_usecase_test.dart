@@ -57,14 +57,12 @@ void main() {
     expect(result.length, 5);
   });
 
-  test('throws when location permission missing and no manual area', () async {
+  test('allows suggest without location when manual area omitted', () async {
     final useCase = SuggestVendorsUseCase(_FakeRepository());
-    expect(
-      () => useCase(
-        queryText: 'swiggy',
-        locationPermissionGranted: false,
-      ),
-      throwsA(isA<StateError>()),
+    final result = await useCase(
+      queryText: 'swiggy',
+      locationPermissionGranted: false,
     );
+    expect(result.length, 5);
   });
 }

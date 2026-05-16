@@ -295,7 +295,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Instructions copied. Order intent ${registration.orderIntentId} registered.',
+            'Instructions copied to clipboard. Donation intent registered (${registration.orderIntentId}).',
           ),
         ),
       );
@@ -379,7 +379,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       case _OfferHelpStep.deliveryReady:
         return _orderIntentId != null
             ? 'Step 3 of 3 · Place order'
-            : 'Step 3 of 3 · Copy and place order';
+            : 'Step 3 of 3 · Copy instructions and place order';
     }
   }
 
@@ -562,8 +562,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
               : const Icon(Icons.copy),
           label: Text(
             _registeringOrderIntent
-                ? 'Registering order…'
-                : 'Copy instructions and continue',
+                ? 'Copying and registering donation intent…'
+                : 'Copy instructions to clipboard and register donation intent',
           ),
         ),
         if (_orderIntentId != null) ...<Widget>[
@@ -613,7 +613,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
           Text(
             _showVendorLinks
                 ? 'Open a saved vendor app'
-                : 'Saved vendor links (tap Copy instructions first)',
+                : 'Saved vendor links (available after you register the donation intent)',
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 8),

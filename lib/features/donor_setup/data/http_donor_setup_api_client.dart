@@ -64,14 +64,17 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
     required double? lng,
     String? manualArea,
   }) {
+    final trimmedArea = manualArea?.trim();
+    final hasGps = lat != null && lng != null;
+    final hasArea = trimmedArea != null && trimmedArea.isNotEmpty;
     final payload = <String, dynamic>{
       'query_text': queryText,
-      'location_precision': lat != null && lng != null ? 'gps' : 'manual_area',
+      'location_precision': hasGps
+          ? 'gps'
+          : (hasArea ? 'manual_area' : 'unspecified'),
       'client_platform': 'flutter-mobile',
-      if (lat != null) 'lat': lat,
-      if (lng != null) 'lng': lng,
-      if (manualArea != null && manualArea.trim().isNotEmpty)
-        'manual_area': manualArea,
+      if (hasGps) ...<String, dynamic>{'lat': lat, 'lng': lng},
+      if (hasArea) 'manual_area': trimmedArea,
     };
 
     return _runWithRetry(
