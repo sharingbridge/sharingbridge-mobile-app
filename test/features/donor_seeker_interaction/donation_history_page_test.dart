@@ -30,7 +30,7 @@ void main() {
     await tester.tap(find.byKey(const Key('nav_donation_history')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Donation history'), findsOneWidget);
+    expect(find.text('Order initiation history'), findsOneWidget);
   });
 
   testWidgets('history lists intents and opens detail', (WidgetTester tester) async {
@@ -49,7 +49,7 @@ void main() {
     await tester.tap(find.byKey(const Key('donation_history_row_0')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Donation intent'), findsOneWidget);
+    expect(find.text('Order initiation'), findsOneWidget);
     expect(find.text('Near blue gate'), findsOneWidget);
     expect(find.text('A2B'), findsWidgets);
   });
@@ -64,6 +64,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('No donation intents yet'), findsOneWidget);
+    expect(find.textContaining('No order initiations yet'), findsOneWidget);
   });
 }

@@ -41,7 +41,7 @@ String buildDeliveryInstructionsStub(
   if (presets.isEmpty) {
     buffer.writeln('');
     buffer.writeln(
-      '(Donor: save a vendor preset in Donor Setup to unlock order links on the next screen.)',
+      '(Donor: save a vendor preset in Vendor presets to unlock order links on the next screen.)',
     );
   }
 

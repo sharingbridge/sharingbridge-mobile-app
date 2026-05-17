@@ -23,7 +23,7 @@ class DonationIntentDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Donation intent')),
+      appBar: AppBar(title: const Text('Order initiation')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[

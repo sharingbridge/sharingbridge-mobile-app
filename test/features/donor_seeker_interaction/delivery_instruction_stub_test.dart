@@ -25,7 +25,7 @@ void main() {
   test('empty presets still returns courier text with donor hint', () {
     final text = buildDeliveryInstructionsStub(<DonorPreset>[]);
     expect(text, contains('Additional details:'));
-    expect(text, contains('Donor Setup'));
+    expect(text, contains('Vendor presets'));
   });
 
   test('reference photo flag adds courier photo line', () {

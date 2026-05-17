@@ -61,13 +61,13 @@ void main() {
       const MaterialApp(home: AppHomePage()),
     );
 
-    expect(find.textContaining('Donor setup'), findsWidgets);
-    expect(find.textContaining('Offer food help'), findsWidgets);
+    expect(find.textContaining('Vendor presets'), findsWidgets);
+    expect(find.textContaining('Help a seeker'), findsWidgets);
 
     await tester.tap(find.byKey(const Key('nav_field_flow')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Offer food help'), findsWidgets);
+    expect(find.text('Help a seeker'), findsWidgets);
     expect(find.textContaining('Quick guidance'), findsOneWidget);
     expect(find.textContaining('You decide whether to continue'), findsOneWidget);
   });

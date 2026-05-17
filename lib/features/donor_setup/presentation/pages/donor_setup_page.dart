@@ -525,7 +525,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Donor Setup'),
+        title: const Text('Vendor presets'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.restaurant_menu),

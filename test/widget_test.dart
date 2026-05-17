@@ -6,7 +6,8 @@ void main() {
   testWidgets('app boots with home hub', (WidgetTester tester) async {
     await tester.pumpWidget(const SharingBridgeApp());
     expect(find.text('SharingBridge'), findsOneWidget);
-    expect(find.textContaining('Donor setup'), findsWidgets);
-    expect(find.textContaining('Offer food help'), findsWidgets);
+    expect(find.textContaining('Vendor presets'), findsWidgets);
+    expect(find.textContaining('Help a seeker'), findsWidgets);
+    expect(find.textContaining('Order initiation history'), findsWidgets);
   });
 }

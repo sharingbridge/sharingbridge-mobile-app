@@ -25,7 +25,7 @@ typedef ReferencePhotoPick = Future<XFile?> Function(ImageSource source);
 
 enum _OfferHelpStep { guidance, photoAndAi, deliveryReady }
 
-/// Offer food help: dignity guidance → photo + AI instructions → copy and
+/// Help a seeker: dignity guidance → photo + AI instructions → copy and
 /// vendor deep links.
 class DonorSeekerInteractionPage extends StatefulWidget {
   const DonorSeekerInteractionPage({
@@ -366,7 +366,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Could not open the app or browser. Try again or copy the link from Donor Setup.',
+            'Could not open the app or browser. Try again or copy the link from Vendor presets.',
           ),
         ),
       );
@@ -720,7 +720,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Offer food help'),
+          title: const Text('Help a seeker'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             tooltip: _step == _OfferHelpStep.guidance ? 'Close' : 'Back',
