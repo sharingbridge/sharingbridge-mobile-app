@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
 
@@ -31,6 +32,25 @@ class AppHomePage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) => const DonorSetupPage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key('nav_donation_history'),
+              leading: const Icon(Icons.history),
+              title: const Text('Donation history'),
+              subtitle: const Text(
+                'Past donation intents you registered when copying instructions.',
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>
+                        const DonationHistoryPage(),
                   ),
                 );
               },

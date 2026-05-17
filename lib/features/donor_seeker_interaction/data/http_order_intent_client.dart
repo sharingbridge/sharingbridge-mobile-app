@@ -2,6 +2,7 @@ import '../../donor_setup/data/auth_context.dart';
 import '../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../donor_setup/data/http_donor_setup_api_client.dart';
 import '../../donor_setup/domain/models/donor_preset.dart';
+import '../domain/models/donation_intent.dart';
 import '../domain/models/order_intent_registration.dart';
 
 class HttpOrderIntentClient {
@@ -72,5 +73,28 @@ class HttpOrderIntentClient {
       createdAt: decoded['created_at']?.toString() ?? '',
       updated: decoded['created'] == false,
     );
+  }
+
+  Future<List<DonationIntent>> listDonationIntents() async {
+    final decoded = await _api.getDonorSeekerJson(
+      path: '/v1/donor-seeker/order-intents',
+      queryParameters: <String, String>{
+        'user_id': _authContext.userId,
+      },
+    );
+    final raw = decoded['order_intents'];
+    if (raw is! List) {
+      throw const DonorSetupResponseException(
+        'order_intents must be a list',
+      );
+    }
+    return raw
+        .whereType<Map>()
+        .map(
+          (Map<dynamic, dynamic> row) =>
+              DonationIntent.fromJson(Map<String, dynamic>.from(row)),
+        )
+        .where((DonationIntent intent) => intent.orderIntentId.isNotEmpty)
+        .toList();
   }
 }

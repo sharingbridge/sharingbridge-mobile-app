@@ -166,6 +166,19 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> getDonorSeekerJson({
+    required String path,
+    Map<String, String>? queryParameters,
+  }) {
+    final uri = Uri.parse('$baseUrl$path').replace(
+      queryParameters: queryParameters,
+    );
+    return _runWithRetry(
+      policy: retryPolicy,
+      operation: () => _sendJson(method: 'GET', uri: uri),
+    );
+  }
+
   @override
   Future<void> removePreset({
     required String userId,
