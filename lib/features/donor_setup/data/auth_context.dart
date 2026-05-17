@@ -24,6 +24,43 @@ class AuthContext {
 
   String get bearerToken => authToken.trim();
 
+  /// When a Bearer token is present, integration-service derives `user_id`
+  /// from the JWT. Sending a different `user_id` in the body or query causes
+  /// HTTP 403 `user_id_mismatch`.
+  Map<String, String> userIdQueryParameters({String? explicitUserId}) {
+    if (bearerToken.isNotEmpty) {
+      return const <String, String>{};
+    }
+    return <String, String>{
+      'user_id': (explicitUserId ?? userId).trim(),
+    };
+  }
+
+  Uri donorSetupPreferencesUri(
+    String baseUrl, {
+    String? explicitUserId,
+  }) {
+    final uri = Uri.parse('$baseUrl/v1/donor-setup/preferences');
+    final params = userIdQueryParameters(explicitUserId: explicitUserId);
+    if (params.isEmpty) {
+      return uri;
+    }
+    return uri.replace(queryParameters: params);
+  }
+
+  Map<String, dynamic> withOptionalUserId(
+    Map<String, dynamic> body, {
+    String? explicitUserId,
+  }) {
+    if (bearerToken.isNotEmpty) {
+      return body;
+    }
+    return <String, dynamic>{
+      ...body,
+      'user_id': (explicitUserId ?? userId).trim(),
+    };
+  }
+
   Map<String, String> toHeaders() {
     if (bearerToken.isEmpty) {
       return const <String, String>{};

@@ -30,8 +30,7 @@ class HttpInstructionPackClient {
     String? locationLabel,
   }) async {
     final decoded = await _api.requestInstructionPack(
-      body: <String, dynamic>{
-        'user_id': _authContext.userId,
+      body: _authContext.withOptionalUserId(<String, dynamic>{
         'has_reference_photo': hasReferencePhoto,
         if (verbalHandoverNotes != null && verbalHandoverNotes.trim().isNotEmpty)
           'verbal_handover_notes': verbalHandoverNotes.trim(),
@@ -49,7 +48,7 @@ class HttpInstructionPackClient {
               },
             )
             .toList(),
-      },
+      }),
     );
 
     final instructions = decoded['delivery_instructions'];

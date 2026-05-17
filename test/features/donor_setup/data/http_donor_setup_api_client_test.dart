@@ -246,6 +246,84 @@ void main() {
     expect(server.requestCount, 1);
   });
 
+  test('savePresets omits user_id in body when Bearer is set', () async {
+    String? bodyText;
+    final server = _ScriptedServer((HttpRequest request) async {
+      bodyText = await utf8.decoder.bind(request).join();
+      request.response
+        ..statusCode = 200
+        ..headers.contentType = ContentType.json
+        ..write(
+          jsonEncode(<String, dynamic>{
+            'user_id': 'demo-user',
+            'saved_count': 1,
+            'total_count': 1,
+          }),
+        );
+      await request.response.close();
+    });
+    final baseUrl = await server.start();
+    addTearDown(server.stop);
+
+    final client = HttpDonorSetupApiClient(
+      baseUrl: baseUrl,
+      authContext: const AuthContext(
+        userId: 'alice',
+        authToken: 'jwt-demo-user',
+      ),
+      savePresetsRetryPolicy: const RetryPolicy(maxAttempts: 1),
+    );
+
+    await client.savePresets(
+      userId: 'alice',
+      payload: <Map<String, dynamic>>[
+        <String, dynamic>{
+          'restaurant_name': 'A2B',
+          'order_url': 'https://example.com',
+          'menu_items': <String>['Meals'],
+          'app_name': 'Zomato',
+        },
+      ],
+    );
+
+    final decoded = jsonDecode(bodyText!) as Map<String, dynamic>;
+    expect(decoded.containsKey('user_id'), isFalse);
+    expect(decoded['presets'], isA<List<dynamic>>());
+  });
+
+  test('getPresets omits user_id query when Bearer is set', () async {
+    Uri? requestUri;
+    final server = _ScriptedServer((HttpRequest request) async {
+      requestUri = request.uri;
+      request.response
+        ..statusCode = 200
+        ..headers.contentType = ContentType.json
+        ..write(
+          jsonEncode(<String, dynamic>{
+            'user_id': 'demo-user',
+            'presets': <dynamic>[],
+          }),
+        );
+      await request.response.close();
+    });
+    final baseUrl = await server.start();
+    addTearDown(server.stop);
+
+    final client = HttpDonorSetupApiClient(
+      baseUrl: baseUrl,
+      authContext: const AuthContext(
+        userId: 'alice',
+        authToken: 'jwt-demo-user',
+      ),
+      retryPolicy: const RetryPolicy(maxAttempts: 1),
+    );
+
+    final presets = await client.getPresets(userId: 'alice');
+
+    expect(requestUri!.query, isEmpty);
+    expect(presets, isEmpty);
+  });
+
   test('clearPresets sends DELETE and accepts 200 JSON body', () async {
     String? seenMethod;
     final server = _ScriptedServer((HttpRequest request) async {

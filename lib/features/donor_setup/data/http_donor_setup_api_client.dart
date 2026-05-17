@@ -94,8 +94,9 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       operation: () async {
         final decoded = await _sendJson(
           method: 'GET',
-          uri: Uri.parse(
-            '$baseUrl/v1/donor-setup/preferences?user_id=$userId',
+          uri: _authContext.donorSetupPreferencesUri(
+            baseUrl,
+            explicitUserId: userId,
           ),
         );
         final presetsRaw = decoded['presets'];
@@ -120,7 +121,10 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         await _sendJson(
           method: 'POST',
           uri: Uri.parse('$baseUrl/v1/donor-setup/preferences'),
-          body: <String, dynamic>{'user_id': userId, 'presets': payload},
+          body: _authContext.withOptionalUserId(
+            <String, dynamic>{'presets': payload},
+            explicitUserId: userId,
+          ),
         );
       },
     );
@@ -133,8 +137,9 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       operation: () async {
         await _sendJson(
           method: 'DELETE',
-          uri: Uri.parse(
-            '$baseUrl/v1/donor-setup/preferences?user_id=${Uri.encodeQueryComponent(userId)}',
+          uri: _authContext.donorSetupPreferencesUri(
+            baseUrl,
+            explicitUserId: userId,
           ),
         );
       },
@@ -193,11 +198,13 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
           uri: Uri.parse(
             '$baseUrl/v1/donor-setup/preferences/delete-item',
           ),
-          body: <String, dynamic>{
-            'user_id': userId,
-            'restaurant_name': restaurantName,
-            'order_url': orderUrl,
-          },
+          body: _authContext.withOptionalUserId(
+            <String, dynamic>{
+              'restaurant_name': restaurantName,
+              'order_url': orderUrl,
+            },
+            explicitUserId: userId,
+          ),
         );
       },
     );

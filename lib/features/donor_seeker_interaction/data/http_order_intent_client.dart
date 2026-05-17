@@ -31,8 +31,7 @@ class HttpOrderIntentClient {
   }) async {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
-      body: <String, dynamic>{
-        'user_id': _authContext.userId,
+      body: _authContext.withOptionalUserId(<String, dynamic>{
         'pack_id': packId,
         if (existingOrderIntentId != null &&
             existingOrderIntentId.trim().isNotEmpty)
@@ -57,7 +56,7 @@ class HttpOrderIntentClient {
             'app_name': selectedPreset.appName,
             'order_url': selectedPreset.orderUrl,
           },
-      },
+      }),
     );
 
     final id = decoded['order_intent_id']?.toString();
@@ -78,9 +77,7 @@ class HttpOrderIntentClient {
   Future<List<DonationIntent>> listDonationIntents() async {
     final decoded = await _api.getDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
-      queryParameters: <String, String>{
-        'user_id': _authContext.userId,
-      },
+      queryParameters: _authContext.userIdQueryParameters(),
     );
     final raw = decoded['order_intents'];
     if (raw is! List) {
