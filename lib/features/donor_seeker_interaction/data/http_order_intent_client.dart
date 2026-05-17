@@ -26,12 +26,16 @@ class HttpOrderIntentClient {
     required bool hasReferencePhoto,
     String? verbalHandoverNotes,
     DonorPreset? selectedPreset,
+    String? existingOrderIntentId,
   }) async {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
       body: <String, dynamic>{
         'user_id': _authContext.userId,
         'pack_id': packId,
+        if (existingOrderIntentId != null &&
+            existingOrderIntentId.trim().isNotEmpty)
+          'order_intent_id': existingOrderIntentId.trim(),
         'status': 'instructions_copied',
         'has_reference_photo': hasReferencePhoto,
         if (verbalHandoverNotes != null && verbalHandoverNotes.trim().isNotEmpty)
@@ -66,6 +70,7 @@ class HttpOrderIntentClient {
       packId: decoded['pack_id']?.toString() ?? packId,
       status: decoded['status']?.toString() ?? 'instructions_copied',
       createdAt: decoded['created_at']?.toString() ?? '',
+      updated: decoded['created'] == false,
     );
   }
 }

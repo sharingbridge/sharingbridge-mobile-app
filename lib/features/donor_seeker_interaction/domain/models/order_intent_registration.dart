@@ -5,10 +5,12 @@ class OrderIntentRegistration {
     required this.packId,
     required this.status,
     required this.createdAt,
+    this.updated = false,
   });
 
   final String orderIntentId;
   final String packId;
   final String status;
   final String createdAt;
+  final bool updated;
 }

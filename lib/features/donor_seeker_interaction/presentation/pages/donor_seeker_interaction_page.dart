@@ -283,6 +283,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         presets: _presets,
         hasReferencePhoto: _referencePhoto != null,
         verbalHandoverNotes: _verbalNotesController.text,
+        existingOrderIntentId: _orderIntentId,
       );
       if (!mounted) {
         return;
@@ -295,7 +296,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Instructions copied to clipboard. Donation intent registered (${registration.orderIntentId}).',
+            registration.updated
+                ? 'Instructions copied to clipboard. Donation intent updated (${registration.orderIntentId}).'
+                : 'Instructions copied to clipboard. Donation intent registered (${registration.orderIntentId}).',
           ),
         ),
       );
