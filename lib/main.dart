@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'presentation/app_home_page.dart';
+import 'features/auth/presentation/auth_gate.dart';
 
 void main() {
   runApp(const SharingBridgeApp());
@@ -11,6 +11,6 @@ class SharingBridgeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: AppHomePage());
+    return const MaterialApp(home: AuthGate());
   }
 }

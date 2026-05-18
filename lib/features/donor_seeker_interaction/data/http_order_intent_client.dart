@@ -1,3 +1,4 @@
+import '../../auth/data/auth_session_holder.dart';
 import '../../donor_setup/data/auth_context.dart';
 import '../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../donor_setup/data/http_donor_setup_api_client.dart';
@@ -10,7 +11,7 @@ class HttpOrderIntentClient {
     required this.baseUrl,
     AuthContext? authContext,
     HttpDonorSetupApiClient? api,
-  })  : _authContext = authContext ?? AuthContext.fromEnvironment(),
+  })  : _authContext = authContext ?? AuthSessionHolder.resolve(),
         _api = api ??
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,

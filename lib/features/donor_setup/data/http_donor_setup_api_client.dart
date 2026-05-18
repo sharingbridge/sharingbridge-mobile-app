@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import '../../auth/data/auth_session_holder.dart';
 import 'auth_context.dart';
 import 'donor_setup_api_client.dart';
 import 'donor_setup_api_exceptions.dart';
@@ -45,7 +46,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
     this.requestTimeout = const Duration(seconds: 8),
     this.retryPolicy = const RetryPolicy(),
     this.savePresetsRetryPolicy = RetryPolicy.mutating,
-  })  : _authContext = authContext ?? AuthContext.fromEnvironment(),
+  })  : _authContext = authContext ?? AuthSessionHolder.resolve(),
         _httpClient = httpClient ?? HttpClient() {
     _httpClient.connectionTimeout = requestTimeout;
   }
