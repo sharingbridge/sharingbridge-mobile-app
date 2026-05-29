@@ -1,10 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../data/auth_api_client.dart';
 import '../data/auth_session_store.dart';
 import '../data/auth_session_holder.dart';
+
+/// `google_sign_in` supports Android, iOS, and macOS — not Windows or Linux.
+bool googleSignInSupportedOnPlatform() {
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS =>
+      true,
+    _ => false,
+  };
+}
+
+String _unsupportedPlatformName() {
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.windows => 'Windows',
+    TargetPlatform.linux => 'Linux',
+    _ => defaultTargetPlatform.name,
+  };
+}
 
 class SignInPage extends StatefulWidget {
   const SignInPage({
@@ -27,6 +45,10 @@ class _SignInPageState extends State<SignInPage> {
   String? _error;
 
   Future<void> _signInWithGoogle() async {
+    if (!googleSignInSupportedOnPlatform()) {
+      setState(() => _error = _unsupportedPlatformMessage());
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
@@ -83,6 +105,8 @@ class _SignInPageState extends State<SignInPage> {
       widget.onSignedIn();
     } on AuthApiException catch (e) {
       setState(() => _error = e.message);
+    } on MissingPluginException {
+      setState(() => _error = _unsupportedPlatformMessage());
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -92,8 +116,18 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
+  String _unsupportedPlatformMessage() {
+    final platform = _unsupportedPlatformName();
+    return 'Google Sign-In is not available on $platform. '
+        'The mobile plugin supports Android, iOS, and macOS only. '
+        'Use an Android emulator or device with an Android OAuth client from '
+        'Google Cloud Console (package name + SHA-1), or pass '
+        '--dart-define=AUTH_TOKEN=… for dev testing on desktop.';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final googleSupported = googleSignInSupportedOnPlatform();
     return Scaffold(
       appBar: AppBar(title: const Text('SharingBridge')),
       body: Padding(
@@ -111,8 +145,22 @@ class _SignInPageState extends State<SignInPage> {
               'initiations. Coordinators must use the web dashboard.',
             ),
             const SizedBox(height: 24),
+            if (!googleSupported) ...<Widget>[
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    _unsupportedPlatformMessage(),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
             FilledButton.icon(
-              onPressed: _loading ? null : () => _signInWithGoogle(),
+              onPressed: (!googleSupported || _loading)
+                  ? null
+                  : () => _signInWithGoogle(),
               icon: _loading
                   ? const SizedBox(
                       width: 18,
