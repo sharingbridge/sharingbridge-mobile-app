@@ -1,84 +1,57 @@
 # sharingbridge-mobile-app
 
-> Mobile application (React Native/Flutter)
+> Flutter mobile app for donors (MVP)
 
-## Overview
+## Status
 
-This repository contains the **cross-platform mobile application** for SharingBridge, serving both donors and alms seekers.
+**Shipped:** Donor setup, **Help a seeker** (guidance → instruction pack → register order intent), **Order initiation history**, **Google Sign-In** (donor). Seeker flows and push notifications are not in this MVP.
 
-**Key Features:**
-- 📱 Donor interface: Quick order placement, location validation, order tracking
-- 🙋 Seeker interface: QR code generation, location sharing, delivery confirmation
-- 📸 Camera integration for photo verification
-- 🗺️ Real-time location services and safety assessment
-- 🔔 Push notifications for order status updates
-- 🌐 Multi-language support (English, Tamil, Hindi, regional languages)
-- 🎨 Accessible design for users with varying literacy levels
+**Doc map and live status:** [AGENT_HANDOFF.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_HANDOFF.md) § Documentation map.
 
-**Technology Stack:** React Native or Flutter (TBD based on community input)
-
-For overall project context, see the [main SharingBridge repository](https://github.com/sharingbridge/sharingbridge).
-
-## Repository Status
-
-🚧 **Status:** Initial Setup  
-📅 **Date:** January 9, 2026
-
-## Getting Started
-
-> Coming soon - Development setup instructions
-
-## Contributing
-
-See the [main repository's CALL_FOR_CONTRIBUTORS.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/CALL_FOR_CONTRIBUTORS.md) for:
-- How to contribute (technical and non-technical)
-- Joining GitHub Discussions
-- Submitting prompts and feature ideas
-
-## Day-1 Flutter Scaffold (MVP Kickoff)
-
-This repository now includes a lightweight Flutter starter scaffold for AI-assisted donor setup:
-
-- `lib/features/donor_setup/` - domain, application, data, presentation layers
-- `test/features/donor_setup/` - initial usecase, DTO, UI widget, and HTTP client tests
-- `lib/features/donor_setup/data/donor_setup_api_exceptions.dart` - typed API exceptions
-- `lib/features/donor_setup/data/http_donor_setup_api_client.dart` - HTTP client with configurable timeout and exponential-backoff retry policy
-- `lib/features/donor_setup/data/auth_context.dart` - minimal auth context (carries `user_id` from `--dart-define=USER_ID=...`, sends `Authorization: Bearer demo.<user_id>` + `X-User-Id` headers)
-
-Run locally:
+## Run locally
 
 ```bash
 flutter pub get
 flutter test
 ```
 
-Run app with configurable backend URL and donor identity:
+**Backends:** user-service (`8081`) + integration-service (`8080`) running. See [configuration/e2e-deployment-sequence.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/e2e-deployment-sequence.md).
 
-```bash
-# Windows desktop (backend on same machine)
-flutter run --dart-define=API_BASE_URL=http://localhost:8080 --dart-define=USER_ID=demo-user
+### Google Sign-In (recommended)
 
-# Android emulator (maps host machine localhost)
-flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080 --dart-define=USER_ID=demo-user
-
-# Physical device (use your machine LAN IP)
-flutter run --dart-define=API_BASE_URL=http://192.168.1.25:8080 --dart-define=USER_ID=demo-user
+```powershell
+flutter run -d <device> `
+  --dart-define=GOOGLE_CLIENT_ID=<WEB_OAuth_client_id> `
+  --dart-define=USER_SERVICE_BASE_URL=http://localhost:8081 `
+  --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
-`USER_ID` is optional and defaults to `demo-user`. The mobile client signs
-every request with `Authorization: Bearer demo.<USER_ID>` plus `X-User-Id`.
-This is a non-cryptographic MVP placeholder — real auth ships with
-sharingbridge-user-service.
+Android emulator: use `API_BASE_URL=http://10.0.2.2:8080`. Full steps: [configuration/google-auth-setup.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/google-auth-setup.md), [configuration/mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md), [MANUAL_TESTING_GUIDE §3-auth](https://github.com/sharingbridge/sharingbridge/blob/main/testing/MANUAL_TESTING_GUIDE.md).
 
-Design reference sequence:
-- `sharingbridge/design/Donor_Setup_AI_Search_Sequence.md`
-- Contract reference:
-  - `https://github.com/sharingbridge/sharingbridge/blob/main/design/contracts/donor_setup_suggest_vendors.openapi.yaml`
+**Windows desktop:** Google Sign-In is not supported by `google_sign_in`; use Android emulator or dev token below.
+
+### Dev token (local only)
+
+Requires `ALLOW_DEV_TOKEN_MINT=true` on user-service:
+
+```powershell
+$token = (Invoke-RestMethod -Method POST -Uri http://localhost:8081/v1/auth/token `
+  -ContentType application/json -Body '{"user_id":"demo-user","role":"donor"}').token
+flutter run --dart-define=API_BASE_URL=http://localhost:8080 --dart-define=AUTH_TOKEN=$token
+```
+
+## Key APIs (via integration-service)
+
+| Flow | Endpoint |
+|------|----------|
+| Donor setup | `POST /v1/donor-setup/suggest-vendors`, preferences CRUD |
+| Help a seeker | `POST /v1/donor-seeker/instruction-pack` |
+| Order intent | `POST` / `GET /v1/donor-seeker/order-intents` |
+
+Details: [configuration/field-handoff.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/field-handoff.md).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE).
 
----
-
-Part of the [SharingBridge](https://github.com/sharingbridge/sharingbridge) ecosystem
+Part of [SharingBridge](https://github.com/sharingbridge/sharingbridge).
