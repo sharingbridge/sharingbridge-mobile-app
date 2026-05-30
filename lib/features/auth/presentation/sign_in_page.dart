@@ -82,13 +82,6 @@ class _SignInPageState extends State<SignInPage> {
       final result = await AuthApiClient(
         userServiceBaseUrl: widget.userServiceBaseUrl,
       ).signInWithGoogle(idToken: idToken, clientType: clientType);
-      if (result.role != 'donor') {
-        setState(() {
-          _error =
-              'This Google account is a coordinator. Use the web dashboard instead.';
-        });
-        return;
-      }
       await AuthSessionStore().save(
         StoredAuthSession(
           userId: result.userId,
