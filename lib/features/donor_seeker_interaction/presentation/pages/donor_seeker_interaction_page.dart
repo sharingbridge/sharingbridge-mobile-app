@@ -7,6 +7,7 @@ import '../../application/api_delivery_instructions_request.dart';
 import '../../data/http_order_intent_client.dart';
 import '../../domain/models/instruction_pack_result.dart';
 import '../../../donor_setup/application/load_presets_usecase.dart';
+import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../donor_setup/data/donor_setup_repository_impl.dart';
@@ -101,7 +102,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthContext.fromEnvironment();
+    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     _loadPresetsUseCase =
         widget.loadPresetsUseCase ??
         LoadPresetsUseCase(

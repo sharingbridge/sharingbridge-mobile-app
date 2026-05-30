@@ -10,6 +10,7 @@ import '../../application/confirm_presets_usecase.dart';
 import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../application/suggest_vendors_usecase.dart';
+import '../../../auth/data/auth_session_holder.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_repository_impl.dart';
@@ -74,7 +75,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthContext.fromEnvironment();
+    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     _suggestVendorsUseCase =
         widget.suggestVendorsUseCase ??
         SuggestVendorsUseCase(

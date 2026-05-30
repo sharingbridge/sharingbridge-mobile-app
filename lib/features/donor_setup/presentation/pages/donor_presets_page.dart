@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../application/clear_presets_usecase.dart';
 import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
+import '../../../auth/data/auth_session_holder.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_local_storage.dart';
@@ -47,7 +48,7 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthContext.fromEnvironment();
+    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     DonorSetupRepositoryImpl? httpRepository;
     if (widget.loadPresetsUseCase == null ||
         widget.clearPresetsUseCase == null ||

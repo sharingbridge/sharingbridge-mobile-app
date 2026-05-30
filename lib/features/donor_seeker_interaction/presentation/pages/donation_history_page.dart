@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../donor_setup/data/http_donor_setup_api_client.dart';
@@ -38,7 +39,7 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthContext.fromEnvironment();
+    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     _listDonationIntents = widget.listDonationIntents ??
         () {
           return HttpOrderIntentClient(
