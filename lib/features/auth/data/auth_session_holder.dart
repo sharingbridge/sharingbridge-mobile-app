@@ -1,6 +1,7 @@
 import '../../donor_setup/data/auth_context.dart';
 
-/// Runtime session after Google sign-in (overrides compile-time defines).
+/// In-memory session after Google sign-in (user-service JWT). Falls back to
+/// [AuthContext.fromEnvironment] when unset (dev `--dart-define=AUTH_TOKEN`).
 class AuthSessionHolder {
   AuthSessionHolder._();
 

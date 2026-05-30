@@ -1,10 +1,8 @@
-/// Auth context for MVP signed-token flow.
+/// Bearer JWT and user id for integration-service API calls.
 ///
-/// `authToken` is expected from `--dart-define=AUTH_TOKEN=...`, issued by
-/// sharingbridge-user-service (`POST /v1/auth/token`).
-///
-/// `userId` remains sourced from `--dart-define=USER_ID=...` for request
-/// payload fields and local display/state.
+/// Prefer [AuthSessionHolder.resolve]: after Google sign-in, the token comes
+/// from user-service (`POST /v1/auth/google`). Dev fallback:
+/// `--dart-define=AUTH_TOKEN=...` from `POST /v1/auth/token`.
 class AuthContext {
   const AuthContext({required this.userId, required this.authToken});
 
