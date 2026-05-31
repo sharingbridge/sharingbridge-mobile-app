@@ -30,7 +30,8 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
     defaultValue: 'http://localhost:8080',
   );
 
-  late final AuthContext _authContext;
+  AuthContext get _session =>
+      widget.authContext ?? AuthSessionHolder.resolve();
   late final Future<List<DonationIntent>> Function() _listDonationIntents;
   List<DonationIntent> _intents = <DonationIntent>[];
   bool _loading = true;
@@ -39,15 +40,14 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     _listDonationIntents = widget.listDonationIntents ??
         () {
           return HttpOrderIntentClient(
             baseUrl: _defaultApiBaseUrl,
-            authContext: _authContext,
+            authContext: widget.authContext,
             api: HttpDonorSetupApiClient(
               baseUrl: _defaultApiBaseUrl,
-              authContext: _authContext,
+              authContext: widget.authContext,
             ),
           ).listDonationIntents();
         };

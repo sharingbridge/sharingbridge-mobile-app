@@ -37,7 +37,10 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
     defaultValue: 'http://localhost:8080',
   );
 
-  late final AuthContext _authContext;
+  AuthContext get _session =>
+      widget.authContext ?? AuthSessionHolder.resolve();
+
+  String get _userId => _session.userId;
   late final LoadPresetsUseCase _loadPresetsUseCase;
   late final ClearPresetsUseCase _clearPresetsUseCase;
   late final RemovePresetUseCase _removePresetUseCase;
@@ -48,7 +51,6 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     DonorSetupRepositoryImpl? httpRepository;
     if (widget.loadPresetsUseCase == null ||
         widget.clearPresetsUseCase == null ||
@@ -56,7 +58,7 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
       httpRepository = DonorSetupRepositoryImpl(
         HttpDonorSetupApiClient(
           baseUrl: _defaultApiBaseUrl,
-          authContext: _authContext,
+          authContext: widget.authContext,
         ),
       );
     }
@@ -75,7 +77,7 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
       _errorText = null;
     });
     try {
-      final presets = await _loadPresetsUseCase(userId: _authContext.userId);
+      final presets = await _loadPresetsUseCase(userId: _userId);
       if (!mounted) {
         return;
       }
@@ -192,7 +194,7 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
       return;
     }
     try {
-      await _clearPresetsUseCase(userId: _authContext.userId);
+      await _clearPresetsUseCase(userId: _userId);
       if (!mounted) {
         return;
       }
@@ -248,7 +250,7 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
     }
     try {
       await _removePresetUseCase(
-        userId: _authContext.userId,
+        userId: _userId,
         preset: preset,
       );
       if (!mounted) {

@@ -57,7 +57,10 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     defaultValue: 'http://localhost:8080',
   );
 
-  late final AuthContext _authContext;
+  AuthContext get _session =>
+      widget.authContext ?? AuthSessionHolder.resolve();
+
+  String get _userId => _session.userId;
   late final LoadPresetsUseCase _loadPresetsUseCase;
 
   List<DonorPreset> _presets = <DonorPreset>[];
@@ -102,14 +105,13 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     _loadPresetsUseCase =
         widget.loadPresetsUseCase ??
         LoadPresetsUseCase(
           DonorSetupRepositoryImpl(
             HttpDonorSetupApiClient(
               baseUrl: _defaultApiBaseUrl,
-              authContext: _authContext,
+              authContext: widget.authContext,
             ),
           ),
         );
@@ -128,7 +130,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       _errorText = null;
     });
     try {
-      final list = await _loadPresetsUseCase(userId: _authContext.userId);
+      final list = await _loadPresetsUseCase(userId: _userId);
       if (!mounted) {
         return;
       }
@@ -278,7 +280,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     try {
       final registration = await HttpOrderIntentClient(
         baseUrl: _defaultApiBaseUrl,
-        authContext: _authContext,
+        authContext: widget.authContext,
       ).registerInstructionsCopied(
         packId: packId,
         presets: _presets,

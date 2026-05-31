@@ -1,3 +1,5 @@
+import 'dart:io';
+
 /// Bearer JWT and user id for integration-service API calls.
 ///
 /// Prefer [AuthSessionHolder.resolve]: after Google sign-in, the token comes
@@ -64,7 +66,7 @@ class AuthContext {
       return const <String, String>{};
     }
     return <String, String>{
-      'authorization': 'Bearer $bearerToken',
+      HttpHeaders.authorizationHeader: 'Bearer $bearerToken',
     };
   }
 }

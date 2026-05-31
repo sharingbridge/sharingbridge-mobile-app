@@ -54,7 +54,10 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   final TextEditingController _manualAreaController = TextEditingController();
   final Map<int, TextEditingController> _manualUrlByIndex =
       <int, TextEditingController>{};
-  late final AuthContext _authContext;
+  AuthContext get _session =>
+      widget.authContext ?? AuthSessionHolder.resolve();
+
+  String get _userId => _session.userId;
   late final SuggestVendorsUseCase _suggestVendorsUseCase;
   late final ConfirmPresetsUseCase _confirmPresetsUseCase;
   late final LoadPresetsUseCase _loadPresetsUseCase;
@@ -77,14 +80,13 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   @override
   void initState() {
     super.initState();
-    _authContext = widget.authContext ?? AuthSessionHolder.resolve();
     _suggestVendorsUseCase =
         widget.suggestVendorsUseCase ??
         SuggestVendorsUseCase(
           DonorSetupRepositoryImpl(
             HttpDonorSetupApiClient(
               baseUrl: _defaultApiBaseUrl,
-              authContext: _authContext,
+              authContext: widget.authContext,
             ),
           ),
         );
@@ -94,7 +96,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
           DonorSetupRepositoryImpl(
             HttpDonorSetupApiClient(
               baseUrl: _defaultApiBaseUrl,
-              authContext: _authContext,
+              authContext: widget.authContext,
             ),
           ),
         );
@@ -104,7 +106,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
           DonorSetupRepositoryImpl(
             HttpDonorSetupApiClient(
               baseUrl: _defaultApiBaseUrl,
-              authContext: _authContext,
+              authContext: widget.authContext,
             ),
           ),
         );
@@ -117,7 +119,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   Future<void> _loadInitialPresets() async {
     final generation = ++_presetsLoadGeneration;
     try {
-      final presets = await _loadPresetsUseCase(userId: _authContext.userId);
+      final presets = await _loadPresetsUseCase(userId: _userId);
       if (!mounted) {
         return;
       }
@@ -334,7 +336,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
 
     try {
       await _confirmPresetsUseCase(
-        userId: _authContext.userId,
+        userId: _userId,
         presets: presets,
       );
       await _cachePresets(presets);
@@ -531,7 +533,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
                     loadPresetsUseCase: _loadPresetsUseCase,
                     clearPresetsUseCase: widget.clearPresetsUseCase,
                     removePresetUseCase: widget.removePresetUseCase,
-                    authContext: _authContext,
+                    authContext: widget.authContext,
                   ),
                 ),
               );
