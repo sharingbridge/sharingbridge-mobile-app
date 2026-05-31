@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../auth/presentation/sign_out_action.dart';
+
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
@@ -30,6 +32,7 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
     defaultValue: 'http://localhost:8080',
   );
 
+  /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
   late final Future<List<DonationIntent>> Function() _listDonationIntents;
@@ -106,7 +109,16 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Order initiation history')),
+      appBar: AppBar(
+        title: const Text('Order initiation history'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign out',
+            onPressed: () => signOutAndReturnToLogin(context),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: _buildBody(context),

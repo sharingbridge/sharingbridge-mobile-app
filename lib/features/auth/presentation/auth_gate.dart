@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../presentation/app_home_page.dart';
+import '../data/auth_logout.dart';
 import '../data/auth_session_holder.dart';
 import '../data/auth_session_store.dart';
 import 'sign_in_page.dart';
@@ -34,10 +35,14 @@ class _AuthGateState extends State<AuthGate> {
   Future<void> _restore() async {
     var signedIn = false;
     try {
+      if (await hasExplicitSignOut()) {
+        return;
+      }
       final stored = await AuthSessionStore().load();
       if (stored != null &&
           stored.role == 'donor' &&
           stored.token.trim().isNotEmpty) {
+        await clearExplicitSignOutFlag();
         AuthSessionHolder.setSession(
           userId: stored.userId,
           token: stored.token,

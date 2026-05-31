@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../data/auth_api_client.dart';
+import '../data/auth_logout.dart';
 import '../data/auth_session_store.dart';
 import '../data/auth_session_holder.dart';
 
@@ -91,6 +92,8 @@ class _SignInPageState extends State<SignInPage> {
           name: result.name,
         ),
       );
+      await clearExplicitSignOutFlag();
+      // JWT from user-service; reused on API calls until sign-out or expiry.
       AuthSessionHolder.setSession(
         userId: result.userId,
         token: result.token,

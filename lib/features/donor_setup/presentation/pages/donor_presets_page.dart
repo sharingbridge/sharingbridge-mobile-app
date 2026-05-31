@@ -37,6 +37,7 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
     defaultValue: 'http://localhost:8080',
   );
 
+  /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
 

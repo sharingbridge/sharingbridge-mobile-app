@@ -22,6 +22,7 @@ class HttpOrderIntentClient {
   final AuthContext? _authOverride;
   final HttpDonorSetupApiClient _api;
 
+  /// Same JWT as sign-in; reads [AuthSessionHolder] when [_authOverride] is null.
   AuthContext get _auth => _authOverride ?? AuthSessionHolder.resolve();
 
   Future<OrderIntentRegistration> registerInstructionsCopied({

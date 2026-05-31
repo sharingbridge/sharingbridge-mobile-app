@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../auth/presentation/sign_out_action.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -57,6 +59,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     defaultValue: 'http://localhost:8080',
   );
 
+  /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
 
@@ -724,6 +727,13 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Help a seeker'),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Sign out',
+              onPressed: () => signOutAndReturnToLogin(context),
+            ),
+          ],
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             tooltip: _step == _OfferHelpStep.guidance ? 'Close' : 'Back',

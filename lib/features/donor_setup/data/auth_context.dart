@@ -1,10 +1,11 @@
 import 'dart:io';
 
-/// Bearer JWT and user id for integration-service API calls.
+/// User id plus the integration-service Bearer JWT for API calls.
 ///
-/// Prefer [AuthSessionHolder.resolve]: after Google sign-in, the token comes
-/// from user-service (`POST /v1/auth/google`). Dev fallback:
-/// `--dart-define=AUTH_TOKEN=...` from `POST /v1/auth/token`.
+/// In the app, use [AuthSessionHolder.resolve] so HTTP clients pick up the JWT
+/// saved at sign-in. The JWT is minted once per sign-in (user-service), not per
+/// API request. Dev fallback: `--dart-define=AUTH_TOKEN=...` from
+/// `POST /v1/auth/token`.
 class AuthContext {
   const AuthContext({required this.userId, required this.authToken});
 

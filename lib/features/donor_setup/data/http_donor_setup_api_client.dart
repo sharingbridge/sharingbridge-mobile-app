@@ -41,6 +41,8 @@ class RetryPolicy {
 class HttpDonorSetupApiClient implements DonorSetupApiClient {
   HttpDonorSetupApiClient({
     required this.baseUrl,
+    /// Fixed credentials for tests only. When null (production), [_auth] reads
+    /// [AuthSessionHolder] on every request so a JWT set after page load is used.
     AuthContext? authContext,
     HttpClient? httpClient,
     this.requestTimeout = const Duration(seconds: 8),
@@ -54,7 +56,8 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
   final String baseUrl;
   final AuthContext? _authOverride;
 
-  /// Fresh session on each request (Google sign-in updates [AuthSessionHolder]).
+  /// Credentials for the outgoing call: re-reads [AuthSessionHolder] when there is
+  /// no [_authOverride]. Reuses the same JWT from sign-in; does not mint a new token.
   AuthContext get _auth => _authOverride ?? AuthSessionHolder.resolve();
   final HttpClient _httpClient;
   final Duration requestTimeout;

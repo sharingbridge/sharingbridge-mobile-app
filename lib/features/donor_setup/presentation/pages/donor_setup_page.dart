@@ -10,9 +10,8 @@ import '../../application/confirm_presets_usecase.dart';
 import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../application/suggest_vendors_usecase.dart';
-import '../../../auth/data/auth_logout.dart';
 import '../../../auth/data/auth_session_holder.dart';
-import '../../../auth/presentation/auth_gate.dart';
+import '../../../auth/presentation/sign_out_action.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_repository_impl.dart';
@@ -54,6 +53,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   final TextEditingController _manualAreaController = TextEditingController();
   final Map<int, TextEditingController> _manualUrlByIndex =
       <int, TextEditingController>{};
+  /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
 
@@ -80,6 +80,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   @override
   void initState() {
     super.initState();
+    // authContext: null in production — HTTP client reads AuthSessionHolder per call.
     _suggestVendorsUseCase =
         widget.suggestVendorsUseCase ??
         SuggestVendorsUseCase(
@@ -437,14 +438,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   Future<void> _clearCachedPresetsAndSignOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(kDonorSetupPresetsCacheKey);
-    await clearAuthSession();
-    if (!mounted) {
-      return;
-    }
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const AuthGate()),
-      (Route<dynamic> route) => false,
-    );
+    await signOutAndReturnToLogin(context);
   }
 
   /// One line per suggestion: restaurant as title; full menu list + app in subtitle
