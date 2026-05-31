@@ -7,6 +7,12 @@ import '../domain/models/donor_preset.dart';
 /// SharedPreferences key for offline donor preset cache (must stay in sync across screens).
 const kDonorSetupPresetsCacheKey = 'donor_setup_presets_cache';
 
+/// Clears offline preset cache (e.g. on sign-out).
+Future<void> clearDonorSetupPresetsCache() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove(kDonorSetupPresetsCacheKey);
+}
+
 /// Writes [presets] to the offline cache, or clears the key when empty.
 Future<void> syncDonorSetupPresetsCache(List<DonorPreset> presets) async {
   final prefs = await SharedPreferences.getInstance();

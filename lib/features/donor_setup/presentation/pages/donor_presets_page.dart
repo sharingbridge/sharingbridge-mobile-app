@@ -6,6 +6,7 @@ import '../../application/clear_presets_usecase.dart';
 import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
+import '../../../../presentation/donor_app_bar.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_local_storage.dart';
@@ -288,8 +289,9 @@ class _DonorPresetsPageState extends State<DonorPresetsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saved presets'),
+      appBar: DonorAppBar(
+        title: 'Saved presets',
+        showSignOut: false,
         actions: <Widget>[
           TextButton(
             onPressed: _loading ? null : _confirmAndClearAll,

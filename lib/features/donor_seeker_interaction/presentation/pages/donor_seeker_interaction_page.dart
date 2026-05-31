@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../auth/presentation/sign_out_action.dart';
+import '../../../../presentation/donor_app_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -725,26 +725,16 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Help a seeker'),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: 'Sign out',
-              onPressed: () => signOutAndReturnToLogin(context),
-            ),
-          ],
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            tooltip: _step == _OfferHelpStep.guidance ? 'Close' : 'Back',
-            onPressed: () {
-              if (_step == _OfferHelpStep.guidance) {
-                Navigator.of(context).maybePop();
-              } else {
-                _goBackWithinFlow();
-              }
-            },
-          ),
+        appBar: DonorAppBar(
+          title: 'Help a seeker',
+          backTooltip: _step == _OfferHelpStep.guidance ? 'Close' : 'Back',
+          onBack: () {
+            if (_step == _OfferHelpStep.guidance) {
+              Navigator.of(context).maybePop();
+            } else {
+              _goBackWithinFlow();
+            }
+          },
         ),
         body: body,
       ),

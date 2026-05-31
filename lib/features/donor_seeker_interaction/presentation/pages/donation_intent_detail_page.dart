@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../presentation/donor_app_bar.dart';
 import '../../domain/models/donation_intent.dart';
 
 class DonationIntentDetailPage extends StatelessWidget {
@@ -23,7 +24,10 @@ class DonationIntentDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Order initiation')),
+      appBar: const DonorAppBar(
+        title: 'Order initiation',
+        showSignOut: false,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[

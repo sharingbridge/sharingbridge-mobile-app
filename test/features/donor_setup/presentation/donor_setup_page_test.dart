@@ -181,7 +181,7 @@ void main() {
 
     expect(find.text('Saved presets'), findsOneWidget);
 
-    await tester.tap(find.byType(BackButton));
+    await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
 
     expect(find.text('Bistro One'), findsOneWidget);
@@ -320,7 +320,7 @@ void main() {
     expect(find.text('Cached Cafe'), findsOneWidget);
     expect(find.textContaining('Meals'), findsOneWidget);
 
-    await tester.tap(find.text('Sign out'));
+    await tester.tap(find.byTooltip('Sign out'));
     await tester.pumpAndSettle();
 
     expect(find.text('Cached Cafe'), findsNothing);

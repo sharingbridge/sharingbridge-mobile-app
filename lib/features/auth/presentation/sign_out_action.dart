@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../donor_setup/data/donor_setup_local_storage.dart';
 import '../data/auth_logout.dart';
 import 'auth_gate.dart';
 
 /// Clears auth and returns to the sign-in screen (new [AuthGate] root).
 Future<void> signOutAndReturnToLogin(BuildContext context) async {
+  await clearDonorSetupPresetsCache();
   await clearAuthSession();
   if (!context.mounted) {
     return;

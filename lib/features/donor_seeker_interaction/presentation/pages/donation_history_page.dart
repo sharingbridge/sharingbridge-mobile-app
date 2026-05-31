@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../auth/presentation/sign_out_action.dart';
+import '../../../../presentation/donor_app_bar.dart';
 
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
@@ -109,16 +109,7 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Order initiation history'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sign out',
-            onPressed: () => signOutAndReturnToLogin(context),
-          ),
-        ],
-      ),
+      appBar: const DonorAppBar(title: 'Order initiation history'),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: _buildBody(context),

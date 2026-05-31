@@ -11,7 +11,7 @@ import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../application/suggest_vendors_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
-import '../../../auth/presentation/sign_out_action.dart';
+import '../../../../presentation/donor_app_bar.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_repository_impl.dart';
@@ -435,12 +435,6 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
     return true;
   }
 
-  Future<void> _clearCachedPresetsAndSignOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(kDonorSetupPresetsCacheKey);
-    await signOutAndReturnToLogin(context);
-  }
-
   /// One line per suggestion: restaurant as title; full menu list + app in subtitle
   /// (the integration-service mock returns fixed suggestions regardless of query).
   Widget _suggestionTileSubtitle(VendorSuggestion suggestion) {
@@ -514,8 +508,8 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Vendor presets'),
+      appBar: DonorAppBar(
+        title: 'Vendor presets',
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.restaurant_menu),
@@ -535,10 +529,6 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
                 await _loadInitialPresets();
               }
             },
-          ),
-          TextButton(
-            onPressed: _clearCachedPresetsAndSignOut,
-            child: const Text('Sign out'),
           ),
         ],
       ),

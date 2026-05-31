@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../features/auth/presentation/sign_out_action.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
+import 'donor_app_bar.dart';
 
 /// Entry hub: vendor presets (before field) vs help a seeker (BRD steps 2+).
 class AppHomePage extends StatelessWidget {
@@ -12,16 +12,9 @@ class AppHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SharingBridge'),
-        actions: <Widget>[
-          IconButton(
-            key: const Key('home_sign_out'),
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sign out',
-            onPressed: () => signOutAndReturnToLogin(context),
-          ),
-        ],
+      appBar: const DonorAppBar(
+        title: 'SharingBridge',
+        showBack: false,
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -85,16 +78,6 @@ class AppHomePage extends StatelessWidget {
                 );
               },
             ),
-          ),
-          const SizedBox(height: 24),
-          ListTile(
-            key: const Key('home_sign_out_tile'),
-            leading: const Icon(Icons.logout),
-            title: const Text('Sign out'),
-            subtitle: const Text(
-              'Return to Google sign-in — use if presets or history show auth errors.',
-            ),
-            onTap: () => signOutAndReturnToLogin(context),
           ),
         ],
       ),
