@@ -11,7 +11,7 @@ class HttpInstructionPackClient {
     required this.baseUrl,
     AuthContext? authContext,
     HttpDonorSetupApiClient? donorSetupClient,
-  })  : _authContext = authContext ?? AuthSessionHolder.resolve(),
+  })  : _authOverride = authContext,
         _api = donorSetupClient ??
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,
@@ -19,8 +19,10 @@ class HttpInstructionPackClient {
             );
 
   final String baseUrl;
-  final AuthContext _authContext;
+  final AuthContext? _authOverride;
   final HttpDonorSetupApiClient _api;
+
+  AuthContext get _auth => _authOverride ?? AuthSessionHolder.resolve();
 
   Future<InstructionPackResult> requestDeliveryInstructions({
     required List<DonorPreset> presets,
@@ -31,7 +33,7 @@ class HttpInstructionPackClient {
     String? locationLabel,
   }) async {
     final decoded = await _api.requestInstructionPack(
-      body: _authContext.withOptionalUserId(<String, dynamic>{
+      body: _auth.withOptionalUserId(<String, dynamic>{
         'has_reference_photo': hasReferencePhoto,
         if (verbalHandoverNotes != null && verbalHandoverNotes.trim().isNotEmpty)
           'verbal_handover_notes': verbalHandoverNotes.trim(),

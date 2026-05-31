@@ -10,7 +10,9 @@ import '../../application/confirm_presets_usecase.dart';
 import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../application/suggest_vendors_usecase.dart';
+import '../../../auth/data/auth_logout.dart';
 import '../../../auth/data/auth_session_holder.dart';
+import '../../../auth/presentation/auth_gate.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_repository_impl.dart';
@@ -433,23 +435,14 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   Future<void> _clearCachedPresetsAndSignOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(kDonorSetupPresetsCacheKey);
+    await clearAuthSession();
     if (!mounted) {
       return;
     }
-    setState(() {
-      _disposeManualUrlControllers();
-      for (final ManualVendorEntryRow row in _manualRows) {
-        row.dispose();
-      }
-      _manualRows.clear();
-      _selectedManualIds.clear();
-      _suggestions.clear();
-      _selected.clear();
-      _suggestionsFromSearch = false;
-      _queryController.clear();
-      _errorText = null;
-      _statusText = 'Cleared cached presets and signed out locally.';
-    });
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => const AuthGate()),
+      (Route<dynamic> route) => false,
+    );
   }
 
   /// One line per suggestion: restaurant as title; full menu list + app in subtitle
@@ -549,7 +542,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
           ),
           TextButton(
             onPressed: _clearCachedPresetsAndSignOut,
-            child: const Text('Clear cache / Sign out'),
+            child: const Text('Sign out'),
           ),
         ],
       ),

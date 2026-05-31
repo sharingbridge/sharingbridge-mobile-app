@@ -11,7 +11,7 @@ class HttpOrderIntentClient {
     required this.baseUrl,
     AuthContext? authContext,
     HttpDonorSetupApiClient? api,
-  })  : _authContext = authContext ?? AuthSessionHolder.resolve(),
+  })  : _authOverride = authContext,
         _api = api ??
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,
@@ -19,8 +19,10 @@ class HttpOrderIntentClient {
             );
 
   final String baseUrl;
-  final AuthContext _authContext;
+  final AuthContext? _authOverride;
   final HttpDonorSetupApiClient _api;
+
+  AuthContext get _auth => _authOverride ?? AuthSessionHolder.resolve();
 
   Future<OrderIntentRegistration> registerInstructionsCopied({
     required String packId,
@@ -32,7 +34,7 @@ class HttpOrderIntentClient {
   }) async {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
-      body: _authContext.withOptionalUserId(<String, dynamic>{
+      body: _auth.withOptionalUserId(<String, dynamic>{
         'pack_id': packId,
         if (existingOrderIntentId != null &&
             existingOrderIntentId.trim().isNotEmpty)
@@ -78,7 +80,7 @@ class HttpOrderIntentClient {
   Future<List<DonationIntent>> listDonationIntents() async {
     final decoded = await _api.getDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
-      queryParameters: _authContext.userIdQueryParameters(),
+      queryParameters: _auth.userIdQueryParameters(),
     );
     final raw = decoded['order_intents'];
     if (raw is! List) {

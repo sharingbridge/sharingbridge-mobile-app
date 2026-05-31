@@ -35,13 +35,19 @@ class _AuthGateState extends State<AuthGate> {
     var signedIn = false;
     try {
       final stored = await AuthSessionStore().load();
-      if (stored != null && stored.role == 'donor') {
+      if (stored != null &&
+          stored.role == 'donor' &&
+          stored.token.trim().isNotEmpty) {
         AuthSessionHolder.setSession(
           userId: stored.userId,
           token: stored.token,
         );
         signedIn = true;
         return;
+      }
+      if (stored != null &&
+          (stored.role != 'donor' || stored.token.trim().isEmpty)) {
+        await AuthSessionStore().clear();
       }
       if (stored != null && stored.role != 'donor') {
         await AuthSessionStore().clear();

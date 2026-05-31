@@ -46,13 +46,16 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
     this.requestTimeout = const Duration(seconds: 8),
     this.retryPolicy = const RetryPolicy(),
     this.savePresetsRetryPolicy = RetryPolicy.mutating,
-  })  : _authContext = authContext ?? AuthSessionHolder.resolve(),
+  })  : _authOverride = authContext,
         _httpClient = httpClient ?? HttpClient() {
     _httpClient.connectionTimeout = requestTimeout;
   }
 
   final String baseUrl;
-  final AuthContext _authContext;
+  final AuthContext? _authOverride;
+
+  /// Fresh session on each request (Google sign-in updates [AuthSessionHolder]).
+  AuthContext get _auth => _authOverride ?? AuthSessionHolder.resolve();
   final HttpClient _httpClient;
   final Duration requestTimeout;
   final RetryPolicy retryPolicy;
@@ -95,7 +98,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       operation: () async {
         final decoded = await _sendJson(
           method: 'GET',
-          uri: _authContext.donorSetupPreferencesUri(
+          uri: _auth.donorSetupPreferencesUri(
             baseUrl,
             explicitUserId: userId,
           ),
@@ -122,7 +125,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         await _sendJson(
           method: 'POST',
           uri: Uri.parse('$baseUrl/v1/donor-setup/preferences'),
-          body: _authContext.withOptionalUserId(
+          body: _auth.withOptionalUserId(
             <String, dynamic>{'presets': payload},
             explicitUserId: userId,
           ),
@@ -138,7 +141,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       operation: () async {
         await _sendJson(
           method: 'DELETE',
-          uri: _authContext.donorSetupPreferencesUri(
+          uri: _auth.donorSetupPreferencesUri(
             baseUrl,
             explicitUserId: userId,
           ),
@@ -199,7 +202,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
           uri: Uri.parse(
             '$baseUrl/v1/donor-setup/preferences/delete-item',
           ),
-          body: _authContext.withOptionalUserId(
+          body: _auth.withOptionalUserId(
             <String, dynamic>{
               'restaurant_name': restaurantName,
               'order_url': orderUrl,
@@ -234,7 +237,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         default:
           throw ArgumentError('Unsupported HTTP method: $method');
       }
-      _authContext.toHeaders().forEach((name, value) {
+      _auth.toHeaders().forEach((name, value) {
         request.headers.set(name, value);
       });
       if (body != null) {

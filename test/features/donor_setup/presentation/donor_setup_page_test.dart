@@ -320,13 +320,10 @@ void main() {
     expect(find.text('Cached Cafe'), findsOneWidget);
     expect(find.textContaining('Meals'), findsOneWidget);
 
-    await tester.tap(find.text('Clear cache / Sign out'));
+    await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
 
     expect(find.text('Cached Cafe'), findsNothing);
-    expect(
-      find.text('Cleared cached presets and signed out locally.'),
-      findsOneWidget,
-    );
+    expect(find.text('Continue with Google'), findsOneWidget);
   });
 }
