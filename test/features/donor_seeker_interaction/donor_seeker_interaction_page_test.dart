@@ -111,6 +111,7 @@ void main() {
           deliveryInstructionsRequest: ({
             required List<DonorPreset> presets,
             required bool hasReferencePhoto,
+            String? referencePhotoArtifactId,
             String? verbalHandoverNotes,
           }) async {
             return InstructionPackResult(

@@ -28,6 +28,7 @@ class HttpInstructionPackClient {
   Future<InstructionPackResult> requestDeliveryInstructions({
     required List<DonorPreset> presets,
     required bool hasReferencePhoto,
+    String? referencePhotoArtifactId,
     String? verbalHandoverNotes,
     double? lat,
     double? lng,
@@ -36,6 +37,9 @@ class HttpInstructionPackClient {
     final decoded = await _api.requestInstructionPack(
       body: _auth.withOptionalUserId(<String, dynamic>{
         'has_reference_photo': hasReferencePhoto,
+        if (referencePhotoArtifactId != null &&
+            referencePhotoArtifactId.trim().isNotEmpty)
+          'reference_photo_artifact_id': referencePhotoArtifactId.trim(),
         if (verbalHandoverNotes != null && verbalHandoverNotes.trim().isNotEmpty)
           'verbal_handover_notes': verbalHandoverNotes.trim(),
         if (lat != null) 'lat': lat,

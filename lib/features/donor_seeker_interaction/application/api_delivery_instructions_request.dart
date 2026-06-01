@@ -9,6 +9,7 @@ Future<InstructionPackResult> requestDeliveryInstructionsFromApi({
   required String baseUrl,
   required List<DonorPreset> presets,
   required bool hasReferencePhoto,
+  String? referencePhotoArtifactId,
   String? verbalHandoverNotes,
   HttpInstructionPackClient? client,
 }) async {
@@ -18,6 +19,7 @@ Future<InstructionPackResult> requestDeliveryInstructionsFromApi({
     return await packClient.requestDeliveryInstructions(
       presets: presets,
       hasReferencePhoto: hasReferencePhoto,
+      referencePhotoArtifactId: referencePhotoArtifactId,
       verbalHandoverNotes: verbalHandoverNotes,
     );
   } on DonorSetupApiException {

@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../application/api_delivery_instructions_request.dart';
 import '../../data/http_order_intent_client.dart';
+import '../../data/http_reference_photo_client.dart';
+import '../../domain/models/reference_photo_upload.dart';
 import '../../domain/models/instruction_pack_result.dart';
 import '../../../donor_setup/application/load_presets_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
@@ -20,6 +22,7 @@ import '../../../donor_setup/domain/models/donor_preset.dart';
 typedef DeliveryInstructionsRequest = Future<InstructionPackResult> Function({
   required List<DonorPreset> presets,
   required bool hasReferencePhoto,
+  String? referencePhotoArtifactId,
   String? verbalHandoverNotes,
 });
 
@@ -58,6 +61,10 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     'API_BASE_URL',
     defaultValue: 'http://localhost:8080',
   );
+  static const String _defaultPhotoServiceBaseUrl = String.fromEnvironment(
+    'PHOTO_SERVICE_BASE_URL',
+    defaultValue: 'http://localhost:8092',
+  );
 
   /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>
@@ -78,6 +85,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
 
   _OfferHelpStep _step = _OfferHelpStep.guidance;
   XFile? _referencePhoto;
+  String? _referencePhotoArtifactId;
+  String? _referencePhotoViewUrl;
+  String? _referencePhotoThumbnailUrl;
   final TextEditingController _verbalNotesController = TextEditingController();
   bool _generatingInstructions = false;
 
@@ -87,14 +97,43 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   Future<InstructionPackResult> _defaultDeliveryInstructionsRequest({
     required List<DonorPreset> presets,
     required bool hasReferencePhoto,
+    String? referencePhotoArtifactId,
     String? verbalHandoverNotes,
   }) {
     return requestDeliveryInstructionsFromApi(
       baseUrl: _defaultApiBaseUrl,
       presets: presets,
       hasReferencePhoto: hasReferencePhoto,
+      referencePhotoArtifactId: referencePhotoArtifactId,
       verbalHandoverNotes: verbalHandoverNotes,
     );
+  }
+
+  void _clearReferencePhotoState() {
+    _referencePhoto = null;
+    _referencePhotoArtifactId = null;
+    _referencePhotoViewUrl = null;
+    _referencePhotoThumbnailUrl = null;
+  }
+
+  Future<ReferencePhotoUpload?> _uploadReferencePhotoIfNeeded() async {
+    final file = _referencePhoto;
+    if (file == null) {
+      return null;
+    }
+    if (_referencePhotoArtifactId != null &&
+        _referencePhotoViewUrl != null &&
+        _referencePhotoViewUrl!.isNotEmpty) {
+      return ReferencePhotoUpload(
+        artifactId: _referencePhotoArtifactId!,
+        viewUrl: _referencePhotoViewUrl!,
+        thumbnailUrl: _referencePhotoThumbnailUrl ?? _referencePhotoViewUrl!,
+      );
+    }
+    return HttpReferencePhotoClient(
+      baseUrl: _defaultPhotoServiceBaseUrl,
+      authContext: widget.authContext,
+    ).uploadSeekerReference(file);
   }
 
   Future<XFile?> _defaultPick(ImageSource source) {
@@ -173,7 +212,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     setState(() {
       if (_step == _OfferHelpStep.photoAndAi) {
         _step = _OfferHelpStep.guidance;
-        _referencePhoto = null;
+        _clearReferencePhotoState();
         _verbalNotesController.clear();
       } else if (_step == _OfferHelpStep.deliveryReady) {
         _step = _OfferHelpStep.photoAndAi;
@@ -224,7 +263,12 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       if (!mounted) {
         return;
       }
-      setState(() => _referencePhoto = file);
+      setState(() {
+        _referencePhoto = file;
+        _referencePhotoArtifactId = null;
+        _referencePhotoViewUrl = null;
+        _referencePhotoThumbnailUrl = null;
+      });
     } on PlatformException catch (e) {
       if (!mounted) {
         return;
@@ -238,9 +282,22 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   Future<void> _generateInstructions() async {
     setState(() => _generatingInstructions = true);
     try {
+      ReferencePhotoUpload? uploaded;
+      if (_referencePhoto != null) {
+        uploaded = await _uploadReferencePhotoIfNeeded();
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _referencePhotoArtifactId = uploaded?.artifactId;
+          _referencePhotoViewUrl = uploaded?.viewUrl;
+          _referencePhotoThumbnailUrl = uploaded?.thumbnailUrl;
+        });
+      }
       final result = await _deliveryRequest(
         presets: _presets,
         hasReferencePhoto: _referencePhoto != null,
+        referencePhotoArtifactId: _referencePhotoArtifactId,
         verbalHandoverNotes: _verbalNotesController.text,
       );
       if (!mounted) {
@@ -255,6 +312,14 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _orderIntentId = null;
         _orderIntentError = null;
       });
+    } on DonorSetupApiException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _generatingInstructions = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not upload photo or get instructions: $e')),
+      );
     } catch (e) {
       if (!mounted) {
         return;
@@ -288,6 +353,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         packId: packId,
         presets: _presets,
         hasReferencePhoto: _referencePhoto != null,
+        referencePhotoArtifactId: _referencePhotoArtifactId,
+        referencePhotoViewUrl: _referencePhotoViewUrl,
+        referencePhotoThumbnailUrl: _referencePhotoThumbnailUrl,
         verbalHandoverNotes: _verbalNotesController.text,
         existingOrderIntentId: _orderIntentId,
       );
@@ -480,7 +548,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
               ),
               onDeleted: _generatingInstructions
                   ? null
-                  : () => setState(() => _referencePhoto = null),
+                  : () => setState(_clearReferencePhotoState),
             ),
           ),
         ],

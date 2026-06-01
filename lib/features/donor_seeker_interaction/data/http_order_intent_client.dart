@@ -29,6 +29,9 @@ class HttpOrderIntentClient {
     required String packId,
     required List<DonorPreset> presets,
     required bool hasReferencePhoto,
+    String? referencePhotoArtifactId,
+    String? referencePhotoViewUrl,
+    String? referencePhotoThumbnailUrl,
     String? verbalHandoverNotes,
     DonorPreset? selectedPreset,
     String? existingOrderIntentId,
@@ -42,6 +45,15 @@ class HttpOrderIntentClient {
           'order_intent_id': existingOrderIntentId.trim(),
         'status': 'instructions_copied',
         'has_reference_photo': hasReferencePhoto,
+        if (referencePhotoArtifactId != null &&
+            referencePhotoArtifactId.trim().isNotEmpty)
+          'reference_photo_artifact_id': referencePhotoArtifactId.trim(),
+        if (referencePhotoViewUrl != null &&
+            referencePhotoViewUrl.trim().isNotEmpty)
+          'reference_photo_view_url': referencePhotoViewUrl.trim(),
+        if (referencePhotoThumbnailUrl != null &&
+            referencePhotoThumbnailUrl.trim().isNotEmpty)
+          'reference_photo_thumbnail_url': referencePhotoThumbnailUrl.trim(),
         if (verbalHandoverNotes != null && verbalHandoverNotes.trim().isNotEmpty)
           'verbal_handover_notes': verbalHandoverNotes.trim(),
         'presets_snapshot': presets
