@@ -31,6 +31,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Order initiation history'), findsOneWidget);
+    expect(find.byTooltip('Home'), findsOneWidget);
   });
 
   testWidgets('history lists intents and opens detail', (WidgetTester tester) async {

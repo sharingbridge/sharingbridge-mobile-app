@@ -15,6 +15,7 @@ class AppHomePage extends StatelessWidget {
       appBar: const DonorAppBar(
         title: 'SharingBridge',
         showBack: false,
+        showHome: false,
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
