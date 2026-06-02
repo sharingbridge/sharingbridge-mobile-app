@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Pops the navigation stack back to [AppHomePage] (first route under [MaterialApp]).
+import 'donor_navigator_shell.dart';
+
+/// Pops the signed-in stack back to [AppHomePage] ([DonorNavigatorShell.homeRouteName]).
 void navigateDonorHome(BuildContext context) {
-  Navigator.of(context).popUntil((Route<dynamic> route) => route.isFirst);
+  Navigator.of(context).popUntil(
+    (Route<dynamic> route) =>
+        route.settings.name == DonorNavigatorShell.homeRouteName ||
+        route.isFirst,
+  );
 }

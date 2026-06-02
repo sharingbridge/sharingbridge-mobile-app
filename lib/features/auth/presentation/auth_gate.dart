@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../presentation/app_home_page.dart';
+import '../../../presentation/donor_navigator_shell.dart';
 import '../data/auth_logout.dart';
 import '../data/auth_session_holder.dart';
 import '../data/auth_session_store.dart';
@@ -89,6 +89,6 @@ class _AuthGateState extends State<AuthGate> {
         onSignedIn: _handleSignedIn,
       );
     }
-    return const AppHomePage();
+    return const DonorNavigatorShell();
   }
 }

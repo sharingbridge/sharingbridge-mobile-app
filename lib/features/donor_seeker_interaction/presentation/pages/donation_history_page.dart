@@ -8,6 +8,7 @@ import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../donor_setup/data/http_donor_setup_api_client.dart';
 import '../../data/http_order_intent_client.dart';
 import '../../domain/models/donation_intent.dart';
+import '../order_intent_grouping.dart';
 import 'donation_intent_detail_page.dart';
 
 class DonationHistoryPage extends StatefulWidget {
@@ -160,49 +161,106 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
       );
     }
 
-    return ListView.separated(
+    final groups = groupDonationIntents(_intents);
+    return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _intents.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (BuildContext context, int index) {
-        final intent = _intents[index];
-        final restaurant = intent.primaryRestaurantName;
-        final subtitleParts = <String>[
-          intent.statusLabel,
-          if (restaurant != null) restaurant,
-          DonationIntentDetailPage.formatWhen(intent.sortTime),
-        ];
-        return ListTile(
-          key: Key('donation_history_row_$index'),
-          leading: intent.hasDisplayableReferencePhoto
-              ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    intent.referencePhotoThumbnailUrl ??
-                        intent.referencePhotoViewUrl!,
-                    width: 48,
-                    height: 48,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported_outlined),
-                  ),
-                )
-              : intent.hasReferencePhoto
-                  ? const Icon(Icons.photo_outlined)
-                  : null,
-          title: Text(intent.orderIntentId),
-          subtitle: Text(subtitleParts.join(' · ')),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (BuildContext context) =>
-                    DonationIntentDetailPage(intent: intent),
+      children: _buildGroupedRows(context, groups),
+    );
+  }
+
+  List<Widget> _buildGroupedRows(
+    BuildContext context,
+    List<DonationIntentGroup> groups,
+  ) {
+    final children = <Widget>[];
+    var rowIndex = 0;
+    for (final DonationIntentGroup group in groups) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  group.label,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
               ),
-            );
-          },
+              Text(
+                '${group.intents.length}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      );
+      for (final DonationIntent intent in group.intents) {
+        if (rowIndex > 0) {
+          children.add(const Divider(height: 1, indent: 16));
+        }
+        children.add(
+          _IntentRow(
+            key: Key('donation_history_row_$rowIndex'),
+            intent: intent,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>
+                      DonationIntentDetailPage(intent: intent),
+                ),
+              );
+            },
+          ),
         );
-      },
+        rowIndex += 1;
+      }
+    }
+    return children;
+  }
+}
+
+class _IntentRow extends StatelessWidget {
+  const _IntentRow({
+    super.key,
+    required this.intent,
+    required this.onTap,
+  });
+
+  final DonationIntent intent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final restaurant = intent.primaryRestaurantName;
+    final subtitleParts = <String>[
+      intent.statusLabel,
+      if (restaurant != null) restaurant,
+      DonationIntentDetailPage.formatWhen(intent.sortTime),
+    ];
+    return ListTile(
+      leading: intent.hasDisplayableReferencePhoto
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                intent.referencePhotoThumbnailUrl ??
+                    intent.referencePhotoViewUrl!,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.image_not_supported_outlined),
+              ),
+            )
+          : intent.hasReferencePhoto
+              ? const Icon(Icons.photo_outlined)
+              : null,
+      title: Text(intent.orderIntentId),
+      subtitle: Text(subtitleParts.join(' · ')),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
     );
   }
 }

@@ -14,6 +14,7 @@ class AppHomePage extends StatelessWidget {
     return Scaffold(
       appBar: const DonorAppBar(
         title: 'SharingBridge',
+        isHub: true,
         showBack: false,
         showHome: false,
       ),

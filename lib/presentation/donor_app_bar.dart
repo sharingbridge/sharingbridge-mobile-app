@@ -8,6 +8,7 @@ class DonorAppBar extends StatelessWidget implements PreferredSizeWidget {
   const DonorAppBar({
     super.key,
     required this.title,
+    this.isHub = false,
     this.showBack = true,
     this.showHome = true,
     this.showSignOut = true,
@@ -19,8 +20,10 @@ class DonorAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   final String title;
+  /// Hub screen ([AppHomePage]) — no back or home controls.
+  final bool isHub;
   final bool showBack;
-  /// When true, shows a home control that returns to [AppHomePage]. Defaults on sub-pages ([showBack]).
+  /// When true and not [isHub], shows home → [AppHomePage] via [navigateDonorHome].
   final bool showHome;
   final bool showSignOut;
   final VoidCallback? onBack;
@@ -34,7 +37,7 @@ class DonorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final showHomeButton = showHome && showBack;
+    final showHomeButton = showHome && !isHub;
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -49,10 +52,14 @@ class DonorAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: <Widget>[
         ...?actions,
         if (showHomeButton)
-          IconButton(
-            icon: const Icon(Icons.home_outlined),
-            tooltip: homeTooltip,
+          TextButton.icon(
+            key: const Key('donor_app_bar_home'),
+            icon: const Icon(Icons.home, size: 22),
+            label: const Text('Home'),
             onPressed: onHome ?? () => navigateDonorHome(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         if (showSignOut)
           IconButton(
