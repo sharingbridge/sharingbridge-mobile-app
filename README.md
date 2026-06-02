@@ -26,7 +26,7 @@ flutter run -d <device> `
   --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
-Android emulator: use `API_BASE_URL=http://10.0.2.2:8080`. Full steps: [configuration/google-auth-setup.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/google-auth-setup.md), [configuration/mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md), [MANUAL_TESTING_GUIDE §3-auth](https://github.com/sharingbridge/sharingbridge/blob/main/testing/MANUAL_TESTING_GUIDE.md).
+**API URLs depend on the device:** emulator → `10.0.2.2`; physical phone → PC LAN IP (`ipconfig`, same Wi‑Fi); hosted → `https://…onrender.com`. Do not use `localhost` on Android devices. See [mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md) § Local networking and [MANUAL_TESTING_GUIDE §3-host](https://github.com/sharingbridge/sharingbridge/blob/main/testing/MANUAL_TESTING_GUIDE.md).
 
 **Windows desktop:** Google Sign-In is not supported by `google_sign_in`; use Android emulator or dev token below.
 
