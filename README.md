@@ -32,7 +32,7 @@ flutter run -d <device> `
 
 ### Dev token (local only)
 
-Requires `ALLOW_DEV_TOKEN_MINT=true` on user-service:
+Requires `BYPASS_GOOGLE_SIGN_IN=true` on user-service:
 
 ```powershell
 $token = (Invoke-RestMethod -Method POST -Uri http://localhost:8081/v1/auth/token `
