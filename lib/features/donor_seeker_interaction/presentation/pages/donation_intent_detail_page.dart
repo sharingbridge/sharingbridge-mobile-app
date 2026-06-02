@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../presentation/donor_app_bar.dart';
 import '../../domain/models/donation_intent.dart';
+import '../widgets/reference_photo_preview.dart';
 
 class DonationIntentDetailPage extends StatelessWidget {
   const DonationIntentDetailPage({super.key, required this.intent});
@@ -34,10 +35,23 @@ class DonationIntentDetailPage extends StatelessWidget {
           _DetailRow(label: 'Reference', value: intent.orderIntentId),
           _DetailRow(label: 'Instruction pack', value: intent.packId),
           _DetailRow(label: 'Status', value: intent.statusLabel),
-          _DetailRow(
-            label: 'Reference photo',
-            value: intent.hasReferencePhoto ? 'Yes' : 'No',
-          ),
+          if (intent.hasDisplayableReferencePhoto) ...<Widget>[
+            const SizedBox(height: 8),
+            ReferencePhotoPreview(
+              thumbnailUrl: intent.referencePhotoThumbnailUrl,
+              viewUrl: intent.referencePhotoViewUrl,
+              caption: 'Reference photo',
+            ),
+          ] else
+            _DetailRow(
+              label: 'Reference photo',
+              value: intent.hasReferencePhoto ? 'Yes (no preview URL)' : 'No',
+            ),
+          if (intent.referencePhotoArtifactId?.trim().isNotEmpty == true)
+            _DetailRow(
+              label: 'Photo artifact',
+              value: intent.referencePhotoArtifactId!,
+            ),
           _DetailRow(label: 'Registered', value: formatWhen(intent.createdAt)),
           _DetailRow(label: 'Last updated', value: formatWhen(intent.updatedAt)),
           if (intent.verbalHandoverNotes.trim().isNotEmpty) ...<Widget>[

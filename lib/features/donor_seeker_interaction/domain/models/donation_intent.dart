@@ -7,6 +7,9 @@ class DonationIntent {
     required this.hasReferencePhoto,
     required this.verbalHandoverNotes,
     required this.presetsSnapshot,
+    this.referencePhotoArtifactId,
+    this.referencePhotoViewUrl,
+    this.referencePhotoThumbnailUrl,
     this.selectedPreset,
     this.createdAt,
     this.updatedAt,
@@ -32,6 +35,11 @@ class DonationIntent {
       packId: json['pack_id']?.toString() ?? '',
       status: json['status']?.toString() ?? 'instructions_copied',
       hasReferencePhoto: json['has_reference_photo'] == true,
+      referencePhotoArtifactId:
+          json['reference_photo_artifact_id']?.toString(),
+      referencePhotoViewUrl: json['reference_photo_view_url']?.toString(),
+      referencePhotoThumbnailUrl:
+          json['reference_photo_thumbnail_url']?.toString(),
       verbalHandoverNotes: json['verbal_handover_notes']?.toString() ?? '',
       presetsSnapshot: presets,
       selectedPreset: selected,
@@ -44,6 +52,9 @@ class DonationIntent {
   final String packId;
   final String status;
   final bool hasReferencePhoto;
+  final String? referencePhotoArtifactId;
+  final String? referencePhotoViewUrl;
+  final String? referencePhotoThumbnailUrl;
   final String verbalHandoverNotes;
   final List<Map<String, dynamic>> presetsSnapshot;
   final Map<String, dynamic>? selectedPreset;
@@ -71,4 +82,11 @@ class DonationIntent {
   }
 
   DateTime? get sortTime => updatedAt ?? createdAt;
+
+  bool get hasDisplayableReferencePhoto {
+    final thumb = referencePhotoThumbnailUrl?.trim();
+    final view = referencePhotoViewUrl?.trim();
+    return (thumb != null && thumb.isNotEmpty) ||
+        (view != null && view.isNotEmpty);
+  }
 }

@@ -10,6 +10,7 @@ import '../../data/http_order_intent_client.dart';
 import '../../data/http_reference_photo_client.dart';
 import '../../domain/models/reference_photo_upload.dart';
 import '../../domain/models/instruction_pack_result.dart';
+import '../widgets/reference_photo_preview.dart';
 import '../../../donor_setup/application/load_presets_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
@@ -537,19 +538,20 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
                 : 'Change reference photo',
           ),
         ),
-        if (_referencePhoto != null) ...<Widget>[
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: InputChip(
-              label: Text(
-                _referencePhoto!.name,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onDeleted: _generatingInstructions
-                  ? null
-                  : () => setState(_clearReferencePhotoState),
-            ),
+        if (_referencePhoto != null ||
+            (_referencePhotoThumbnailUrl?.isNotEmpty ?? false) ||
+            (_referencePhotoViewUrl?.isNotEmpty ?? false)) ...<Widget>[
+          const SizedBox(height: 12),
+          ReferencePhotoPreview(
+            localFile: _referencePhoto,
+            thumbnailUrl: _referencePhotoThumbnailUrl,
+            viewUrl: _referencePhotoViewUrl,
+            caption: _referencePhoto != null
+                ? 'Reference photo${_referencePhotoArtifactId != null ? ' (uploaded)' : ''}'
+                : 'Reference photo',
+            onRemove: _generatingInstructions
+                ? null
+                : () => setState(_clearReferencePhotoState),
           ),
         ],
         const SizedBox(height: 16),
@@ -612,7 +614,15 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
             color: colors.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 16),
+        if (_referencePhotoThumbnailUrl?.isNotEmpty == true ||
+            _referencePhotoViewUrl?.isNotEmpty == true) ...<Widget>[
+          ReferencePhotoPreview(
+            thumbnailUrl: _referencePhotoThumbnailUrl,
+            viewUrl: _referencePhotoViewUrl,
+            caption: 'Reference photo attached',
+          ),
+          const SizedBox(height: 16),
+        ],
         Card.filled(
           clipBehavior: Clip.antiAlias,
           child: Padding(

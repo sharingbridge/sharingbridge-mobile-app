@@ -175,6 +175,21 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
         ];
         return ListTile(
           key: Key('donation_history_row_$index'),
+          leading: intent.hasDisplayableReferencePhoto
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    intent.referencePhotoThumbnailUrl ??
+                        intent.referencePhotoViewUrl!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported_outlined),
+                  ),
+                )
+              : intent.hasReferencePhoto
+                  ? const Icon(Icons.photo_outlined)
+                  : null,
           title: Text(intent.orderIntentId),
           subtitle: Text(subtitleParts.join(' · ')),
           trailing: const Icon(Icons.chevron_right),
