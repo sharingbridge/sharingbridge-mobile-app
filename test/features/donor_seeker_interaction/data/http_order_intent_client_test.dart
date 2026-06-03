@@ -127,6 +127,45 @@ void main() {
       expect(decoded['user_id'], 'demo-user');
     });
 
+    test('registerInstructionsCopied sends location when provided', () async {
+      String? bodyText;
+      final server = _ScriptedServer((HttpRequest request) async {
+        bodyText = await utf8.decoder.bind(request).join();
+        request.response
+          ..statusCode = 201
+          ..headers.contentType = ContentType.json
+          ..write(jsonEncode(_orderIntentPostResponse()));
+        await request.response.close();
+      });
+      final baseUrl = await server.start();
+      addTearDown(server.stop);
+
+      const auth = AuthContext(userId: 'alice', authToken: 'jwt-demo-user');
+      final client = HttpOrderIntentClient(
+        baseUrl: baseUrl,
+        authContext: auth,
+        api: HttpDonorSetupApiClient(
+          baseUrl: baseUrl,
+          authContext: auth,
+          savePresetsRetryPolicy: const RetryPolicy(maxAttempts: 1),
+        ),
+      );
+
+      await client.registerInstructionsCopied(
+        packId: 'pack-1',
+        presets: <DonorPreset>[_samplePreset()],
+        hasReferencePhoto: false,
+        locationLat: 12.97,
+        locationLng: 80.22,
+        locationLabel: 'Test area',
+      );
+
+      final decoded = jsonDecode(bodyText!) as Map<String, dynamic>;
+      expect(decoded['location_lat'], 12.97);
+      expect(decoded['location_lng'], 80.22);
+      expect(decoded['location_label'], 'Test area');
+    });
+
     test('listDonationIntents omits user_id query when Bearer is set', () async {
       Uri? requestUri;
       final server = _ScriptedServer((HttpRequest request) async {

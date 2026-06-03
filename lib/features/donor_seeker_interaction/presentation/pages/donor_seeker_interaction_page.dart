@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../application/api_delivery_instructions_request.dart';
+import '../../data/capture_handover_location.dart';
 import '../../data/http_order_intent_client.dart';
 import '../../data/http_reference_photo_client.dart';
 import '../../domain/models/reference_photo_upload.dart';
@@ -346,6 +347,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     await Clipboard.setData(ClipboardData(text: text));
 
     final packId = _packId ?? 'pack-local-${DateTime.now().millisecondsSinceEpoch}';
+    final handoverLocation = await captureHandoverLocation();
     try {
       final registration = await HttpOrderIntentClient(
         baseUrl: _defaultApiBaseUrl,
@@ -359,6 +361,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         referencePhotoThumbnailUrl: _referencePhotoThumbnailUrl,
         verbalHandoverNotes: _verbalNotesController.text,
         existingOrderIntentId: _orderIntentId,
+        locationLat: handoverLocation?.lat,
+        locationLng: handoverLocation?.lng,
+        locationLabel: handoverLocation?.label,
       );
       if (!mounted) {
         return;
@@ -368,12 +373,15 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _orderIntentId = registration.orderIntentId;
         _registeringOrderIntent = false;
       });
+      final locationNote = handoverLocation == null
+          ? ' Location not shared — enable location for neighbourhood visibility.'
+          : '';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             registration.updated
-                ? 'Instructions copied to clipboard. Donation intent updated (${registration.orderIntentId}).'
-                : 'Instructions copied to clipboard. Donation intent registered (${registration.orderIntentId}).',
+                ? 'Instructions copied to clipboard. Donation intent updated (${registration.orderIntentId}).$locationNote'
+                : 'Instructions copied to clipboard. Donation intent registered (${registration.orderIntentId}).$locationNote',
           ),
         ),
       );
