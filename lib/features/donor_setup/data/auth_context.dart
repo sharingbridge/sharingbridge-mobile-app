@@ -4,8 +4,8 @@ import 'dart:io';
 ///
 /// In the app, use [AuthSessionHolder.resolve] so HTTP clients pick up the JWT
 /// saved at sign-in. The JWT is minted once per sign-in (user-service), not per
-/// API request. Dev fallback: `--dart-define=AUTH_TOKEN=...` from
-/// `POST /v1/auth/token`.
+/// API request. Dev fallback: `--dart-define=AUTH_TOKEN=...` (JWT signed with
+/// the same AUTH_TOKEN_SECRET — see user-service `scripts/mint-dev-jwt.mjs`).
 class AuthContext {
   const AuthContext({required this.userId, required this.authToken});
 

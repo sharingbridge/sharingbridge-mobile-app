@@ -32,11 +32,12 @@ flutter run -d <device> `
 
 ### Dev token (local only)
 
-Requires `BYPASS_GOOGLE_SIGN_IN=true` on user-service:
+Mint a JWT with the same `AUTH_TOKEN_SECRET` as user-service:
 
 ```powershell
-$token = (Invoke-RestMethod -Method POST -Uri http://localhost:8081/v1/auth/token `
-  -ContentType application/json -Body '{"user_id":"demo-user","role":"donor"}').token
+cd ..\sharingbridge-user-service
+$token = node scripts/mint-dev-jwt.mjs demo-user donor
+cd ..\sharingbridge-mobile-app
 flutter run --dart-define=API_BASE_URL=http://localhost:8080 --dart-define=AUTH_TOKEN=$token
 ```
 
