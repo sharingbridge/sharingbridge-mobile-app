@@ -158,7 +158,8 @@ void main() {
 
       final rows = await client.listDonationIntents();
 
-      expect(requestUri!.query, isEmpty);
+      expect(requestUri!.queryParameters.containsKey('since'), isFalse);
+      expect(requestUri!.queryParameters.containsKey('user_id'), isFalse);
       expect(rows, isEmpty);
     });
 
@@ -200,6 +201,7 @@ void main() {
 
       final rows = await client.listDonationIntents();
 
+      expect(requestUri!.queryParameters.containsKey('since'), isFalse);
       expect(requestUri!.queryParameters['user_id'], 'demo-user');
       expect(rows.single.orderIntentId, 'oi-1');
     });

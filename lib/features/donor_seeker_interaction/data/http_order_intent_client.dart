@@ -35,6 +35,9 @@ class HttpOrderIntentClient {
     String? verbalHandoverNotes,
     DonorPreset? selectedPreset,
     String? existingOrderIntentId,
+    double? locationLat,
+    double? locationLng,
+    String? locationLabel,
   }) async {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
@@ -72,6 +75,12 @@ class HttpOrderIntentClient {
             'app_name': selectedPreset.appName,
             'order_url': selectedPreset.orderUrl,
           },
+        if (locationLat != null && locationLng != null) ...<String, dynamic>{
+          'location_lat': locationLat,
+          'location_lng': locationLng,
+          if (locationLabel != null && locationLabel.trim().isNotEmpty)
+            'location_label': locationLabel.trim(),
+        },
       }),
     );
 
@@ -90,10 +99,20 @@ class HttpOrderIntentClient {
     );
   }
 
-  Future<List<DonationIntent>> listDonationIntents() async {
+  Future<List<DonationIntent>> listDonationIntents({
+    double? nearLat,
+    double? nearLng,
+  }) async {
+    final queryParameters = <String, String>{
+      ..._auth.userIdQueryParameters(),
+    };
+    if (nearLat != null && nearLng != null) {
+      queryParameters['near_lat'] = nearLat.toString();
+      queryParameters['near_lng'] = nearLng.toString();
+    }
     final decoded = await _api.getDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
-      queryParameters: _auth.userIdQueryParameters(),
+      queryParameters: queryParameters,
     );
     final raw = decoded['order_intents'];
     if (raw is! List) {

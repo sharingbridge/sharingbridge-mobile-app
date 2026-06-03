@@ -11,6 +11,8 @@ class DonationIntent {
     this.referencePhotoViewUrl,
     this.referencePhotoThumbnailUrl,
     this.selectedPreset,
+    this.locationLabel,
+    this.localityKey,
     this.createdAt,
     this.updatedAt,
   });
@@ -43,6 +45,8 @@ class DonationIntent {
       verbalHandoverNotes: json['verbal_handover_notes']?.toString() ?? '',
       presetsSnapshot: presets,
       selectedPreset: selected,
+      locationLabel: json['location_label']?.toString(),
+      localityKey: json['locality_key']?.toString(),
       createdAt: DateTime.tryParse(json['created_at']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? ''),
     );
@@ -58,6 +62,8 @@ class DonationIntent {
   final String verbalHandoverNotes;
   final List<Map<String, dynamic>> presetsSnapshot;
   final Map<String, dynamic>? selectedPreset;
+  final String? locationLabel;
+  final String? localityKey;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
