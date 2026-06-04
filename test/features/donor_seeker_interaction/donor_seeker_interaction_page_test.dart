@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sharingbridge_mobile_app/features/donor_seeker_interaction/application/delivery_instruction_stub.dart';
+import 'package:sharingbridge_mobile_app/features/donor_seeker_interaction/data/capture_handover_location.dart';
 import 'package:sharingbridge_mobile_app/features/donor_seeker_interaction/domain/models/instruction_pack_result.dart';
 import 'package:sharingbridge_mobile_app/features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/application/load_presets_usecase.dart';
@@ -109,17 +110,27 @@ void main() {
         home: DonorSeekerInteractionPage(
           authContext: const AuthContext(userId: 'u1', authToken: 'tok'),
           loadPresetsUseCase: LoadPresetsUseCase(_FakeRepo(presets)),
+          captureHandoverLocation: () async => const HandoverLocation(
+            lat: 12.94,
+            lng: 80.24,
+          ),
           deliveryInstructionsRequest: ({
             required List<DonorPreset> presets,
             required bool hasReferencePhoto,
             String? referencePhotoArtifactId,
             String? verbalHandoverNotes,
+            double? lat,
+            double? lng,
+            String? locationLabel,
           }) async {
             return InstructionPackResult(
               deliveryInstructions: buildDeliveryInstructionsStub(
                 presets,
                 referencePhotoIncluded: hasReferencePhoto,
                 verbalHandoverNotes: verbalHandoverNotes,
+                lat: lat,
+                lng: lng,
+                locationLabel: locationLabel,
               ),
               packId: 'test-pack',
             );

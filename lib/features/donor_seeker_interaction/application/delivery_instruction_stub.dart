@@ -5,6 +5,9 @@ String buildDeliveryInstructionsStub(
   List<DonorPreset> presets, {
   bool referencePhotoIncluded = false,
   String? verbalHandoverNotes,
+  double? lat,
+  double? lng,
+  String? locationLabel,
 }) {
   final buffer = StringBuffer()
     ..writeln(
@@ -17,6 +20,21 @@ String buildDeliveryInstructionsStub(
       'Reference photo: available to delivery partner per app policy.',
     );
     buffer.writeln('');
+  }
+
+  if (lat != null && lng != null) {
+    final label = (locationLabel?.trim().isNotEmpty ?? false)
+        ? ' (${locationLabel!.trim()})'
+        : '';
+    buffer
+      ..writeln('Location: $lat, $lng$label')
+      ..writeln('');
+  } else {
+    buffer
+      ..writeln(
+        'Location: confirm with recipient; coordinates not provided.',
+      )
+      ..writeln('');
   }
 
   final trimmedVerbal = verbalHandoverNotes?.trim();

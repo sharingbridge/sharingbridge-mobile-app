@@ -43,4 +43,14 @@ void main() {
     );
     expect(text, contains('Blue umbrella'));
   });
+
+  test('coordinates appear in stub when provided', () {
+    final text = buildDeliveryInstructionsStub(
+      <DonorPreset>[],
+      lat: 12.94,
+      lng: 80.24,
+      locationLabel: 'Handover point',
+    );
+    expect(text, contains('Location: 12.94, 80.24 (Handover point)'));
+  });
 }

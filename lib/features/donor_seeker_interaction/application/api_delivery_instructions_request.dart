@@ -11,6 +11,9 @@ Future<InstructionPackResult> requestDeliveryInstructionsFromApi({
   required bool hasReferencePhoto,
   String? referencePhotoArtifactId,
   String? verbalHandoverNotes,
+  double? lat,
+  double? lng,
+  String? locationLabel,
   HttpInstructionPackClient? client,
 }) async {
   final packClient =
@@ -21,6 +24,9 @@ Future<InstructionPackResult> requestDeliveryInstructionsFromApi({
       hasReferencePhoto: hasReferencePhoto,
       referencePhotoArtifactId: referencePhotoArtifactId,
       verbalHandoverNotes: verbalHandoverNotes,
+      lat: lat,
+      lng: lng,
+      locationLabel: locationLabel,
     );
   } on DonorSetupApiException {
     return InstructionPackResult(
@@ -28,6 +34,9 @@ Future<InstructionPackResult> requestDeliveryInstructionsFromApi({
         presets,
         referencePhotoIncluded: hasReferencePhoto,
         verbalHandoverNotes: verbalHandoverNotes,
+        lat: lat,
+        lng: lng,
+        locationLabel: locationLabel,
       ),
       packId: null,
     );

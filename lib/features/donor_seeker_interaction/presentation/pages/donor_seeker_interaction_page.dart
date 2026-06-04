@@ -26,10 +26,16 @@ typedef DeliveryInstructionsRequest = Future<InstructionPackResult> Function({
   required bool hasReferencePhoto,
   String? referencePhotoArtifactId,
   String? verbalHandoverNotes,
+  double? lat,
+  double? lng,
+  String? locationLabel,
 });
 
 /// Picks a reference image from camera or gallery.
 typedef ReferencePhotoPick = Future<XFile?> Function(ImageSource source);
+
+/// Handover GPS at instruction generation (override in tests).
+typedef HandoverLocationCapture = Future<HandoverLocation?> Function();
 
 enum _OfferHelpStep { guidance, photoAndAi, deliveryReady }
 
@@ -42,6 +48,7 @@ class DonorSeekerInteractionPage extends StatefulWidget {
     this.authContext,
     this.deliveryInstructionsRequest,
     this.referencePhotoPick,
+    this.captureHandoverLocation,
   });
 
   final LoadPresetsUseCase? loadPresetsUseCase;
@@ -52,6 +59,9 @@ class DonorSeekerInteractionPage extends StatefulWidget {
 
   /// Override for tests; default uses [ImagePicker].
   final ReferencePhotoPick? referencePhotoPick;
+
+  /// Override for tests; default uses [captureHandoverLocation].
+  final HandoverLocationCapture? captureHandoverLocation;
 
   @override
   State<DonorSeekerInteractionPage> createState() =>
@@ -92,15 +102,22 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   String? _referencePhotoThumbnailUrl;
   final TextEditingController _verbalNotesController = TextEditingController();
   bool _generatingInstructions = false;
+  HandoverLocation? _handoverLocation;
 
   DeliveryInstructionsRequest get _deliveryRequest =>
       widget.deliveryInstructionsRequest ?? _defaultDeliveryInstructionsRequest;
+
+  HandoverLocationCapture get _captureLocation =>
+      widget.captureHandoverLocation ?? captureHandoverLocation;
 
   Future<InstructionPackResult> _defaultDeliveryInstructionsRequest({
     required List<DonorPreset> presets,
     required bool hasReferencePhoto,
     String? referencePhotoArtifactId,
     String? verbalHandoverNotes,
+    double? lat,
+    double? lng,
+    String? locationLabel,
   }) {
     return requestDeliveryInstructionsFromApi(
       baseUrl: _defaultApiBaseUrl,
@@ -108,6 +125,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       hasReferencePhoto: hasReferencePhoto,
       referencePhotoArtifactId: referencePhotoArtifactId,
       verbalHandoverNotes: verbalHandoverNotes,
+      lat: lat,
+      lng: lng,
+      locationLabel: locationLabel,
     );
   }
 
@@ -284,6 +304,12 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   Future<void> _generateInstructions() async {
     setState(() => _generatingInstructions = true);
     try {
+      final handoverLocation = await _captureLocation();
+      if (!mounted) {
+        return;
+      }
+      setState(() => _handoverLocation = handoverLocation);
+
       ReferencePhotoUpload? uploaded;
       if (_referencePhoto != null) {
         uploaded = await _uploadReferencePhotoIfNeeded();
@@ -301,6 +327,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         hasReferencePhoto: _referencePhoto != null,
         referencePhotoArtifactId: _referencePhotoArtifactId,
         verbalHandoverNotes: _verbalNotesController.text,
+        lat: handoverLocation?.lat,
+        lng: handoverLocation?.lng,
+        locationLabel: handoverLocation?.label,
       );
       if (!mounted) {
         return;
@@ -314,6 +343,16 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _orderIntentId = null;
         _orderIntentError = null;
       });
+      if (handoverLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Location not available — instructions omit GPS. '
+              'Enable location for this app to include handover coordinates.',
+            ),
+          ),
+        );
+      }
     } on DonorSetupApiException catch (e) {
       if (!mounted) {
         return;
@@ -347,7 +386,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     await Clipboard.setData(ClipboardData(text: text));
 
     final packId = _packId ?? 'pack-local-${DateTime.now().millisecondsSinceEpoch}';
-    final handoverLocation = await captureHandoverLocation();
+    final handoverLocation =
+        _handoverLocation ?? await _captureLocation();
     try {
       final registration = await HttpOrderIntentClient(
         baseUrl: _defaultApiBaseUrl,
@@ -374,7 +414,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _registeringOrderIntent = false;
       });
       final locationNote = handoverLocation == null
-          ? ' Location not shared — enable location for neighbourhood visibility.'
+          ? ' Location not shared with the server.'
           : '';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -529,8 +569,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         const SizedBox(height: 8),
         Text(
           'Only add a photo if the person has agreed. You can skip the photo '
-          'and describe the handover in words below — the next step calls the '
-          'instruction service (stub today, API later).',
+          'and describe the handover in words below. Tapping Get AI delivery '
+          'instructions will ask for location (if needed) and include GPS in '
+          'the courier text.',
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: 16),
