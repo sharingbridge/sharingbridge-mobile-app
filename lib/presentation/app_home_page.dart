@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
@@ -8,6 +9,38 @@ import 'donor_app_bar.dart';
 /// Entry hub: vendor presets (before field) vs help a seeker (BRD steps 2+).
 class AppHomePage extends StatelessWidget {
   const AppHomePage({super.key});
+
+  static const String _webDashboardUrl = String.fromEnvironment(
+    'WEB_DASHBOARD_URL',
+    defaultValue: '',
+  );
+
+  Future<void> _openWebDashboard(BuildContext context) async {
+    final url = _webDashboardUrl.trim();
+    if (url.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Web dashboard URL is not configured (WEB_DASHBOARD_URL).',
+          ),
+        ),
+      );
+      return;
+    }
+    final uri = Uri.tryParse(url);
+    if (uri == null || !uri.hasScheme) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('WEB_DASHBOARD_URL is not a valid URL.')),
+      );
+      return;
+    }
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not open the web dashboard.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +114,20 @@ class AppHomePage extends StatelessWidget {
               },
             ),
           ),
+          if (_webDashboardUrl.trim().isNotEmpty) ...<Widget>[
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                key: const Key('nav_web_dashboard'),
+                leading: const Icon(Icons.open_in_browser),
+                title: const Text('Neighbourhood dashboard (web)'),
+                subtitle: const Text(
+                  'See nearby order intents, distance, and photos in the browser.',
+                ),
+                onTap: () => _openWebDashboard(context),
+              ),
+            ),
+          ],
         ],
       ),
     );
