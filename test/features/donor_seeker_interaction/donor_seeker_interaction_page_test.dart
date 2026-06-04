@@ -63,6 +63,7 @@ void main() {
 
     expect(find.textContaining('Vendor presets'), findsWidgets);
     expect(find.textContaining('Help a seeker'), findsWidgets);
+    expect(find.byKey(const Key('nav_web_dashboard')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('nav_field_flow')));
     await tester.pumpAndSettle();

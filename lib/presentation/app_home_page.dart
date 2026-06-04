@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config/web_dashboard_url.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
@@ -10,19 +11,15 @@ import 'donor_app_bar.dart';
 class AppHomePage extends StatelessWidget {
   const AppHomePage({super.key});
 
-  static const String _webDashboardUrl = String.fromEnvironment(
-    'WEB_DASHBOARD_URL',
-    defaultValue: '',
-  );
-
   Future<void> _openWebDashboard(BuildContext context) async {
-    final url = _webDashboardUrl.trim();
-    if (url.isEmpty) {
+    final url = WebDashboardUrl.value.trim();
+    if (!WebDashboardUrl.isConfigured) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Web dashboard URL is not configured (WEB_DASHBOARD_URL).',
+            'Rebuild the app with --dart-define=WEB_DASHBOARD_URL=<your web app URL>.',
           ),
+          duration: Duration(seconds: 5),
         ),
       );
       return;
@@ -44,6 +41,11 @@ class AppHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final webUrl = WebDashboardUrl.value.trim();
+    final webSubtitle = WebDashboardUrl.isConfigured
+        ? 'Open $webUrl — nearby intents, distance (m), and photos.'
+        : 'Requires WEB_DASHBOARD_URL when you build the app (see mobile-client.md).';
+
     return Scaffold(
       appBar: const DonorAppBar(
         title: 'SharingBridge',
@@ -114,20 +116,18 @@ class AppHomePage extends StatelessWidget {
               },
             ),
           ),
-          if (_webDashboardUrl.trim().isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8),
-            Card(
-              child: ListTile(
-                key: const Key('nav_web_dashboard'),
-                leading: const Icon(Icons.open_in_browser),
-                title: const Text('Neighbourhood dashboard (web)'),
-                subtitle: const Text(
-                  'See nearby order intents, distance, and photos in the browser.',
-                ),
-                onTap: () => _openWebDashboard(context),
-              ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key('nav_web_dashboard'),
+              leading: const Icon(Icons.open_in_browser),
+              title: const Text('Neighbourhood dashboard (web)'),
+              subtitle: Text(webSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              enabled: WebDashboardUrl.isConfigured,
+              onTap: () => _openWebDashboard(context),
             ),
-          ],
+          ),
         ],
       ),
     );
