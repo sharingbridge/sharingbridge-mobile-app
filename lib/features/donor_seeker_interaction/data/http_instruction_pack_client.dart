@@ -29,6 +29,8 @@ class HttpInstructionPackClient {
     required List<DonorPreset> presets,
     required bool hasReferencePhoto,
     String? referencePhotoArtifactId,
+    String? referencePhotoViewUrl,
+    String? referencePhotoThumbnailUrl,
     String? verbalHandoverNotes,
     double? lat,
     double? lng,
@@ -40,6 +42,12 @@ class HttpInstructionPackClient {
         if (referencePhotoArtifactId != null &&
             referencePhotoArtifactId.trim().isNotEmpty)
           'reference_photo_artifact_id': referencePhotoArtifactId.trim(),
+        if (referencePhotoViewUrl != null &&
+            referencePhotoViewUrl.trim().isNotEmpty)
+          'reference_photo_view_url': referencePhotoViewUrl.trim(),
+        if (referencePhotoThumbnailUrl != null &&
+            referencePhotoThumbnailUrl.trim().isNotEmpty)
+          'reference_photo_thumbnail_url': referencePhotoThumbnailUrl.trim(),
         if (verbalHandoverNotes != null && verbalHandoverNotes.trim().isNotEmpty)
           'verbal_handover_notes': verbalHandoverNotes.trim(),
         if (lat != null) 'lat': lat,
@@ -69,6 +77,10 @@ class HttpInstructionPackClient {
     return InstructionPackResult(
       deliveryInstructions: instructions,
       packId: packId != null && packId.isNotEmpty ? packId : null,
+      locationDescription: decoded['location_description']?.toString(),
+      imageDescription: decoded['image_description']?.toString(),
+      seekerAppearanceHints: decoded['seeker_appearance_hints']?.toString(),
+      seekerHandoverHints: decoded['seeker_handover_hints']?.toString(),
     );
   }
 }

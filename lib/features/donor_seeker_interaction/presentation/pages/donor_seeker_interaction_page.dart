@@ -25,6 +25,8 @@ typedef DeliveryInstructionsRequest = Future<InstructionPackResult> Function({
   required List<DonorPreset> presets,
   required bool hasReferencePhoto,
   String? referencePhotoArtifactId,
+  String? referencePhotoViewUrl,
+  String? referencePhotoThumbnailUrl,
   String? verbalHandoverNotes,
   double? lat,
   double? lng,
@@ -103,6 +105,10 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   final TextEditingController _verbalNotesController = TextEditingController();
   bool _generatingInstructions = false;
   HandoverLocation? _handoverLocation;
+  String? _instructionLocationDescription;
+  String? _instructionImageDescription;
+  String? _instructionSeekerAppearanceHints;
+  String? _instructionSeekerHandoverHints;
 
   DeliveryInstructionsRequest get _deliveryRequest =>
       widget.deliveryInstructionsRequest ?? _defaultDeliveryInstructionsRequest;
@@ -114,6 +120,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     required List<DonorPreset> presets,
     required bool hasReferencePhoto,
     String? referencePhotoArtifactId,
+    String? referencePhotoViewUrl,
+    String? referencePhotoThumbnailUrl,
     String? verbalHandoverNotes,
     double? lat,
     double? lng,
@@ -124,6 +132,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       presets: presets,
       hasReferencePhoto: hasReferencePhoto,
       referencePhotoArtifactId: referencePhotoArtifactId,
+      referencePhotoViewUrl: referencePhotoViewUrl,
+      referencePhotoThumbnailUrl: referencePhotoThumbnailUrl,
       verbalHandoverNotes: verbalHandoverNotes,
       lat: lat,
       lng: lng,
@@ -326,6 +336,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         presets: _presets,
         hasReferencePhoto: _referencePhoto != null,
         referencePhotoArtifactId: _referencePhotoArtifactId,
+        referencePhotoViewUrl: _referencePhotoViewUrl,
+        referencePhotoThumbnailUrl: _referencePhotoThumbnailUrl,
         verbalHandoverNotes: _verbalNotesController.text,
         lat: handoverLocation?.lat,
         lng: handoverLocation?.lng,
@@ -337,6 +349,10 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       setState(() {
         _instructions = result.deliveryInstructions;
         _packId = result.packId;
+        _instructionLocationDescription = result.locationDescription;
+        _instructionImageDescription = result.imageDescription;
+        _instructionSeekerAppearanceHints = result.seekerAppearanceHints;
+        _instructionSeekerHandoverHints = result.seekerHandoverHints;
         _generatingInstructions = false;
         _step = _OfferHelpStep.deliveryReady;
         _showVendorLinks = false;
@@ -404,6 +420,10 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         locationLat: handoverLocation?.lat,
         locationLng: handoverLocation?.lng,
         locationLabel: handoverLocation?.label,
+        locationDescription: _instructionLocationDescription,
+        imageDescription: _instructionImageDescription,
+        seekerAppearanceHints: _instructionSeekerAppearanceHints,
+        seekerHandoverHints: _instructionSeekerHandoverHints,
       );
       if (!mounted) {
         return;

@@ -118,6 +118,8 @@ void main() {
             required List<DonorPreset> presets,
             required bool hasReferencePhoto,
             String? referencePhotoArtifactId,
+            String? referencePhotoViewUrl,
+            String? referencePhotoThumbnailUrl,
             String? verbalHandoverNotes,
             double? lat,
             double? lng,

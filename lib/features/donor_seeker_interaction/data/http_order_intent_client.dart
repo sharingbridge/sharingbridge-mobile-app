@@ -38,6 +38,10 @@ class HttpOrderIntentClient {
     double? locationLat,
     double? locationLng,
     String? locationLabel,
+    String? locationDescription,
+    String? imageDescription,
+    String? seekerAppearanceHints,
+    String? seekerHandoverHints,
   }) async {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/donor-seeker/order-intents',
@@ -81,6 +85,15 @@ class HttpOrderIntentClient {
           if (locationLabel != null && locationLabel.trim().isNotEmpty)
             'location_label': locationLabel.trim(),
         },
+        if (locationDescription != null && locationDescription.trim().isNotEmpty)
+          'location_description': locationDescription.trim(),
+        if (imageDescription != null && imageDescription.trim().isNotEmpty)
+          'image_description': imageDescription.trim(),
+        if (seekerAppearanceHints != null &&
+            seekerAppearanceHints.trim().isNotEmpty)
+          'seeker_appearance_hints': seekerAppearanceHints.trim(),
+        if (seekerHandoverHints != null && seekerHandoverHints.trim().isNotEmpty)
+          'seeker_handover_hints': seekerHandoverHints.trim(),
       }),
     );
 
