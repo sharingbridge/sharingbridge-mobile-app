@@ -5,8 +5,8 @@ import '../../donor_setup/data/http_donor_setup_api_client.dart';
 import '../../donor_setup/domain/models/donor_preset.dart';
 import '../domain/models/instruction_pack_result.dart';
 
-/// Align with integration `AI_ORCHESTRATION_INSTRUCTION_PACK_TIMEOUT_MS` (60s) + buffer.
-const Duration instructionPackRequestTimeout = Duration(seconds: 90);
+/// Live instruction-pack target is under 30s server-side; allow modest buffer.
+const Duration instructionPackRequestTimeout = Duration(seconds: 35);
 
 /// Calls integration-service instruction-pack API (orchestration when enabled).
 class HttpInstructionPackClient {

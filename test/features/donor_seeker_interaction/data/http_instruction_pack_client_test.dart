@@ -29,7 +29,7 @@ class _ScriptedServer {
 
 void main() {
   test('instructionPackRequestTimeout allows live AI round trip', () {
-    expect(instructionPackRequestTimeout.inSeconds, 90);
+    expect(instructionPackRequestTimeout.inSeconds, 35);
   });
 
   test('requestDeliveryInstructions omits user_id when Bearer is set', () async {
