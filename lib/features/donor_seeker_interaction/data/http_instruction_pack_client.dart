@@ -5,6 +5,9 @@ import '../../donor_setup/data/http_donor_setup_api_client.dart';
 import '../../donor_setup/domain/models/donor_preset.dart';
 import '../domain/models/instruction_pack_result.dart';
 
+/// Align with integration `AI_ORCHESTRATION_INSTRUCTION_PACK_TIMEOUT_MS` (60s) + buffer.
+const Duration instructionPackRequestTimeout = Duration(seconds: 90);
+
 /// Calls integration-service instruction-pack API (orchestration when enabled).
 class HttpInstructionPackClient {
   HttpInstructionPackClient({
@@ -16,6 +19,8 @@ class HttpInstructionPackClient {
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,
               authContext: authContext,
+              requestTimeout: instructionPackRequestTimeout,
+              savePresetsRetryPolicy: const RetryPolicy(maxAttempts: 1),
             );
 
   final String baseUrl;
@@ -77,6 +82,7 @@ class HttpInstructionPackClient {
     return InstructionPackResult(
       deliveryInstructions: instructions,
       packId: packId != null && packId.isNotEmpty ? packId : null,
+      source: decoded['source']?.toString(),
       locationDescription: decoded['location_description']?.toString(),
       imageDescription: decoded['image_description']?.toString(),
       seekerAppearanceHints: decoded['seeker_appearance_hints']?.toString(),

@@ -154,12 +154,17 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
   }
 
   /// Donor–seeker instruction pack (integration-service → ai-orchestration).
+  /// Uses [requestTimeout] (90s when created via [HttpInstructionPackClient]).
   Future<Map<String, dynamic>> requestInstructionPack({
     required Map<String, dynamic> body,
   }) {
-    return postDonorSeekerJson(
-      path: '/v1/donor-seeker/instruction-pack',
-      body: body,
+    return _runWithRetry(
+      policy: const RetryPolicy(maxAttempts: 1),
+      operation: () => _sendJson(
+        method: 'POST',
+        uri: Uri.parse('$baseUrl/v1/donor-seeker/instruction-pack'),
+        body: body,
+      ),
     );
   }
 
