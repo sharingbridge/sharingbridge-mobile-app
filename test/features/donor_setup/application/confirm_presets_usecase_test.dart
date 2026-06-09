@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/application/confirm_presets_usecase.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/donor_preset.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/ai_content_source.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/suggest_vendors_result.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/vendor_suggestion.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/repositories/donor_setup_repository.dart';
 
@@ -30,13 +32,16 @@ class _RecordingRepository implements DonorSetupRepository {
   }) async {}
 
   @override
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,
     String? manualArea,
   }) async {
-    return <VendorSuggestion>[];
+    return const SuggestVendorsResult(
+      suggestions: <VendorSuggestion>[],
+      source: AiContentSource(null),
+    );
   }
 }
 

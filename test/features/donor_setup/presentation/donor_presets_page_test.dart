@@ -7,6 +7,8 @@ import 'package:sharingbridge_mobile_app/features/donor_setup/application/remove
 import 'package:sharingbridge_mobile_app/features/donor_setup/data/auth_context.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/data/donor_setup_api_exceptions.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/donor_preset.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/ai_content_source.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/suggest_vendors_result.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/vendor_suggestion.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/repositories/donor_setup_repository.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/presentation/pages/donor_presets_page.dart';
@@ -56,13 +58,16 @@ class _FakePresetsRepo implements DonorSetupRepository {
   }
 
   @override
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,
     String? manualArea,
   }) async =>
-      <VendorSuggestion>[];
+      const SuggestVendorsResult(
+        suggestions: <VendorSuggestion>[],
+        source: AiContentSource(null),
+      );
 }
 
 void main() {

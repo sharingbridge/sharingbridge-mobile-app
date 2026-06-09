@@ -1,9 +1,13 @@
 import '../../domain/models/vendor_suggestion.dart';
 
 class SuggestVendorsResponseDto {
-  SuggestVendorsResponseDto({required this.suggestions});
+  SuggestVendorsResponseDto({
+    required this.suggestions,
+    this.source,
+  });
 
   final List<VendorSuggestion> suggestions;
+  final String? source;
 
   factory SuggestVendorsResponseDto.fromJson(Map<String, dynamic> json) {
     final rawSuggestions = json['suggestions'];
@@ -31,6 +35,9 @@ class SuggestVendorsResponseDto {
       );
     }).toList();
 
-    return SuggestVendorsResponseDto(suggestions: parsed.take(5).toList());
+    return SuggestVendorsResponseDto(
+      suggestions: parsed.take(5).toList(),
+      source: json['source']?.toString(),
+    );
   }
 }

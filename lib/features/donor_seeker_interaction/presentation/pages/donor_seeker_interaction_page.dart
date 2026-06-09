@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../presentation/about_page.dart';
+import '../../../../presentation/ai_source_notice_banner.dart';
 import '../../../../presentation/donor_app_bar.dart';
+import '../../../../presentation/vendor_paste_help.dart';
+import '../../../donor_setup/domain/models/ai_content_source.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,10 +43,10 @@ typedef ReferencePhotoPick = Future<XFile?> Function(ImageSource source);
 /// Handover GPS at instruction generation (override in tests).
 typedef HandoverLocationCapture = Future<HandoverLocation?> Function();
 
-enum _OfferHelpStep { guidance, photoAndAi, deliveryReady }
+enum _OfferHelpStep { photoAndAi, deliveryReady }
 
-/// Help a seeker: dignity guidance → photo + AI instructions → copy and
-/// vendor deep links.
+/// Help a seeker: photo + AI instructions → copy and vendor deep links.
+/// Read About / gate screen before entering this flow.
 class DonorSeekerInteractionPage extends StatefulWidget {
   const DonorSeekerInteractionPage({
     super.key,
@@ -97,7 +101,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   bool _registeringOrderIntent = false;
   String? _orderIntentError;
 
-  _OfferHelpStep _step = _OfferHelpStep.guidance;
+  _OfferHelpStep _step = _OfferHelpStep.photoAndAi;
   XFile? _referencePhoto;
   String? _referencePhotoArtifactId;
   String? _referencePhotoViewUrl;
@@ -109,6 +113,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   String? _instructionImageDescription;
   String? _instructionSeekerAppearanceHints;
   String? _instructionSeekerHandoverHints;
+  AiContentSource? _instructionSource;
 
   DeliveryInstructionsRequest get _deliveryRequest =>
       widget.deliveryInstructionsRequest ?? _defaultDeliveryInstructionsRequest;
@@ -238,15 +243,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   }
 
   void _goBackWithinFlow() {
-    if (_step == _OfferHelpStep.guidance) {
-      return;
-    }
     setState(() {
-      if (_step == _OfferHelpStep.photoAndAi) {
-        _step = _OfferHelpStep.guidance;
-        _clearReferencePhotoState();
-        _verbalNotesController.clear();
-      } else if (_step == _OfferHelpStep.deliveryReady) {
+      if (_step == _OfferHelpStep.deliveryReady) {
         _step = _OfferHelpStep.photoAndAi;
         _instructions = '';
         _showVendorLinks = false;
@@ -353,6 +351,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _instructionImageDescription = result.imageDescription;
         _instructionSeekerAppearanceHints = result.seekerAppearanceHints;
         _instructionSeekerHandoverHints = result.seekerHandoverHints;
+        _instructionSource = AiContentSource.parse(result.source);
         _generatingInstructions = false;
         _step = _OfferHelpStep.deliveryReady;
         _showVendorLinks = false;
@@ -518,64 +517,13 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
 
   String _stepLabel() {
     switch (_step) {
-      case _OfferHelpStep.guidance:
-        return 'Step 1 of 3 · Guidance';
       case _OfferHelpStep.photoAndAi:
-        return 'Step 2 of 3 · Photo and AI';
+        return 'Step 1 of 2 · Photo and AI';
       case _OfferHelpStep.deliveryReady:
         return _orderIntentId != null
-            ? 'Step 3 of 3 · Place order'
-            : 'Step 3 of 3 · Copy instructions and place order';
+            ? 'Step 2 of 2 · Place order'
+            : 'Step 2 of 2 · Copy and place order';
     }
-  }
-
-  Widget _buildGuidanceBody(ThemeData theme) {
-    const List<String> bullets = <String>[
-      'Consent — Only proceed if the person is okay receiving help and '
-          'with how you identify them for the courier.',
-      'Your surroundings — Prefer a visible, public spot. Avoid isolated '
-          'areas. If you feel unsure, do not hand over food or place an '
-          'order yet.',
-      'Time and visibility — Take extra care after dark. You can postpone '
-          'or move to a better spot.',
-      'Photos — Ask before taking a reference photo. A respectful verbal '
-          'description is fine if they prefer not to be photographed.',
-      'Your decision — SharingBridge does not verify that a place is '
-          '"safe." You decide whether to continue.',
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Text(
-          'Quick guidance',
-          style: theme.textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Treat personal details with care: share only what is needed for '
-          'the courier to complete the handover with dignity.',
-          style: theme.textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 16),
-        for (final String line in bullets) ...<Widget>[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text(
-              '• $line',
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
-        ],
-        const SizedBox(height: 18),
-        FilledButton(
-          key: const Key('field_help_continue_guidance'),
-          onPressed: () {
-            setState(() => _step = _OfferHelpStep.photoAndAi);
-          },
-          child: const Text('Continue to photo and instructions'),
-        ),
-      ],
-    );
   }
 
   Widget _buildPhotoAndAiBody(ThemeData theme, ColorScheme colors) {
@@ -583,15 +531,12 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Text(
-          'Reference photo and AI draft',
+          'Photo and handover notes',
           style: theme.textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
         Text(
-          'Only add a photo if the person has agreed. You can skip the photo '
-          'and describe the handover in words below. Tapping Get AI delivery '
-          'instructions will ask for location (if needed) and include GPS in '
-          'the courier text.',
+          'Optional reference photo (with consent) and notes for the courier.',
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: 16),
@@ -671,18 +616,20 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Text(
-          'Your delivery text',
+          'Delivery text',
           style: theme.textTheme.titleLarge,
         ),
         const SizedBox(height: 4),
         Text(
-          'Review and edit if needed before copying. This draft was produced '
-          'by the instruction service using your presets and the notes or '
-          'photo you provided.',
+          'Review, then copy and paste into the vendor app at checkout.',
           style: theme.textTheme.bodySmall?.copyWith(
             color: colors.onSurfaceVariant,
           ),
         ),
+        if (_instructionSource != null) ...<Widget>[
+          const SizedBox(height: 12),
+          AiSourceNoticeBanner(source: _instructionSource!),
+        ],
         if (_referencePhotoThumbnailUrl?.isNotEmpty == true ||
             _referencePhotoViewUrl?.isNotEmpty == true) ...<Widget>[
           ReferencePhotoPreview(
@@ -722,6 +669,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
                 : 'Copy instructions to clipboard and register donation intent',
           ),
         ),
+        const SizedBox(height: 12),
+        const VendorPasteHelp(),
         if (_orderIntentId != null) ...<Widget>[
           const SizedBox(height: 16),
           Card.outlined(
@@ -745,13 +694,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
                     style: theme.textTheme.titleSmall,
                   ),
                   const SizedBox(height: 6),
-                  const Text('1. Open your vendor app below.'),
-                  const Text(
-                    '2. Place the order and paste the copied text into delivery instructions.',
-                  ),
-                  const Text(
-                    '3. Complete payment in the vendor app.',
-                  ),
+                  const Text('1. Open vendor app → add items → checkout.'),
+                  const Text('2. Paste copied text into delivery-partner instructions.'),
+                  const Text('3. Pay in the vendor app.'),
                 ],
               ),
             ),
@@ -854,9 +799,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (_step == _OfferHelpStep.guidance)
-                  _buildGuidanceBody(theme)
-                else if (_step == _OfferHelpStep.photoAndAi)
+                if (_step == _OfferHelpStep.photoAndAi)
                   _buildPhotoAndAiBody(theme, colors)
                 else
                   _buildDeliveryReadyBody(theme, colors),
@@ -865,18 +808,31 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
           );
 
     return PopScope(
-      canPop: _step == _OfferHelpStep.guidance,
+      canPop: _step == _OfferHelpStep.photoAndAi,
       onPopInvokedWithResult: (bool didPop, Object? result) {
-        if (!didPop && _step != _OfferHelpStep.guidance) {
+        if (!didPop && _step == _OfferHelpStep.deliveryReady) {
           _goBackWithinFlow();
         }
       },
       child: Scaffold(
         appBar: DonorAppBar(
           title: 'Help a seeker',
-          backTooltip: _step == _OfferHelpStep.guidance ? 'Close' : 'Back',
+          backTooltip: _step == _OfferHelpStep.photoAndAi ? 'Close' : 'Back',
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              tooltip: 'About',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => const AboutPage(),
+                  ),
+                );
+              },
+            ),
+          ],
           onBack: () {
-            if (_step == _OfferHelpStep.guidance) {
+            if (_step == _OfferHelpStep.photoAndAi) {
               Navigator.of(context).maybePop();
             } else {
               _goBackWithinFlow();

@@ -1,8 +1,8 @@
 import '../models/donor_preset.dart';
-import '../models/vendor_suggestion.dart';
+import '../models/suggest_vendors_result.dart';
 
 abstract class DonorSetupRepository {
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,

@@ -9,7 +9,9 @@ import 'package:sharingbridge_mobile_app/features/donor_setup/application/sugges
 import 'package:sharingbridge_mobile_app/features/donor_setup/data/auth_context.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/data/donor_setup_api_exceptions.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/data/donor_setup_local_storage.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/ai_content_source.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/donor_preset.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/suggest_vendors_result.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/vendor_suggestion.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/repositories/donor_setup_repository.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/presentation/pages/donor_setup_page.dart';
@@ -59,21 +61,24 @@ class _FakeRepository implements DonorSetupRepository {
   }
 
   @override
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,
     String? manualArea,
   }) async {
-    return <VendorSuggestion>[
-      VendorSuggestion(
-        restaurantName: 'A2B',
-        menuItems: const <String>['Veg Meals'],
-        orderUrl: 'https://example.com',
-        appName: 'Zomato',
-        confidence: 0.9,
-      ),
-    ];
+    return SuggestVendorsResult(
+      suggestions: <VendorSuggestion>[
+        VendorSuggestion(
+          restaurantName: 'A2B',
+          menuItems: const <String>['Veg Meals'],
+          orderUrl: 'https://example.com',
+          appName: 'Zomato',
+          confidence: 0.9,
+        ),
+      ],
+      source: const AiContentSource('deterministic'),
+    );
   }
 }
 
@@ -94,13 +99,14 @@ class _DelaysFirstLoadRepo extends _FakeRepository {
 /// Returns two suggestions so we can assert the full list survives a presets detour.
 class _FakeRepositoryTwoSuggestions extends _FakeRepository {
   @override
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,
     String? manualArea,
   }) async {
-    return <VendorSuggestion>[
+    return SuggestVendorsResult(
+      suggestions: <VendorSuggestion>[
       VendorSuggestion(
         restaurantName: 'Bistro One',
         menuItems: const <String>['Meals'],
@@ -115,7 +121,9 @@ class _FakeRepositoryTwoSuggestions extends _FakeRepository {
         appName: 'Swiggy',
         confidence: 0.85,
       ),
-    ];
+    ],
+      source: const AiContentSource('groq'),
+    );
   }
 }
 

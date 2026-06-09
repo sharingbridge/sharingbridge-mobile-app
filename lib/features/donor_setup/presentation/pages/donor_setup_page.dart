@@ -11,7 +11,9 @@ import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../application/suggest_vendors_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
+import '../../../../presentation/ai_source_notice_banner.dart';
 import '../../../../presentation/donor_app_bar.dart';
+import '../../domain/models/ai_content_source.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
 import '../../data/donor_setup_repository_impl.dart';
@@ -72,6 +74,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
   /// When true, [_suggestions] came from [Suggest Vendors], not from server/cache.
   /// Returning from Saved presets must not replace this list with [loadPresets] only.
   bool _suggestionsFromSearch = false;
+  AiContentSource? _suggestSource;
 
   /// Bumps when a new preset-load or search starts so slower [_loadInitialPresets]
   /// completions cannot overwrite a newer search result (common after time on Saved presets).
@@ -258,6 +261,7 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
       _errorText = null;
       _statusText = null;
       _suggestionsFromSearch = false;
+      _suggestSource = null;
     });
 
     try {
@@ -269,9 +273,10 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
       );
 
       setState(() {
-        _suggestions.addAll(results);
+        _suggestions.addAll(results.suggestions);
+        _suggestSource = results.source;
         _suggestionsFromSearch = true;
-        _syncManualUrlControllers(results.length);
+        _syncManualUrlControllers(results.suggestions.length);
       });
     } catch (error) {
       setState(() {
@@ -594,6 +599,8 @@ class _DonorSetupPageState extends State<DonorSetupPage> {
               child: ListView(
                 children: <Widget>[
                   if (_suggestions.isNotEmpty) ...<Widget>[
+                    if (_suggestSource != null)
+                      AiSourceNoticeBanner(source: _suggestSource!),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(

@@ -1,5 +1,6 @@
+import '../domain/models/ai_content_source.dart';
 import '../domain/models/donor_preset.dart';
-import '../domain/models/vendor_suggestion.dart';
+import '../domain/models/suggest_vendors_result.dart';
 import '../domain/repositories/donor_setup_repository.dart';
 import 'donor_setup_api_client.dart';
 import 'dto/suggest_vendors_response_dto.dart';
@@ -10,7 +11,7 @@ class DonorSetupRepositoryImpl implements DonorSetupRepository {
   final DonorSetupApiClient _apiClient;
 
   @override
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,
@@ -22,7 +23,11 @@ class DonorSetupRepositoryImpl implements DonorSetupRepository {
       lng: lng,
       manualArea: manualArea,
     );
-    return SuggestVendorsResponseDto.fromJson(json).suggestions;
+    final dto = SuggestVendorsResponseDto.fromJson(json);
+    return SuggestVendorsResult(
+      suggestions: dto.suggestions,
+      source: AiContentSource.parse(dto.source),
+    );
   }
 
   @override

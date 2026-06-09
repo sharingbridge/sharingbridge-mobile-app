@@ -3,9 +3,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../config/web_dashboard_url.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
-import '../features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
+import '../features/seeker_demand/presentation/pages/record_seeker_demand_page.dart';
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
+import 'about_page.dart';
 import 'donor_app_bar.dart';
+import 'handoff_about_gate_page.dart';
 
 /// Entry hub: vendor presets (before field) vs help a seeker (BRD steps 2+).
 class AppHomePage extends StatelessWidget {
@@ -47,11 +49,25 @@ class AppHomePage extends StatelessWidget {
         : 'Requires WEB_DASHBOARD_URL when you build the app (see mobile-client.md).';
 
     return Scaffold(
-      appBar: const DonorAppBar(
+      appBar: DonorAppBar(
         title: 'SharingBridge',
         isHub: true,
         showBack: false,
         showHome: false,
+        actions: <Widget>[
+          TextButton.icon(
+            key: const Key('nav_about'),
+            icon: const Icon(Icons.info_outline, size: 22),
+            label: const Text('About'),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (BuildContext context) => const AboutPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -91,7 +107,26 @@ class AppHomePage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) =>
-                        const DonorSeekerInteractionPage(),
+                        const HandoffAboutGatePage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              key: const Key('nav_record_seeker_demand'),
+              leading: const Icon(Icons.assignment_outlined),
+              title: const Text('Record seeker demand'),
+              subtitle: const Text(
+                'Log what someone is asking for — feeds the web demand board.',
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) =>
+                        const RecordSeekerDemandPage(),
                   ),
                 );
               },

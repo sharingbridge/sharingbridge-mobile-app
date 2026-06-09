@@ -1,4 +1,4 @@
-import '../domain/models/vendor_suggestion.dart';
+import '../domain/models/suggest_vendors_result.dart';
 import '../domain/repositories/donor_setup_repository.dart';
 
 class SuggestVendorsUseCase {
@@ -6,7 +6,7 @@ class SuggestVendorsUseCase {
 
   final DonorSetupRepository _repository;
 
-  Future<List<VendorSuggestion>> call({
+  Future<SuggestVendorsResult> call({
     required String queryText,
     required bool locationPermissionGranted,
     double? lat,
@@ -17,16 +17,19 @@ class SuggestVendorsUseCase {
     final area =
         trimmedArea != null && trimmedArea.isNotEmpty ? trimmedArea : null;
 
-    final suggestions = await _repository.suggestVendors(
+    final result = await _repository.suggestVendors(
       queryText: queryText,
       lat: locationPermissionGranted ? lat : null,
       lng: locationPermissionGranted ? lng : null,
       manualArea: locationPermissionGranted ? null : area,
     );
 
-    if (suggestions.length <= 5) {
-      return suggestions;
+    if (result.suggestions.length <= 5) {
+      return result;
     }
-    return suggestions.take(5).toList();
+    return SuggestVendorsResult(
+      suggestions: result.suggestions.take(5).toList(),
+      source: result.source,
+    );
   }
 }

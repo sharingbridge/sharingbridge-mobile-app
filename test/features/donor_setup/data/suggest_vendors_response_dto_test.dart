@@ -18,6 +18,24 @@ void main() {
 
     final dto = SuggestVendorsResponseDto.fromJson(json);
     expect(dto.suggestions.length, 5);
+    expect(dto.source, isNull);
+  });
+
+  test('maps source field when present', () {
+    final json = <String, dynamic>{
+      'source': 'deterministic',
+      'suggestions': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'restaurant_name': 'R0',
+          'menu_items': <String>['Meals'],
+          'order_url': 'https://example.com/0',
+          'app_name': 'VendorApp',
+          'confidence': 0.8,
+        },
+      ],
+    };
+    final dto = SuggestVendorsResponseDto.fromJson(json);
+    expect(dto.source, 'deterministic');
   });
 
   test('throws for malformed payload', () {

@@ -8,6 +8,7 @@ import 'package:sharingbridge_mobile_app/features/donor_seeker_interaction/prese
 import 'package:sharingbridge_mobile_app/features/donor_setup/application/load_presets_usecase.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/data/auth_context.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/donor_preset.dart';
+import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/suggest_vendors_result.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/vendor_suggestion.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/repositories/donor_setup_repository.dart';
 import 'package:sharingbridge_mobile_app/presentation/app_home_page.dart';
@@ -44,7 +45,7 @@ class _FakeRepo implements DonorSetupRepository {
   }
 
   @override
-  Future<List<VendorSuggestion>> suggestVendors({
+  Future<SuggestVendorsResult> suggestVendors({
     required String queryText,
     required double? lat,
     required double? lng,
@@ -69,9 +70,8 @@ void main() {
     await tester.tap(find.byKey(const Key('nav_field_flow')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Help a seeker'), findsWidgets);
-    expect(find.textContaining('Quick guidance'), findsOneWidget);
-    expect(find.textContaining('You decide whether to continue'), findsOneWidget);
+    expect(find.text('Before you help'), findsOneWidget);
+    expect(find.textContaining('Consent and dignity'), findsOneWidget);
   });
 
   testWidgets('field page loads instructions and enables vendors after copy', (
@@ -141,10 +141,6 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('Quick guidance'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('field_help_continue_guidance')));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('field_help_generate_ai')), findsOneWidget);
