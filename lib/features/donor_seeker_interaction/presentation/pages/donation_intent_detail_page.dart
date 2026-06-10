@@ -24,6 +24,18 @@ class DonationIntentDetailPage extends StatefulWidget {
   final AuthContext? authContext;
   final String apiBaseUrl;
 
+  static String formatWhen(DateTime? value) {
+    if (value == null) {
+      return '—';
+    }
+    final local = value.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    final hour = local.hour.toString().padLeft(2, '0');
+    final minute = local.minute.toString().padLeft(2, '0');
+    return '${local.year}-$month-$day $hour:$minute';
+  }
+
   @override
   State<DonationIntentDetailPage> createState() =>
       _DonationIntentDetailPageState();
@@ -36,18 +48,6 @@ class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
 
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
-
-  static String formatWhen(DateTime? value) {
-    if (value == null) {
-      return '—';
-    }
-    final local = value.toLocal();
-    final month = local.month.toString().padLeft(2, '0');
-    final day = local.day.toString().padLeft(2, '0');
-    final hour = local.hour.toString().padLeft(2, '0');
-    final minute = local.minute.toString().padLeft(2, '0');
-    return '${local.year}-$month-$day $hour:$minute';
-  }
 
   Future<void> _markPaymentDone() async {
     setState(() {
@@ -145,8 +145,14 @@ class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
               label: 'Photo artifact',
               value: intent.referencePhotoArtifactId!,
             ),
-          _DetailRow(label: 'Registered', value: formatWhen(intent.createdAt)),
-          _DetailRow(label: 'Last updated', value: formatWhen(intent.updatedAt)),
+          _DetailRow(
+            label: 'Registered',
+            value: DonationIntentDetailPage.formatWhen(intent.createdAt),
+          ),
+          _DetailRow(
+            label: 'Last updated',
+            value: DonationIntentDetailPage.formatWhen(intent.updatedAt),
+          ),
           if (intent.verbalHandoverNotes.trim().isNotEmpty) ...<Widget>[
             const SizedBox(height: 16),
             Text('Handover notes', style: theme.textTheme.titleSmall),
