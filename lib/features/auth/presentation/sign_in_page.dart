@@ -1,21 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
 import '../data/auth_api_client.dart';
 import '../data/auth_logout.dart';
 import '../data/auth_session_store.dart';
 import '../data/auth_session_holder.dart';
+import '../data/google_sign_in_helper.dart';
 
-/// `google_sign_in` supports Android, iOS, and macOS — not Windows or Linux.
-bool googleSignInSupportedOnPlatform() {
-  return switch (defaultTargetPlatform) {
-    TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS =>
-      true,
-    _ => false,
-  };
-}
+export '../data/google_sign_in_helper.dart' show googleSignInSupportedOnPlatform;
 
 String _unsupportedPlatformName() {
   return switch (defaultTargetPlatform) {
@@ -55,15 +47,15 @@ class _SignInPageState extends State<SignInPage> {
       _error = null;
     });
     try {
-      final googleSignIn = GoogleSignIn(
-        scopes: const <String>['email', 'profile'],
-        clientId: widget.googleClientId.isNotEmpty
-            ? widget.googleClientId
-            : null,
-        serverClientId: widget.googleClientId.isNotEmpty
-            ? widget.googleClientId
-            : null,
+      final googleSignIn = createGoogleSignIn(
+        googleClientId: widget.googleClientId,
       );
+      // Drop cached Google account so user can pick a different one.
+      try {
+        await googleSignIn.signOut();
+      } catch (_) {
+        // Continue — signIn may still succeed.
+      }
       final account = await googleSignIn.signIn();
       if (account == null) {
         setState(() => _error = 'Google sign-in was cancelled.');

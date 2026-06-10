@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../presentation/donor_navigator_shell.dart';
+import '../data/auth_jwt.dart';
 import '../data/auth_logout.dart';
 import '../data/auth_session_holder.dart';
 import '../data/auth_session_store.dart';
@@ -42,6 +43,10 @@ class _AuthGateState extends State<AuthGate> {
       if (stored != null &&
           stored.role == 'donor' &&
           stored.token.trim().isNotEmpty) {
+        if (isAuthJwtExpired(stored.token)) {
+          await AuthSessionStore().clear();
+          return;
+        }
         await clearExplicitSignOutFlag();
         AuthSessionHolder.setSession(
           userId: stored.userId,

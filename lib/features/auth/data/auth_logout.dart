@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../presentation/handoff_gate_ack_store.dart';
 import 'auth_session_holder.dart';
 import 'auth_session_store.dart';
 
@@ -12,6 +13,7 @@ const String kExplicitSignOutKey = 'sharingbridge_explicit_sign_out_v1';
 /// [recordExplicitSignOut] blocks dev-token auto-login on the next app start.
 Future<void> clearAuthSession({bool recordExplicitSignOut = true}) async {
   await AuthSessionStore().clear();
+  await HandoffGateAckStore().clear();
   AuthSessionHolder.clear();
   if (recordExplicitSignOut) {
     final prefs = await SharedPreferences.getInstance();

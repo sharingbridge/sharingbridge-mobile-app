@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../features/auth/data/auth_session_holder.dart';
 import '../features/donor_seeker_interaction/presentation/pages/donor_seeker_interaction_page.dart';
 import 'about_content.dart';
 import 'donor_app_bar.dart';
+import 'handoff_gate_ack_store.dart';
 
 /// Required read-through before entering Help a seeker.
 class HandoffAboutGatePage extends StatefulWidget {
@@ -42,7 +44,14 @@ class _HandoffAboutGatePageState extends State<HandoffAboutGatePage> {
     }
   }
 
-  void _continueToHandoff() {
+  Future<void> _continueToHandoff() async {
+    final userId = AuthSessionHolder.resolve().userId.trim();
+    if (userId.isNotEmpty) {
+      await HandoffGateAckStore().markAcknowledgedForUser(userId);
+    }
+    if (!mounted) {
+      return;
+    }
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => const DonorSeekerInteractionPage(),

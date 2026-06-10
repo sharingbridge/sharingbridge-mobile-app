@@ -1,170 +1,521 @@
 import 'package:flutter/material.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
+
+
 import '../config/web_dashboard_url.dart';
+
+import '../features/auth/data/auth_session_store.dart';
+
+import '../features/auth/presentation/sign_out_action.dart';
+
 import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
+
 import '../features/seeker_demand/presentation/pages/record_seeker_demand_page.dart';
+
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
+
 import 'about_page.dart';
+
 import 'donor_app_bar.dart';
-import 'handoff_about_gate_page.dart';
+
+import 'navigate_to_help_a_seeker.dart';
+
+
 
 /// Entry hub: vendor presets (before field) vs help a seeker (BRD steps 2+).
-class AppHomePage extends StatelessWidget {
+
+class AppHomePage extends StatefulWidget {
+
   const AppHomePage({super.key});
 
-  Future<void> _openWebDashboard(BuildContext context) async {
-    final url = WebDashboardUrl.value.trim();
-    if (!WebDashboardUrl.isConfigured) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Rebuild the app with --dart-define=WEB_DASHBOARD_URL=<your web app URL>.',
-          ),
-          duration: Duration(seconds: 5),
-        ),
-      );
-      return;
-    }
-    final uri = Uri.tryParse(url);
-    if (uri == null || !uri.hasScheme) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('WEB_DASHBOARD_URL is not a valid URL.')),
-      );
-      return;
-    }
-    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!launched && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open the web dashboard.')),
-      );
-    }
-  }
+
 
   @override
+
+  State<AppHomePage> createState() => _AppHomePageState();
+
+}
+
+
+
+class _AppHomePageState extends State<AppHomePage> {
+
+  StoredAuthSession? _session;
+
+
+
+  @override
+
+  void initState() {
+
+    super.initState();
+
+    _loadSession();
+
+  }
+
+
+
+  Future<void> _loadSession() async {
+
+    final stored = await AuthSessionStore().load();
+
+    if (!mounted) {
+
+      return;
+
+    }
+
+    setState(() => _session = stored);
+
+  }
+
+
+
+  String get _accountLabel {
+
+    final email = _session?.email?.trim();
+
+    if (email != null && email.isNotEmpty) {
+
+      return email;
+
+    }
+
+    final name = _session?.name?.trim();
+
+    if (name != null && name.isNotEmpty) {
+
+      return name;
+
+    }
+
+    final userId = _session?.userId.trim() ?? '';
+
+    if (userId.isNotEmpty) {
+
+      return userId;
+
+    }
+
+    return 'Signed in';
+
+  }
+
+
+
+  Future<void> _openWebDashboard(BuildContext context) async {
+
+    final url = WebDashboardUrl.value.trim();
+
+    if (!WebDashboardUrl.isConfigured) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        const SnackBar(
+
+          content: Text(
+
+            'Rebuild the app with --dart-define=WEB_DASHBOARD_URL=<your web app URL>.',
+
+          ),
+
+          duration: Duration(seconds: 5),
+
+        ),
+
+      );
+
+      return;
+
+    }
+
+    final uri = Uri.tryParse(url);
+
+    if (uri == null || !uri.hasScheme) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        const SnackBar(content: Text('WEB_DASHBOARD_URL is not a valid URL.')),
+
+      );
+
+      return;
+
+    }
+
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!launched && context.mounted) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+
+        const SnackBar(content: Text('Could not open the web dashboard.')),
+
+      );
+
+    }
+
+  }
+
+
+
+  @override
+
   Widget build(BuildContext context) {
+
     final webUrl = WebDashboardUrl.value.trim();
+
     final webSubtitle = WebDashboardUrl.isConfigured
+
         ? 'Open $webUrl — nearby intents, distance (m), and photos.'
+
         : 'Requires WEB_DASHBOARD_URL when you build the app (see mobile-client.md).';
 
+
+
     return Scaffold(
+
       appBar: DonorAppBar(
+
         title: 'SharingBridge',
+
         isHub: true,
+
         showBack: false,
+
         showHome: false,
+
+        showSignOut: false,
+
         actions: <Widget>[
+
           TextButton.icon(
+
             key: const Key('nav_about'),
+
             icon: const Icon(Icons.info_outline, size: 22),
+
             label: const Text('About'),
+
             onPressed: () {
+
               Navigator.of(context).push(
+
                 MaterialPageRoute<void>(
+
                   builder: (BuildContext context) => const AboutPage(),
+
                 ),
+
               );
+
             },
+
           ),
+
         ],
+
       ),
+
       body: ListView(
+
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+
         children: <Widget>[
+
           Text(
+
             'Choose how you are using the app right now.',
+
             style: Theme.of(context).textTheme.titleMedium,
+
           ),
+
           const SizedBox(height: 16),
+
           Card(
+
             child: ListTile(
+
               key: const Key('nav_donor_setup'),
+
               leading: const Icon(Icons.bookmark_outline),
+
               title: const Text('Vendor presets'),
+
               subtitle: const Text(
+
                 'Search vendors, save order links and menu presets before you go out.',
+
               ),
+
               onTap: () {
+
                 Navigator.of(context).push(
+
                   MaterialPageRoute<void>(
+
                     builder: (BuildContext context) => const DonorSetupPage(),
+
                   ),
+
                 );
+
               },
+
             ),
+
           ),
+
           const SizedBox(height: 8),
+
           Card(
+
             child: ListTile(
+
               key: const Key('nav_field_flow'),
+
               leading: const Icon(Icons.volunteer_activism_outlined),
+
               title: const Text('Help a seeker'),
+
               subtitle: const Text(
+
                 'Someone is asking for help now — quick guidance, consent, and handover details.',
+
               ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>
-                        const HandoffAboutGatePage(),
-                  ),
-                );
-              },
+
+              onTap: () => navigateToHelpASeeker(context),
+
             ),
+
           ),
+
           const SizedBox(height: 8),
+
           Card(
+
             child: ListTile(
+
               key: const Key('nav_record_seeker_demand'),
+
               leading: const Icon(Icons.assignment_outlined),
+
               title: const Text('Record seeker demand'),
+
               subtitle: const Text(
+
                 'Log what someone is asking for — feeds the web demand board.',
+
               ),
+
               onTap: () {
+
                 Navigator.of(context).push(
+
                   MaterialPageRoute<void>(
+
                     builder: (BuildContext context) =>
+
                         const RecordSeekerDemandPage(),
+
                   ),
+
                 );
+
               },
+
             ),
+
           ),
+
           const SizedBox(height: 8),
+
           Card(
+
             child: ListTile(
+
               key: const Key('nav_donation_history'),
+
               leading: const Icon(Icons.history),
+
               title: const Text('Order initiation history'),
+
               subtitle: const Text(
+
                 'Order initiations you registered when copying delivery instructions.',
+
               ),
+
               onTap: () {
+
                 Navigator.of(context).push(
+
                   MaterialPageRoute<void>(
+
                     builder: (BuildContext context) =>
+
                         const DonationHistoryPage(),
+
                   ),
+
                 );
+
               },
+
             ),
+
           ),
+
           const SizedBox(height: 8),
+
           Card(
+
             child: ListTile(
+
               key: const Key('nav_web_dashboard'),
+
               leading: const Icon(Icons.open_in_browser),
+
               title: const Text('Neighbourhood dashboard (web)'),
+
               subtitle: Text(webSubtitle),
+
               trailing: const Icon(Icons.chevron_right),
+
               enabled: WebDashboardUrl.isConfigured,
+
               onTap: () => _openWebDashboard(context),
+
             ),
+
           ),
+
+          const SizedBox(height: 24),
+
+          Card(
+
+            child: Padding(
+
+              padding: const EdgeInsets.all(16),
+
+              child: Column(
+
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+
+                children: <Widget>[
+
+                  Row(
+
+                    children: <Widget>[
+
+                      Icon(
+
+                        Icons.account_circle_outlined,
+
+                        color: Theme.of(context).colorScheme.primary,
+
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+
+                        child: Column(
+
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: <Widget>[
+
+                            Text(
+
+                              'Signed in',
+
+                              style: Theme.of(context).textTheme.labelMedium,
+
+                            ),
+
+                            Text(
+
+                              _accountLabel,
+
+                              style: Theme.of(context).textTheme.titleSmall,
+
+                            ),
+
+                          ],
+
+                        ),
+
+                      ),
+
+                    ],
+
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+
+                    'The app remembers your sign-in until you sign out or the '
+
+                    'session expires (about 1 hour). Use Switch account to sign '
+
+                    'in with a different Google user.',
+
+                    style: Theme.of(context).textTheme.bodySmall,
+
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  OutlinedButton.icon(
+
+                    key: const Key('home_switch_account'),
+
+                    onPressed: () =>
+
+                        switchGoogleAccountAndReturnToLogin(context),
+
+                    icon: const Icon(Icons.swap_horiz),
+
+                    label: const Text('Switch Google account'),
+
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  TextButton.icon(
+
+                    key: const Key('home_sign_out'),
+
+                    onPressed: () => signOutAndReturnToLogin(context),
+
+                    icon: const Icon(Icons.logout),
+
+                    label: const Text('Sign out'),
+
+                  ),
+
+                ],
+
+              ),
+
+            ),
+
+          ),
+
         ],
+
       ),
+
     );
+
   }
+
 }
+
+

@@ -11,7 +11,10 @@ import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/dono
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/suggest_vendors_result.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/models/vendor_suggestion.dart';
 import 'package:sharingbridge_mobile_app/features/donor_setup/domain/repositories/donor_setup_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sharingbridge_mobile_app/features/auth/data/auth_session_holder.dart';
 import 'package:sharingbridge_mobile_app/presentation/app_home_page.dart';
+import 'package:sharingbridge_mobile_app/presentation/handoff_gate_ack_store.dart';
 
 class _FakeRepo implements DonorSetupRepository {
   _FakeRepo(this.presets);
@@ -56,6 +59,29 @@ class _FakeRepo implements DonorSetupRepository {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    AuthSessionHolder.clear();
+  });
+
+  testWidgets('home hub skips read-through gate when already acknowledged', (
+    WidgetTester tester,
+  ) async {
+    AuthSessionHolder.setSession(userId: 'alice', token: 'jwt-alice');
+    await HandoffGateAckStore().markAcknowledgedForUser('alice');
+
+    await tester.pumpWidget(
+      const MaterialApp(home: AppHomePage()),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('nav_field_flow')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Before you help'), findsNothing);
+    expect(find.text('Help a seeker'), findsWidgets);
+  });
+
   testWidgets('home hub lists donor setup and opens field flow', (
     WidgetTester tester,
   ) async {
