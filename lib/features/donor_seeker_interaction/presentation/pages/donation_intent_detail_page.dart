@@ -1,13 +1,41 @@
 import 'package:flutter/material.dart';
 
 import '../../../../presentation/donor_app_bar.dart';
+import '../../../auth/data/auth_session_holder.dart';
+import '../../../donor_setup/data/auth_context.dart';
+import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
+import '../../../donor_setup/data/http_donor_setup_api_client.dart';
+import '../../data/http_order_intent_client.dart';
 import '../../domain/models/donation_intent.dart';
 import '../widgets/reference_photo_preview.dart';
 
-class DonationIntentDetailPage extends StatelessWidget {
-  const DonationIntentDetailPage({super.key, required this.intent});
+class DonationIntentDetailPage extends StatefulWidget {
+  const DonationIntentDetailPage({
+    super.key,
+    required this.intent,
+    this.authContext,
+    this.apiBaseUrl = const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://localhost:8080',
+    ),
+  });
 
   final DonationIntent intent;
+  final AuthContext? authContext;
+  final String apiBaseUrl;
+
+  @override
+  State<DonationIntentDetailPage> createState() =>
+      _DonationIntentDetailPageState();
+}
+
+class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
+  late DonationIntent _intent = widget.intent;
+  bool _savingPayment = false;
+  String? _errorText;
+
+  AuthContext get _session =>
+      widget.authContext ?? AuthSessionHolder.resolve();
 
   static String formatWhen(DateTime? value) {
     if (value == null) {
@@ -21,9 +49,47 @@ class DonationIntentDetailPage extends StatelessWidget {
     return '${local.year}-$month-$day $hour:$minute';
   }
 
+  Future<void> _markPaymentDone() async {
+    setState(() {
+      _savingPayment = true;
+      _errorText = null;
+    });
+    try {
+      final updated = await HttpOrderIntentClient(
+        baseUrl: widget.apiBaseUrl,
+        authContext: _session,
+        api: HttpDonorSetupApiClient(
+          baseUrl: widget.apiBaseUrl,
+          authContext: _session,
+        ),
+      ).markPaymentDone(_intent.orderIntentId);
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _intent = updated;
+        _savingPayment = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Marked payment done in vendor app.')),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _savingPayment = false;
+        _errorText = error is DonorSetupBadRequestException
+            ? error.message
+            : 'Could not update payment: $error';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final intent = _intent;
     return Scaffold(
       appBar: const DonorAppBar(
         title: 'Order initiation',
@@ -35,6 +101,33 @@ class DonationIntentDetailPage extends StatelessWidget {
           _DetailRow(label: 'Reference', value: intent.orderIntentId),
           _DetailRow(label: 'Instruction pack', value: intent.packId),
           _DetailRow(label: 'Status', value: intent.statusLabel),
+          _DetailRow(label: 'Payment', value: intent.paymentStatusLabel),
+          _DetailRow(label: 'Delivery', value: intent.deliveryStatus.replaceAll('_', ' ')),
+          if (intent.canMarkPaymentDone) ...<Widget>[
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: _savingPayment ? null : _markPaymentDone,
+              icon: _savingPayment
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.payments_outlined),
+              label: Text(
+                _savingPayment ? 'Saving…' : 'Mark payment done',
+              ),
+            ),
+          ],
+          if (_errorText != null) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              _errorText!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
           if (intent.hasDisplayableReferencePhoto) ...<Widget>[
             const SizedBox(height: 8),
             ReferencePhotoPreview(
@@ -100,18 +193,20 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+          SizedBox(
+            width: 132,
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
           ),
-          const SizedBox(height: 4),
-          SelectableText(value),
+          Expanded(child: SelectableText(value)),
         ],
       ),
     );

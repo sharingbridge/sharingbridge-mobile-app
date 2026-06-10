@@ -187,6 +187,20 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> patchDonorSeekerJson({
+    required String path,
+    required Map<String, dynamic> body,
+  }) {
+    return _runWithRetry(
+      policy: savePresetsRetryPolicy,
+      operation: () => _sendJson(
+        method: 'PATCH',
+        uri: Uri.parse('$baseUrl$path'),
+        body: body,
+      ),
+    );
+  }
+
   Future<Map<String, dynamic>> getDonorSeekerJson({
     required String path,
     Map<String, String>? queryParameters,
@@ -247,6 +261,9 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
           break;
         case 'DELETE':
           request = await _httpClient.deleteUrl(uri);
+          break;
+        case 'PATCH':
+          request = await _httpClient.patchUrl(uri);
           break;
         default:
           throw ArgumentError('Unsupported HTTP method: $method');

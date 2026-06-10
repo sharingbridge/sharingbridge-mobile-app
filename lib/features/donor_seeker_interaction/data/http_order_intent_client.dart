@@ -142,4 +142,19 @@ class HttpOrderIntentClient {
         .where((DonationIntent intent) => intent.orderIntentId.isNotEmpty)
         .toList();
   }
+
+  Future<DonationIntent> markPaymentDone(String orderIntentId) async {
+    final decoded = await _api.patchDonorSeekerJson(
+      path:
+          '/v1/donor-seeker/order-intents/${Uri.encodeComponent(orderIntentId)}',
+      body: <String, dynamic>{'payment_status': 'paid_externally'},
+    );
+    final raw = decoded['order_intent'];
+    if (raw is! Map) {
+      throw const DonorSetupResponseException(
+        'order_intent must be an object',
+      );
+    }
+    return DonationIntent.fromJson(Map<String, dynamic>.from(raw));
+  }
 }

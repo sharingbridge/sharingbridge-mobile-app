@@ -15,6 +15,8 @@ class DonationIntent {
     this.localityKey,
     this.createdAt,
     this.updatedAt,
+    this.paymentStatus = 'pending',
+    this.deliveryStatus = 'pending',
   });
 
   factory DonationIntent.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,8 @@ class DonationIntent {
       localityKey: json['locality_key']?.toString(),
       createdAt: DateTime.tryParse(json['created_at']?.toString() ?? ''),
       updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? ''),
+      paymentStatus: json['payment_status']?.toString() ?? 'pending',
+      deliveryStatus: json['delivery_status']?.toString() ?? 'pending',
     );
   }
 
@@ -66,6 +70,8 @@ class DonationIntent {
   final String? localityKey;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String paymentStatus;
+  final String deliveryStatus;
 
   String get statusLabel {
     return status.replaceAll('_', ' ');
@@ -88,6 +94,10 @@ class DonationIntent {
   }
 
   DateTime? get sortTime => updatedAt ?? createdAt;
+
+  String get paymentStatusLabel => paymentStatus.replaceAll('_', ' ');
+
+  bool get canMarkPaymentDone => paymentStatus != 'paid_externally';
 
   bool get hasDisplayableReferencePhoto {
     final thumb = referencePhotoThumbnailUrl?.trim();
