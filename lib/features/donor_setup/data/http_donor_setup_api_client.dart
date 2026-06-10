@@ -8,6 +8,9 @@ import 'auth_context.dart';
 import 'donor_setup_api_client.dart';
 import 'donor_setup_api_exceptions.dart';
 
+/// Server may retry orchestration on Render 429 with backoff (up to ~2 min).
+const Duration suggestVendorsRequestTimeout = Duration(seconds: 90);
+
 /// Retry policy applied to a single API call.
 class RetryPolicy {
   const RetryPolicy({
@@ -90,6 +93,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         method: 'POST',
         uri: Uri.parse('$baseUrl/v1/donor-setup/suggest-vendors'),
         body: payload,
+        timeout: suggestVendorsRequestTimeout,
       ),
     );
   }
@@ -228,7 +232,9 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
     required String method,
     required Uri uri,
     Object? body,
+    Duration? timeout,
   }) async {
+    final effectiveTimeout = timeout ?? requestTimeout;
     HttpClientResponse response;
     try {
       final HttpClientRequest request;
@@ -252,10 +258,10 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         request.headers.contentType = ContentType.json;
         request.write(jsonEncode(body));
       }
-      response = await request.close().timeout(requestTimeout);
+      response = await request.close().timeout(effectiveTimeout);
     } on TimeoutException catch (error) {
       throw DonorSetupTimeoutException(
-        'Request to $uri timed out after ${requestTimeout.inMilliseconds}ms: $error',
+        'Request to $uri timed out after ${effectiveTimeout.inMilliseconds}ms: $error',
       );
     } on SocketException catch (error) {
       throw DonorSetupNetworkException(
@@ -269,7 +275,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
 
     final responseBody = await utf8
         .decodeStream(response)
-        .timeout(requestTimeout, onTimeout: () => '');
+        .timeout(effectiveTimeout, onTimeout: () => '');
 
     final status = response.statusCode;
     if (status >= 200 && status < 300) {
