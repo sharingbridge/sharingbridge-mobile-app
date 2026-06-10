@@ -22,6 +22,7 @@ class HttpSeekerDemandClient {
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,
               authContext: authContext,
+              requestTimeout: donorSeekerWriteRequestTimeout,
             );
 
   final String baseUrl;

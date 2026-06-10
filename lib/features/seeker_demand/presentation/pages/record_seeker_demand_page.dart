@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_seeker_interaction/data/capture_handover_location.dart';
 import '../../../donor_setup/data/auth_context.dart';
+import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/http_seeker_demand_client.dart';
 
@@ -95,9 +96,23 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       }
       setState(() {
         _submitting = false;
-        _errorText = 'Could not record demand: $e';
+        _errorText = _formatSubmitError(e);
       });
     }
+  }
+
+  String _formatSubmitError(Object error) {
+    if (error is DonorSetupTimeoutException) {
+      return 'The server took too long to respond (it may be waking up on Render). '
+          'Wait a few seconds and try again.';
+    }
+    if (error is DonorSetupNetworkException) {
+      return 'Network error while recording demand. Check your connection and try again.';
+    }
+    if (error is DonorSetupBadRequestException) {
+      return error.message;
+    }
+    return 'Could not record demand: $error';
   }
 
   @override

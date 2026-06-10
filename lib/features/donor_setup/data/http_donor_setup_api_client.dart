@@ -11,6 +11,9 @@ import 'donor_setup_api_exceptions.dart';
 /// Server may retry orchestration on Render 429 with backoff (up to ~2 min).
 const Duration suggestVendorsRequestTimeout = Duration(seconds: 90);
 
+/// Donor–seeker writes (order-intents, seeker-demands) on Render can cold-start.
+const Duration donorSeekerWriteRequestTimeout = Duration(seconds: 45);
+
 /// Retry policy applied to a single API call.
 class RetryPolicy {
   const RetryPolicy({

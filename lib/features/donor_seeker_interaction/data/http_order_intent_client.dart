@@ -16,6 +16,7 @@ class HttpOrderIntentClient {
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,
               authContext: authContext,
+              requestTimeout: donorSeekerWriteRequestTimeout,
             );
 
   final String baseUrl;
