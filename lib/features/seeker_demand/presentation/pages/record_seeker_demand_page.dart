@@ -35,7 +35,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   bool _loadingOffers = false;
   String? _errorText;
   String? _lastDemandId;
-  String? _areaBucketLabel;
+  String? _areaLocalityKey;
   List<StandardOfferOption> _offers = <StandardOfferOption>[];
   String? _selectedOfferId;
   HandoverLocation? _capturedLocation;
@@ -90,12 +90,14 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
         _offers = offers;
         _selectedOfferId =
             offers.isNotEmpty ? offers.first.standardOfferId : null;
-        _areaBucketLabel = offers.isNotEmpty
+        _areaLocalityKey = offers.isNotEmpty
             ? offers.first.localityKey
             : null;
         if (offers.isEmpty) {
           _errorText =
-              'No standard menu items for this GPS area yet. Ask a coordinator to seed offers for bucket ${location.lat}, ${location.lng}.';
+              'No standard menu items for this postal area yet. '
+              'Ask a coordinator to seed offers in Supabase (e.g. IN:TN:PIN) '
+              'after running seed-standard-offers.sql.';
         }
       });
     } catch (e) {
@@ -186,7 +188,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Pick a standard menu item for this GPS area — not free text. '
+            'Pick a standard menu item for this postal area (IN:TN:PIN) — not free text. '
             'Light dinner and full lunch are separate lines with their own prices.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
@@ -209,10 +211,10 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                   : 'Detect area & load menu items',
             ),
           ),
-          if (_areaBucketLabel != null) ...<Widget>[
+          if (_areaLocalityKey != null) ...<Widget>[
             const SizedBox(height: 8),
             Text(
-              'Area bucket: $_areaBucketLabel',
+              'Postal area: $_areaLocalityKey',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],

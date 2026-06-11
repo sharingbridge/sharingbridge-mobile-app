@@ -16,7 +16,7 @@ class StandardOfferOption {
   final int? priceInr;
 }
 
-/// Lists pilot standard menu items for a GPS area bucket.
+/// Lists standard menu items for a postal locality (resolved from GPS on the server).
 class HttpStandardOffersClient {
   HttpStandardOffersClient({
     required this.baseUrl,
