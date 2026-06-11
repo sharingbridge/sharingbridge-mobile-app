@@ -31,7 +31,7 @@ class AuthSessionStore {
       final map = jsonDecode(raw) as Map<String, dynamic>;
       final userId = map['userId']?.toString() ?? '';
       final token = map['token']?.toString() ?? '';
-      final role = map['role']?.toString() ?? 'donor';
+      final role = map['role']?.toString() ?? 'initiator';
       if (userId.isEmpty || token.isEmpty) {
         return null;
       }

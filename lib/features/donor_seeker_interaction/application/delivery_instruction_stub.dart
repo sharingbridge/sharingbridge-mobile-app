@@ -59,7 +59,7 @@ String buildDeliveryInstructionsStub(
   if (presets.isEmpty) {
     buffer.writeln('');
     buffer.writeln(
-      '(Donor: save a vendor preset in Vendor presets to unlock order links on the next screen.)',
+      '(Save a vendor preset in Vendor presets to unlock order links on the next screen.)',
     );
   }
 

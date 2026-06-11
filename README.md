@@ -1,10 +1,12 @@
 # sharingbridge-mobile-app
 
-> Flutter mobile app for donors (MVP)
+> Flutter mobile app for meal initiators (MVP)
 
 ## Status
 
-**Shipped:** Donor setup, **Help a seeker** (guidance → instruction pack → register order intent), **Order initiation history**, **Google Sign-In** (donor). Seeker flows and push notifications are not in this MVP.
+**Shipped:** Vendor preset setup, **Help a seeker** (guidance → instruction pack → register order intent), **Order initiation history**, **Google Sign-In** (JWT role `donor` today). Push notifications are not in this MVP.
+
+**Product language:** [README § Documentation verbiage](https://github.com/sharingbridge/sharingbridge/blob/main/README.md#documentation-guide).
 
 **Doc map and live status:** [AGENT_HANDOFF.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_HANDOFF.md) § Documentation map.
 
@@ -45,9 +47,9 @@ flutter run --dart-define=API_BASE_URL=http://localhost:8080 --dart-define=AUTH_
 
 | Flow | Endpoint |
 |------|----------|
-| Donor setup | `POST /v1/donor-setup/suggest-vendors`, preferences CRUD |
-| Help a seeker | `POST /v1/donor-seeker/instruction-pack` |
-| Order intent | `POST` / `GET /v1/donor-seeker/order-intents` |
+| Vendor preset setup | `POST /v1/initiator-setup/suggest-vendors`, preferences CRUD |
+| Help a seeker | `POST /v1/instruction-pack` |
+| Order intent | `POST` / `GET /v1/order-intents` |
 
 Details: [configuration/field-handoff.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/field-handoff.md).
 

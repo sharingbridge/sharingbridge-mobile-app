@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import '../../../config/integration_api_paths.dart';
+
 /// User id plus the integration-service Bearer JWT for API calls.
 ///
 /// In the app, use [AuthSessionHolder.resolve] so HTTP clients pick up the JWT
@@ -41,7 +43,7 @@ class AuthContext {
     String baseUrl, {
     String? explicitUserId,
   }) {
-    final uri = Uri.parse('$baseUrl/v1/donor-setup/preferences');
+    final uri = Uri.parse('$baseUrl${IntegrationApiPaths.preferences}');
     final params = userIdQueryParameters(explicitUserId: explicitUserId);
     if (params.isEmpty) {
       return uri;

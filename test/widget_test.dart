@@ -16,7 +16,7 @@ void main() {
     await tester.pumpWidget(const SharingBridgeApp());
     await tester.pumpAndSettle();
     expect(find.text('SharingBridge'), findsOneWidget);
-    expect(find.text('Donor sign in'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
     expect(find.text('Continue with Google'), findsOneWidget);
   });
 }

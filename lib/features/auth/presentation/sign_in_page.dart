@@ -124,7 +124,7 @@ class _SignInPageState extends State<SignInPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Text(
-              'Donor sign in',
+              'Sign in',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 12),

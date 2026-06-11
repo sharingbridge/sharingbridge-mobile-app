@@ -1,3 +1,4 @@
+import '../../../config/integration_api_paths.dart';
 import '../../auth/data/auth_session_holder.dart';
 import '../../donor_setup/data/auth_context.dart';
 import '../../donor_setup/data/donor_setup_api_exceptions.dart';
@@ -45,7 +46,7 @@ class HttpOrderIntentClient {
     String? seekerHandoverHints,
   }) async {
     final decoded = await _api.postDonorSeekerJson(
-      path: '/v1/donor-seeker/order-intents',
+      path: IntegrationApiPaths.orderIntents,
       body: _auth.withOptionalUserId(<String, dynamic>{
         'pack_id': packId,
         if (existingOrderIntentId != null &&
@@ -125,7 +126,7 @@ class HttpOrderIntentClient {
       queryParameters['near_lng'] = nearLng.toString();
     }
     final decoded = await _api.getDonorSeekerJson(
-      path: '/v1/donor-seeker/order-intents',
+      path: IntegrationApiPaths.orderIntents,
       queryParameters: queryParameters,
     );
     final raw = decoded['order_intents'];
@@ -147,7 +148,7 @@ class HttpOrderIntentClient {
   Future<DonationIntent> markPaymentDone(String orderIntentId) async {
     final decoded = await _api.patchDonorSeekerJson(
       path:
-          '/v1/donor-seeker/order-intents/${Uri.encodeComponent(orderIntentId)}',
+          '${IntegrationApiPaths.orderIntents}/${Uri.encodeComponent(orderIntentId)}',
       body: <String, dynamic>{'payment_status': 'paid_externally'},
     );
     final raw = decoded['order_intent'];

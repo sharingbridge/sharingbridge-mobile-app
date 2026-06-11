@@ -284,7 +284,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
               subtitle: const Text(
 
-                'Someone is asking for help now — quick guidance, consent, and handover details.',
+                'Arrange a meal in person — guidance, consent, and handover details.',
 
               ),
 
@@ -304,11 +304,11 @@ class _AppHomePageState extends State<AppHomePage> {
 
               leading: const Icon(Icons.assignment_outlined),
 
-              title: const Text('Record seeker demand'),
+              title: const Text('Record meal need'),
 
               subtitle: const Text(
 
-                'Log what someone is asking for — feeds the web demand board.',
+                'Log a standard menu item for this area — feeds the web demand board.',
 
               ),
 

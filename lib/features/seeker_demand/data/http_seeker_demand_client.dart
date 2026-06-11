@@ -32,7 +32,7 @@ class HttpSeekerDemandClient {
   AuthContext get _auth => _authOverride ?? AuthSessionHolder.resolve();
 
   Future<SeekerDemandRegistration> recordSeekerDemand({
-    required String needDescription,
+    required String standardOfferId,
     int mealUnits = 1,
     String? verbalNotes,
     double? locationLat,
@@ -42,7 +42,7 @@ class HttpSeekerDemandClient {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/seeker-demands',
       body: _auth.withOptionalUserId(<String, dynamic>{
-        'need_description': needDescription.trim(),
+        'standard_offer_id': standardOfferId.trim(),
         'meal_units': mealUnits,
         if (verbalNotes != null && verbalNotes.trim().isNotEmpty)
           'verbal_notes': verbalNotes.trim(),

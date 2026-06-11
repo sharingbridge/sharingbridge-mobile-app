@@ -9,9 +9,10 @@ class AboutContent extends StatelessWidget {
     (
       title: 'What SharingBridge does',
       body:
-          'SharingBridge helps donors arrange meal handovers to people asking '
-          'for help. You prepare courier-facing instructions, copy them, then '
-          'place and pay for the order in Swiggy or Zomato yourself.',
+          'SharingBridge helps you arrange meals for anyone who needs food — '
+          'someone you meet, a parent, a senior neighbour, or yourself. '
+          'Prepare courier-facing instructions, copy them, then place and pay '
+          'in Swiggy or Zomato yourself.',
     ),
     (
       title: 'Consent and dignity',
@@ -34,9 +35,9 @@ class AboutContent extends StatelessWidget {
     (
       title: 'Order intent',
       body:
-          'Copying instructions registers a donation intent for coordinators '
-          'and nearby donors on the web dashboard. It is not a placed or paid '
-          'vendor order until you complete checkout there.',
+          'Copying instructions registers an order intent for coordinators '
+          'and nearby initiators on the web dashboard. It is not a placed or '
+          'paid vendor order until you complete checkout there.',
     ),
   ];
 

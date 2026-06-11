@@ -58,7 +58,7 @@ void main() {
       const ctx = AuthContext(userId: 'alice', authToken: 'signed.jwt');
       final uri = ctx.donorSetupPreferencesUri('http://localhost:8080');
       expect(uri.query, isEmpty);
-      expect(uri.path, '/v1/donor-setup/preferences');
+      expect(uri.path, '/v1/initiator-setup/preferences');
     });
 
     test('adds user_id query when no Bearer token', () {

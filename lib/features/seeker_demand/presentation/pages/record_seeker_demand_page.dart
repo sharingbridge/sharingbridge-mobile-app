@@ -6,6 +6,7 @@ import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/http_seeker_demand_client.dart';
+import '../../data/http_standard_offers_client.dart';
 
 /// Record seeker-expressed meal demand for neighbourhood aggregation.
 class RecordSeekerDemandPage extends StatefulWidget {
@@ -28,12 +29,16 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     defaultValue: 'http://localhost:8080',
   );
 
-  final TextEditingController _needController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
   int _mealUnits = 1;
   bool _submitting = false;
+  bool _loadingOffers = false;
   String? _errorText;
   String? _lastDemandId;
+  String? _areaBucketLabel;
+  List<StandardOfferOption> _offers = <StandardOfferOption>[];
+  String? _selectedOfferId;
+  HandoverLocation? _capturedLocation;
 
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
@@ -45,15 +50,68 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
 
   @override
   void dispose() {
-    _needController.dispose();
     _notesController.dispose();
     super.dispose();
   }
 
+  Future<void> _loadOffersForArea() async {
+    setState(() {
+      _loadingOffers = true;
+      _errorText = null;
+    });
+
+    final location = await _captureLocation();
+    if (!mounted) {
+      return;
+    }
+    if (location == null) {
+      setState(() {
+        _loadingOffers = false;
+        _errorText =
+            'Location is required to load standard menu items for this area.';
+      });
+      return;
+    }
+
+    try {
+      final offers = await HttpStandardOffersClient(
+        baseUrl: _defaultApiBaseUrl,
+        authContext: _session,
+      ).listForLocation(
+        locationLat: location.lat,
+        locationLng: location.lng,
+      );
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loadingOffers = false;
+        _capturedLocation = location;
+        _offers = offers;
+        _selectedOfferId =
+            offers.isNotEmpty ? offers.first.standardOfferId : null;
+        _areaBucketLabel = offers.isNotEmpty
+            ? offers.first.localityKey
+            : null;
+        if (offers.isEmpty) {
+          _errorText =
+              'No standard menu items for this GPS area yet. Ask a coordinator to seed offers for bucket ${location.lat}, ${location.lng}.';
+        }
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _loadingOffers = false;
+        _errorText = _formatSubmitError(e);
+      });
+    }
+  }
+
   Future<void> _submit() async {
-    final need = _needController.text.trim();
-    if (need.isEmpty) {
-      setState(() => _errorText = 'Describe what the seeker needs.');
+    if (_selectedOfferId == null || _selectedOfferId!.isEmpty) {
+      setState(() => _errorText = 'Choose a standard menu item.');
       return;
     }
 
@@ -62,13 +120,13 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       _errorText = null;
     });
 
-    final location = await _captureLocation();
+    final location = _capturedLocation ?? await _captureLocation();
     try {
       final result = await HttpSeekerDemandClient(
         baseUrl: _defaultApiBaseUrl,
         authContext: _session,
       ).recordSeekerDemand(
-        needDescription: need,
+        standardOfferId: _selectedOfferId!,
         mealUnits: _mealUnits,
         verbalNotes: _notesController.text,
         locationLat: location?.lat,
@@ -118,7 +176,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DonorAppBar(title: 'Record seeker demand'),
+      appBar: const DonorAppBar(title: 'Record meal need'),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: <Widget>[
@@ -128,23 +186,66 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'This feeds the neighbourhood demand board. It is not a vendor order '
-            'until someone pledges and pays in a vendor app.',
+            'Pick a standard menu item for this GPS area — not free text. '
+            'Light dinner and full lunch are separate lines with their own prices.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: 20),
-          TextField(
-            key: const Key('record_seeker_demand_need'),
-            controller: _needController,
-            enabled: !_submitting,
-            decoration: const InputDecoration(
-              labelText: 'What do they need?',
-              hintText: 'e.g. 2 vegetarian meals, lunch for family of 3',
-              border: OutlineInputBorder(),
+          const SizedBox(height: 16),
+          OutlinedButton.icon(
+            key: const Key('record_seeker_demand_load_offers'),
+            onPressed: _submitting || _loadingOffers
+                ? null
+                : () => _loadOffersForArea(),
+            icon: _loadingOffers
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.my_location),
+            label: Text(
+              _loadingOffers
+                  ? 'Loading menu…'
+                  : 'Detect area & load menu items',
             ),
-            maxLines: 3,
-            textCapitalization: TextCapitalization.sentences,
           ),
+          if (_areaBucketLabel != null) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              'Area bucket: $_areaBucketLabel',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+          const SizedBox(height: 16),
+          if (_offers.isEmpty)
+            Text(
+              'Load menu items for the seeker\'s location before recording demand.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            )
+          else
+            DropdownButtonFormField<String>(
+              key: const Key('record_seeker_demand_offer'),
+              value: _selectedOfferId,
+              decoration: const InputDecoration(
+                labelText: 'Standard menu item',
+                border: OutlineInputBorder(),
+              ),
+              items: _offers
+                  .map(
+                    (offer) => DropdownMenuItem<String>(
+                      value: offer.standardOfferId,
+                      child: Text(
+                        offer.priceInr != null
+                            ? '${offer.menuLabel} (₹${offer.priceInr})'
+                            : offer.menuLabel,
+                      ),
+                    ),
+                  )
+                  .toList(growable: false),
+              onChanged: _submitting
+                  ? null
+                  : (value) => setState(() => _selectedOfferId = value),
+            ),
           const SizedBox(height: 16),
           Row(
             children: <Widget>[
@@ -195,7 +296,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             key: const Key('record_seeker_demand_submit'),
-            onPressed: _submitting ? null : _submit,
+            onPressed: _submitting || _offers.isEmpty ? null : _submit,
             icon: _submitting
                 ? const SizedBox(
                     width: 20,
@@ -203,7 +304,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.check),
-            label: Text(_submitting ? 'Recording…' : 'Record demand'),
+            label: Text(_submitting ? 'Recording…' : 'Record meal need'),
           ),
         ],
       ),

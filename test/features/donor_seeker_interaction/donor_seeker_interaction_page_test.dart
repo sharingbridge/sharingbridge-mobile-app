@@ -191,7 +191,7 @@ void main() {
       isNotNull,
     );
     expect(
-      find.textContaining('register donation intent'),
+      find.text('Copy instructions to clipboard and register order intent'),
       findsOneWidget,
     );
     expect(find.textContaining('Instructions copied'), findsOneWidget);

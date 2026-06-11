@@ -41,7 +41,7 @@ class _AuthGateState extends State<AuthGate> {
       }
       final stored = await AuthSessionStore().load();
       if (stored != null &&
-          stored.role == 'donor' &&
+          (stored.role == 'initiator' || stored.role == 'donor') &&
           stored.token.trim().isNotEmpty) {
         if (isAuthJwtExpired(stored.token)) {
           await AuthSessionStore().clear();
@@ -56,10 +56,13 @@ class _AuthGateState extends State<AuthGate> {
         return;
       }
       if (stored != null &&
-          (stored.role != 'donor' || stored.token.trim().isEmpty)) {
+          ((stored.role != 'initiator' && stored.role != 'donor') ||
+              stored.token.trim().isEmpty)) {
         await AuthSessionStore().clear();
       }
-      if (stored != null && stored.role != 'donor') {
+      if (stored != null &&
+          stored.role != 'initiator' &&
+          stored.role != 'donor') {
         await AuthSessionStore().clear();
       }
       final envAuth = AuthSessionHolder.resolve();

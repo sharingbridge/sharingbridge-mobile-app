@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import '../../../config/integration_api_paths.dart';
 import '../../auth/data/auth_session_holder.dart';
 import 'auth_context.dart';
 import 'donor_setup_api_client.dart';
@@ -94,7 +95,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       policy: retryPolicy,
       operation: () => _sendJson(
         method: 'POST',
-        uri: Uri.parse('$baseUrl/v1/donor-setup/suggest-vendors'),
+        uri: Uri.parse('$baseUrl${IntegrationApiPaths.suggestVendors}'),
         body: payload,
         timeout: suggestVendorsRequestTimeout,
       ),
@@ -134,7 +135,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       operation: () async {
         await _sendJson(
           method: 'POST',
-          uri: Uri.parse('$baseUrl/v1/donor-setup/preferences'),
+          uri: Uri.parse('$baseUrl${IntegrationApiPaths.preferences}'),
           body: _auth.withOptionalUserId(
             <String, dynamic>{'presets': payload},
             explicitUserId: userId,
@@ -169,7 +170,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
       policy: const RetryPolicy(maxAttempts: 1),
       operation: () => _sendJson(
         method: 'POST',
-        uri: Uri.parse('$baseUrl/v1/donor-seeker/instruction-pack'),
+        uri: Uri.parse('$baseUrl${IntegrationApiPaths.instructionPack}'),
         body: body,
       ),
     );
@@ -229,7 +230,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         await _sendJson(
           method: 'POST',
           uri: Uri.parse(
-            '$baseUrl/v1/donor-setup/preferences/delete-item',
+            '$baseUrl${IntegrationApiPaths.preferencesDeleteItem}',
           ),
           body: _auth.withOptionalUserId(
             <String, dynamic>{

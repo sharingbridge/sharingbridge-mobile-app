@@ -79,7 +79,7 @@ class AuthApiClient {
     return AuthSignInResult(
       token: token,
       userId: userId,
-      role: userMap['role']?.toString() ?? 'donor',
+      role: userMap['role']?.toString() ?? 'initiator',
       email: userMap['email']?.toString(),
       name: userMap['name']?.toString(),
     );

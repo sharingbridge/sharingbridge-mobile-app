@@ -439,8 +439,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         SnackBar(
           content: Text(
             registration.updated
-                ? 'Instructions copied to clipboard. Donation intent updated (${registration.orderIntentId}).$locationNote'
-                : 'Instructions copied to clipboard. Donation intent registered (${registration.orderIntentId}).$locationNote',
+                ? 'Instructions copied to clipboard. Order intent updated (${registration.orderIntentId}).$locationNote'
+                : 'Instructions copied to clipboard. Order intent registered (${registration.orderIntentId}).$locationNote',
           ),
         ),
       );
@@ -665,8 +665,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
               : const Icon(Icons.copy),
           label: Text(
             _registeringOrderIntent
-                ? 'Copying and registering donation intent…'
-                : 'Copy instructions to clipboard and register donation intent',
+                ? 'Copying and registering order intent…'
+                : 'Copy instructions to clipboard and register order intent',
           ),
         ),
         const SizedBox(height: 12),
@@ -714,7 +714,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
           Text(
             _showVendorLinks
                 ? 'Open a saved vendor app'
-                : 'Saved vendor links (available after you register the donation intent)',
+                : 'Saved vendor links (available after you register the order intent)',
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
