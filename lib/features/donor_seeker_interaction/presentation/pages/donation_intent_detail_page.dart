@@ -50,6 +50,31 @@ class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
       widget.authContext ?? AuthSessionHolder.resolve();
 
   Future<void> _markPaymentDone() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Mark payment done?'),
+          content: const Text(
+            'Confirm you placed and paid for this meal in the vendor app. '
+            'Coordinators will see payment as done.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Mark payment done'),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) {
+      return;
+    }
     setState(() {
       _savingPayment = true;
       _errorText = null;
