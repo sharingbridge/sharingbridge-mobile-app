@@ -95,9 +95,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
             : null;
         if (offers.isEmpty) {
           _errorText =
-              'No standard menu items for this postal area yet. '
-              'Ask a coordinator to seed offers in Supabase (e.g. IN:TN:PIN) '
-              'after running seed-standard-offers.sql.';
+              'No standard menu items are configured for this postal area.';
         }
       });
     } catch (e) {
