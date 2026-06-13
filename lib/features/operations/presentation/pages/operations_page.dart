@@ -5,14 +5,29 @@ import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_seeker_interaction/data/http_order_intent_client.dart';
 import '../../../donor_seeker_interaction/domain/models/donation_intent.dart';
 import '../../../donor_seeker_interaction/presentation/pages/donation_intent_detail_page.dart';
-import '../../../donor_seeker_interaction/presentation/order_intent_grouping.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../donor_setup/data/http_donor_setup_api_client.dart';
 import '../../../seeker_demand/data/http_seeker_demand_client.dart';
 import '../../../seeker_demand/domain/models/seeker_demand_summary.dart';
 
-/// Combined order initiations + recorded meal needs (seeker demands).
+enum _InitiationKind { vendorOrder, mealNeed }
+
+class _InitiationRow {
+  const _InitiationRow({
+    required this.kind,
+    required this.createdAt,
+    this.intent,
+    this.demand,
+  });
+
+  final _InitiationKind kind;
+  final DateTime? createdAt;
+  final DonationIntent? intent;
+  final SeekerDemandSummary? demand;
+}
+
+/// Combined vendor-order and meal-need initiations.
 class OperationsPage extends StatefulWidget {
   const OperationsPage({
     super.key,
@@ -34,8 +49,7 @@ class _OperationsPageState extends State<OperationsPage> {
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
 
-  List<DonationIntent> _intents = <DonationIntent>[];
-  List<SeekerDemandSummary> _demands = <SeekerDemandSummary>[];
+  List<_InitiationRow> _rows = <_InitiationRow>[];
   bool _loading = true;
   String? _errorText;
 
@@ -43,6 +57,34 @@ class _OperationsPageState extends State<OperationsPage> {
   void initState() {
     super.initState();
     _refresh();
+  }
+
+  List<_InitiationRow> _mergeRows(
+    List<DonationIntent> intents,
+    List<SeekerDemandSummary> demands,
+  ) {
+    final rows = <_InitiationRow>[
+      ...intents.map(
+        (DonationIntent intent) => _InitiationRow(
+          kind: _InitiationKind.vendorOrder,
+          createdAt: intent.createdAt ?? intent.updatedAt,
+          intent: intent,
+        ),
+      ),
+      ...demands.map(
+        (SeekerDemandSummary demand) => _InitiationRow(
+          kind: _InitiationKind.mealNeed,
+          createdAt: DateTime.tryParse(demand.createdAt),
+          demand: demand,
+        ),
+      ),
+    ];
+    rows.sort((a, b) {
+      final aMs = a.createdAt?.millisecondsSinceEpoch ?? 0;
+      final bMs = b.createdAt?.millisecondsSinceEpoch ?? 0;
+      return bMs.compareTo(aMs);
+    });
+    return rows;
   }
 
   Future<void> _refresh() async {
@@ -59,7 +101,7 @@ class _OperationsPageState extends State<OperationsPage> {
         baseUrl: _defaultApiBaseUrl,
         authContext: _session,
         api: api,
-      ).listDonationIntents();
+      ).listDonationIntents(since: '7d');
       final demands = await HttpSeekerDemandClient(
         baseUrl: _defaultApiBaseUrl,
         authContext: _session,
@@ -69,8 +111,7 @@ class _OperationsPageState extends State<OperationsPage> {
         return;
       }
       setState(() {
-        _intents = intents;
-        _demands = demands;
+        _rows = _mergeRows(intents, demands);
       });
     } catch (error) {
       if (!mounted) {
@@ -79,9 +120,8 @@ class _OperationsPageState extends State<OperationsPage> {
       setState(() {
         _errorText = error is DonorSetupBadRequestException
             ? error.message
-            : 'Could not load operations: $error';
-        _intents = <DonationIntent>[];
-        _demands = <SeekerDemandSummary>[];
+            : 'Could not load initiations: $error';
+        _rows = <_InitiationRow>[];
       });
     } finally {
       if (mounted) {
@@ -93,11 +133,10 @@ class _OperationsPageState extends State<OperationsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final groups = groupDonationIntents(_intents);
 
     return Scaffold(
       appBar: const DonorAppBar(
-        title: 'Meal operations',
+        title: 'Initiations',
         showSignOut: false,
       ),
       body: RefreshIndicator(
@@ -106,8 +145,8 @@ class _OperationsPageState extends State<OperationsPage> {
           padding: const EdgeInsets.all(16),
           children: <Widget>[
             Text(
-              'Order initiations and recorded meal needs in one place. '
-              'Coordinators use the web dashboard for pledges and vendor bids.',
+              'Vendor orders you pay yourself, and meal needs that others can '
+              'pledge toward.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -122,72 +161,53 @@ class _OperationsPageState extends State<OperationsPage> {
               ),
             ],
             const SizedBox(height: 16),
-            Text(
-              'Order initiations',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
             if (_loading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (_intents.isEmpty)
-              const Text('No order initiations yet.')
+            else if (_rows.isEmpty)
+              const Text('No initiations yet.')
             else
-              ...groups.expand((group) sync* {
-                yield Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 4),
-                  child: Text(
-                    group.label,
-                    style: theme.textTheme.labelLarge,
-                  ),
-                );
-                for (final intent in group.intents) {
-                  yield Card(
-                    child: ListTile(
-                      title: Text(intent.orderIntentId),
-                      subtitle: Text(
-                        '${intent.statusLabel} · ${intent.paymentStatusLabel}',
-                      ),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) =>
-                                DonationIntentDetailPage(
-                              intent: intent,
-                              apiBaseUrl: _defaultApiBaseUrl,
-                              authContext: _session,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }
-              }),
-            const SizedBox(height: 20),
-            Text(
-              'Recorded meal needs',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            if (!_loading && _demands.isEmpty)
-              const Text('No meal needs recorded yet.')
-            else if (!_loading)
-              ..._demands.map(
-                (row) => Card(
-                  child: ListTile(
-                    title: Text(row.menuLabel ?? row.seekerDemandId),
-                    subtitle: Text(
-                      '${row.mealUnits} unit${row.mealUnits == 1 ? '' : 's'}'
-                      '${row.localityKey != null ? ' · ${row.localityKey}' : ''}'
-                      ' · ${row.status}',
-                    ),
-                  ),
+              ..._rows.map(_buildRow),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRow(_InitiationRow row) {
+    if (row.kind == _InitiationKind.vendorOrder && row.intent != null) {
+      final intent = row.intent!;
+      return Card(
+        child: ListTile(
+          title: Text(intent.orderIntentId),
+          subtitle: Text(
+            'Vendor order · ${intent.statusLabel} · ${intent.paymentStatusLabel}',
+          ),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => DonationIntentDetailPage(
+                  intent: intent,
+                  apiBaseUrl: _defaultApiBaseUrl,
+                  authContext: _session,
                 ),
               ),
-          ],
+            );
+          },
+        ),
+      );
+    }
+
+    final demand = row.demand!;
+    return Card(
+      child: ListTile(
+        title: Text(demand.menuLabel ?? demand.seekerDemandId),
+        subtitle: Text(
+          'Meal need · ${demand.mealUnits} unit${demand.mealUnits == 1 ? '' : 's'}'
+          '${demand.localityKey != null ? ' · ${demand.localityKey}' : ''}'
+          ' · pledge flow',
         ),
       ),
     );

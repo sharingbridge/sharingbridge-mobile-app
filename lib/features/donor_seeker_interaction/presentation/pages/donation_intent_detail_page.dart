@@ -56,8 +56,7 @@ class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
         return AlertDialog(
           title: const Text('Mark payment done?'),
           content: const Text(
-            'Confirm you placed and paid for this meal in the vendor app. '
-            'Coordinators will see payment as done.',
+            'Confirm you placed and paid for this meal in the vendor app.',
           ),
           actions: <Widget>[
             TextButton(

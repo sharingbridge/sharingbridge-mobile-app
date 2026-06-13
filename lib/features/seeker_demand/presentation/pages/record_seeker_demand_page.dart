@@ -143,8 +143,8 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Demand recorded (${result.seekerDemandId}). '
-            'Coordinators see it on the web Demand tab.',
+            'Meal need recorded (${result.seekerDemandId}). '
+            'Others can pledge toward it from the supply board.',
           ),
         ),
       );

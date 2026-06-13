@@ -342,11 +342,11 @@ class _AppHomePageState extends State<AppHomePage> {
 
               leading: const Icon(Icons.history),
 
-              title: const Text('Meal operations'),
+              title: const Text('Initiations'),
 
               subtitle: const Text(
 
-                'Order initiations and recorded meal needs — same view as the web Operations tab.',
+                'Vendor orders and meal needs you started.',
 
               ),
 

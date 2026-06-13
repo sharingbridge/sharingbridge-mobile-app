@@ -117,6 +117,7 @@ class HttpOrderIntentClient {
   Future<List<DonationIntent>> listDonationIntents({
     double? nearLat,
     double? nearLng,
+    String? since,
   }) async {
     final queryParameters = <String, String>{
       ..._auth.userIdQueryParameters(),
@@ -124,6 +125,9 @@ class HttpOrderIntentClient {
     if (nearLat != null && nearLng != null) {
       queryParameters['near_lat'] = nearLat.toString();
       queryParameters['near_lng'] = nearLng.toString();
+    }
+    if (since != null && since.trim().isNotEmpty) {
+      queryParameters['since'] = since.trim();
     }
     final decoded = await _api.getDonorSeekerJson(
       path: IntegrationApiPaths.orderIntents,

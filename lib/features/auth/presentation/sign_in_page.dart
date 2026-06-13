@@ -129,8 +129,7 @@ class _SignInPageState extends State<SignInPage> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Sign in with Google to save presets and register order '
-              'initiations. Coordinators must use the web dashboard.',
+              'Sign in with Google to save presets and register initiations.',
             ),
             const SizedBox(height: 24),
             if (!googleSupported) ...<Widget>[

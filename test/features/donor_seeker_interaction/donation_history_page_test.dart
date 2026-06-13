@@ -31,7 +31,7 @@ void main() {
     await tester.tap(find.byKey(const Key('nav_meal_operations')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Meal operations'), findsOneWidget);
+    expect(find.text('Initiations'), findsOneWidget);
     expect(find.byKey(const Key('donor_app_bar_home')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('donor_app_bar_home')));

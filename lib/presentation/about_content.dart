@@ -33,11 +33,11 @@ class AboutContent extends StatelessWidget {
           'happens in the vendor app.',
     ),
     (
-      title: 'Order intent',
+      title: 'Initiation',
       body:
-          'Copying instructions registers an order intent for coordinators '
-          'and nearby initiators on the web dashboard. It is not a placed or '
-          'paid vendor order until you complete checkout there.',
+          'Copying instructions registers an initiation on your dashboard. '
+          'It is not a placed or paid vendor order until you complete checkout '
+          'in the vendor app.',
     ),
   ];
 
