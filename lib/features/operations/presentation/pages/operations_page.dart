@@ -5,11 +5,13 @@ import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_seeker_interaction/data/http_order_intent_client.dart';
 import '../../../donor_seeker_interaction/domain/models/donation_intent.dart';
 import '../../../donor_seeker_interaction/presentation/pages/donation_intent_detail_page.dart';
+import '../../../donor_seeker_interaction/presentation/widgets/reference_photo_preview.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../donor_setup/data/http_donor_setup_api_client.dart';
 import '../../../seeker_demand/data/http_seeker_demand_client.dart';
 import '../../../seeker_demand/domain/models/seeker_demand_summary.dart';
+import '../../../seeker_demand/presentation/pages/seeker_demand_detail_page.dart';
 
 enum _InitiationKind { vendorOrder, mealNeed }
 
@@ -87,6 +89,23 @@ class _OperationsPageState extends State<OperationsPage> {
     return rows;
   }
 
+  void _patchIntent(DonationIntent updated) {
+    setState(() {
+      _rows = _rows
+          .map(
+            (row) => row.kind == _InitiationKind.vendorOrder &&
+                    row.intent?.orderIntentId == updated.orderIntentId
+                ? _InitiationRow(
+                    kind: row.kind,
+                    createdAt: row.createdAt,
+                    intent: updated,
+                  )
+                : row,
+          )
+          .toList(growable: false);
+    });
+  }
+
   Future<void> _refresh() async {
     setState(() {
       _loading = true;
@@ -128,6 +147,30 @@ class _OperationsPageState extends State<OperationsPage> {
         setState(() => _loading = false);
       }
     }
+  }
+
+  Future<void> _openVendorOrder(DonationIntent intent) async {
+    final updated = await Navigator.of(context).push<DonationIntent>(
+      MaterialPageRoute<DonationIntent>(
+        builder: (BuildContext context) => DonationIntentDetailPage(
+          intent: intent,
+          apiBaseUrl: _defaultApiBaseUrl,
+          authContext: _session,
+        ),
+      ),
+    );
+    if (updated != null) {
+      _patchIntent(updated);
+    }
+  }
+
+  void _openMealNeed(SeekerDemandSummary demand) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) =>
+            SeekerDemandDetailPage(demand: demand),
+      ),
+    );
   }
 
   @override
@@ -179,23 +222,29 @@ class _OperationsPageState extends State<OperationsPage> {
   Widget _buildRow(_InitiationRow row) {
     if (row.kind == _InitiationKind.vendorOrder && row.intent != null) {
       final intent = row.intent!;
+      final thumb = intent.referencePhotoThumbnailUrl?.trim().isNotEmpty == true
+          ? intent.referencePhotoThumbnailUrl
+          : intent.referencePhotoViewUrl;
       return Card(
         child: ListTile(
-          title: Text(intent.orderIntentId),
+          leading: intent.hasDisplayableReferencePhoto
+              ? SizedBox(
+                  width: 48,
+                  height: 48,
+                  child: ReferencePhotoPreview(
+                    thumbnailUrl: thumb,
+                    viewUrl: intent.referencePhotoViewUrl,
+                  ),
+                )
+              : const Icon(Icons.delivery_dining_outlined),
+          title: Text(
+            intent.primaryRestaurantName ?? intent.orderIntentId,
+          ),
           subtitle: Text(
             'Vendor order · ${intent.statusLabel} · ${intent.paymentStatusLabel}',
           ),
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (BuildContext context) => DonationIntentDetailPage(
-                  intent: intent,
-                  apiBaseUrl: _defaultApiBaseUrl,
-                  authContext: _session,
-                ),
-              ),
-            );
-          },
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _openVendorOrder(intent),
         ),
       );
     }
@@ -203,12 +252,15 @@ class _OperationsPageState extends State<OperationsPage> {
     final demand = row.demand!;
     return Card(
       child: ListTile(
+        leading: const Icon(Icons.restaurant_outlined),
         title: Text(demand.menuLabel ?? demand.seekerDemandId),
         subtitle: Text(
           'Meal need · ${demand.mealUnits} unit${demand.mealUnits == 1 ? '' : 's'}'
           '${demand.localityKey != null ? ' · ${demand.localityKey}' : ''}'
           ' · pledge flow',
         ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _openMealNeed(demand),
       ),
     );
   }

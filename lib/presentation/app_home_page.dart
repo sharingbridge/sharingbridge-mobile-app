@@ -10,17 +10,15 @@ import '../features/auth/data/auth_session_store.dart';
 
 import '../features/auth/presentation/sign_out_action.dart';
 
-import '../features/operations/presentation/pages/operations_page.dart';
+import '../features/initiation/presentation/pages/start_initiation_page.dart';
 
-import '../features/seeker_demand/presentation/pages/record_seeker_demand_page.dart';
+import '../features/operations/presentation/pages/operations_page.dart';
 
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
 
 import 'about_page.dart';
 
 import 'donor_app_bar.dart';
-
-import 'navigate_to_help_a_seeker.dart';
 
 
 
@@ -276,39 +274,15 @@ class _AppHomePageState extends State<AppHomePage> {
 
             child: ListTile(
 
-              key: const Key('nav_field_flow'),
+              key: const Key('nav_start_initiation'),
 
-              leading: const Icon(Icons.volunteer_activism_outlined),
+              leading: const Icon(Icons.play_circle_outline),
 
-              title: const Text('Help a seeker'),
-
-              subtitle: const Text(
-
-                'Arrange a meal in person — guidance, consent, and handover details.',
-
-              ),
-
-              onTap: () => navigateToHelpASeeker(context),
-
-            ),
-
-          ),
-
-          const SizedBox(height: 8),
-
-          Card(
-
-            child: ListTile(
-
-              key: const Key('nav_record_seeker_demand'),
-
-              leading: const Icon(Icons.assignment_outlined),
-
-              title: const Text('Record meal need'),
+              title: const Text('Start initiation'),
 
               subtitle: const Text(
 
-                'Log a standard menu item for this area — feeds the web demand board.',
+                'Pay in a vendor app yourself, or record a meal need for the pledge flow.',
 
               ),
 
@@ -320,7 +294,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
                     builder: (BuildContext context) =>
 
-                        const RecordSeekerDemandPage(),
+                        const StartInitiationPage(),
 
                   ),
 

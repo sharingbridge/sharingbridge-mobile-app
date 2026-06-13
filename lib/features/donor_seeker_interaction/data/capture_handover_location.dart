@@ -1,5 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 
+import 'handover_location_result.dart';
+
 /// GPS at handover registration time (neighbourhood feed + PostGIS).
 class HandoverLocation {
   const HandoverLocation({
@@ -15,18 +17,32 @@ class HandoverLocation {
 
 /// Returns coordinates when permission and services allow; otherwise null.
 Future<HandoverLocation?> captureHandoverLocation() async {
+  final result = await captureHandoverLocationResult();
+  return result.location;
+}
+
+/// Detailed capture result for permission and GPS error messaging.
+Future<HandoverLocationResult> captureHandoverLocationResult() async {
   final serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
-    return null;
+    return const HandoverLocationResult(
+      failure: HandoverLocationFailure.servicesDisabled,
+    );
   }
 
   var permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
   }
-  if (permission == LocationPermission.denied ||
-      permission == LocationPermission.deniedForever) {
-    return null;
+  if (permission == LocationPermission.deniedForever) {
+    return const HandoverLocationResult(
+      failure: HandoverLocationFailure.permissionDeniedForever,
+    );
+  }
+  if (permission == LocationPermission.denied) {
+    return const HandoverLocationResult(
+      failure: HandoverLocationFailure.permissionDenied,
+    );
   }
 
   try {
@@ -36,11 +52,15 @@ Future<HandoverLocation?> captureHandoverLocation() async {
         timeLimit: Duration(seconds: 20),
       ),
     );
-    return HandoverLocation(
-      lat: position.latitude,
-      lng: position.longitude,
+    return HandoverLocationResult(
+      location: HandoverLocation(
+        lat: position.latitude,
+        lng: position.longitude,
+      ),
     );
   } catch (_) {
-    return null;
+    return const HandoverLocationResult(
+      failure: HandoverLocationFailure.positionUnavailable,
+    );
   }
 }

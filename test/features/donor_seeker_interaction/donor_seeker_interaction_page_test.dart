@@ -75,7 +75,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('nav_field_flow')));
+    await tester.tap(find.byKey(const Key('nav_start_initiation')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('start_initiation_vendor_order')));
     await tester.pumpAndSettle();
 
     expect(find.text('Before you help'), findsNothing);
@@ -90,10 +92,12 @@ void main() {
     );
 
     expect(find.textContaining('Vendor presets'), findsWidgets);
-    expect(find.textContaining('Help a seeker'), findsWidgets);
+    expect(find.textContaining('Start initiation'), findsWidgets);
     expect(find.byKey(const Key('nav_web_dashboard')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('nav_field_flow')));
+    await tester.tap(find.byKey(const Key('nav_start_initiation')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('start_initiation_vendor_order')));
     await tester.pumpAndSettle();
 
     expect(find.text('Before you help'), findsOneWidget);

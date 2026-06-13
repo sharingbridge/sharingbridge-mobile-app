@@ -19,6 +19,7 @@ import '../widgets/reference_photo_preview.dart';
 import '../../../donor_setup/application/load_presets_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
+import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../donor_setup/data/donor_setup_repository_impl.dart';
 import '../../../donor_setup/data/http_donor_setup_api_client.dart';
@@ -373,20 +374,26 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         return;
       }
       setState(() => _generatingInstructions = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not upload photo or get instructions: $e')),
-      );
+      _showInstructionError(formatDonorSeekerError(e, instructionPack: true));
     } catch (e) {
       if (!mounted) {
         return;
       }
       setState(() => _generatingInstructions = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not get instructions: $e'),
-        ),
-      );
+      _showInstructionError(formatDonorSeekerError(e, instructionPack: true));
     }
+  }
+
+  void _showInstructionError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        action: SnackBarAction(
+          label: 'Retry',
+          onPressed: _generatingInstructions ? () {} : _generateInstructions,
+        ),
+      ),
+    );
   }
 
   Future<void> _copyInstructions() async {

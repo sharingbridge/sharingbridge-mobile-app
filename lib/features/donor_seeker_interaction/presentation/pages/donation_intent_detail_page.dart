@@ -94,9 +94,9 @@ class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
         _intent = updated;
         _savingPayment = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Marked payment done in vendor app.')),
-      );
+      if (mounted) {
+        Navigator.of(context).pop(updated);
+      }
     } catch (error) {
       if (!mounted) {
         return;
