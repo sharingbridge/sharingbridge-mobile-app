@@ -2,6 +2,7 @@ import '../../auth/data/auth_session_holder.dart';
 import '../../donor_setup/data/auth_context.dart';
 import '../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../donor_setup/data/http_donor_setup_api_client.dart';
+import '../domain/models/seeker_demand_summary.dart';
 
 class SeekerDemandRegistration {
   const SeekerDemandRegistration({
@@ -68,5 +69,20 @@ class HttpSeekerDemandClient {
       );
     }
     return SeekerDemandRegistration(seekerDemandId: id);
+  }
+
+  Future<List<SeekerDemandSummary>> listSeekerDemands() async {
+    final decoded = await _api.getDonorSeekerJson(path: '/v1/seeker-demands');
+    final list = decoded['seeker_demands'];
+    if (list is! List) {
+      throw const DonorSetupResponseException(
+        'seeker_demands must be an array',
+      );
+    }
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(SeekerDemandSummary.fromJson)
+        .where((row) => row.seekerDemandId.isNotEmpty)
+        .toList();
   }
 }

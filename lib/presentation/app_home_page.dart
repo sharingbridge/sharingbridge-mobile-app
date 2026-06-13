@@ -10,7 +10,7 @@ import '../features/auth/data/auth_session_store.dart';
 
 import '../features/auth/presentation/sign_out_action.dart';
 
-import '../features/donor_seeker_interaction/presentation/pages/donation_history_page.dart';
+import '../features/operations/presentation/pages/operations_page.dart';
 
 import '../features/seeker_demand/presentation/pages/record_seeker_demand_page.dart';
 
@@ -338,15 +338,15 @@ class _AppHomePageState extends State<AppHomePage> {
 
             child: ListTile(
 
-              key: const Key('nav_donation_history'),
+              key: const Key('nav_meal_operations'),
 
               leading: const Icon(Icons.history),
 
-              title: const Text('Order initiation history'),
+              title: const Text('Meal operations'),
 
               subtitle: const Text(
 
-                'Order initiations you registered when copying delivery instructions.',
+                'Order initiations and recorded meal needs — same view as the web Operations tab.',
 
               ),
 
@@ -358,7 +358,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
                     builder: (BuildContext context) =>
 
-                        const DonationHistoryPage(),
+                        const OperationsPage(),
 
                   ),
 

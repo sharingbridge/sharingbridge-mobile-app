@@ -28,10 +28,10 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: DonorNavigatorShell()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('nav_donation_history')));
+    await tester.tap(find.byKey(const Key('nav_meal_operations')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Order initiation history'), findsOneWidget);
+    expect(find.text('Meal operations'), findsOneWidget);
     expect(find.byKey(const Key('donor_app_bar_home')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('donor_app_bar_home')));
