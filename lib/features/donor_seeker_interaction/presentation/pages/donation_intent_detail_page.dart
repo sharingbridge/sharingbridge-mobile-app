@@ -116,7 +116,7 @@ class _DonationIntentDetailPageState extends State<DonationIntentDetailPage> {
     final intent = _intent;
     return Scaffold(
       appBar: const DonorAppBar(
-        title: 'Order initiation',
+        title: 'Initiation detail',
         showSignOut: false,
       ),
       body: ListView(

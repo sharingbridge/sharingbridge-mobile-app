@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_seeker_interaction/data/http_order_intent_client.dart';
@@ -188,8 +189,7 @@ class _OperationsPageState extends State<OperationsPage> {
           padding: const EdgeInsets.all(16),
           children: <Widget>[
             Text(
-              'Vendor orders you pay yourself, and meal needs that others can '
-              'pledge toward.',
+              'Direct orders you pay yourself, and items opened for pledging.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -241,7 +241,8 @@ class _OperationsPageState extends State<OperationsPage> {
             intent.primaryRestaurantName ?? intent.orderIntentId,
           ),
           subtitle: Text(
-            'Vendor order · ${intent.statusLabel} · ${intent.paymentStatusLabel}',
+            '${initiationKindLabel(InitiationFeedKind.vendorOrder)} · '
+            '${intent.statusLabel} · ${intent.paymentStatusLabel}',
           ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => _openVendorOrder(intent),
@@ -255,9 +256,10 @@ class _OperationsPageState extends State<OperationsPage> {
         leading: const Icon(Icons.restaurant_outlined),
         title: Text(demand.menuLabel ?? demand.seekerDemandId),
         subtitle: Text(
-          'Meal need · ${demand.mealUnits} unit${demand.mealUnits == 1 ? '' : 's'}'
+          '${initiationKindLabel(InitiationFeedKind.mealNeed)} · '
+          '${demand.mealUnits} unit${demand.mealUnits == 1 ? '' : 's'}'
           '${demand.localityKey != null ? ' · ${demand.localityKey}' : ''}'
-          ' · pledge flow',
+          ' · for pledging',
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => _openMealNeed(demand),

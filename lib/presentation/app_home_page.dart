@@ -282,7 +282,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
               subtitle: const Text(
 
-                'Pay in a vendor app yourself, or record a meal need for the pledge flow.',
+                'Direct order (you pay) or open an item for pledging.',
 
               ),
 
@@ -320,7 +320,7 @@ class _AppHomePageState extends State<AppHomePage> {
 
               subtitle: const Text(
 
-                'Vendor orders and meal needs you started.',
+                'Direct orders and items opened for pledging.',
 
               ),
 

@@ -59,7 +59,7 @@ void main() {
     await tester.tap(find.byKey(const Key('donation_history_row_0')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Order initiation'), findsOneWidget);
+    expect(find.text('Initiation detail'), findsOneWidget);
     expect(find.text('Near blue gate'), findsOneWidget);
     expect(find.text('A2B'), findsWidgets);
   });
@@ -74,6 +74,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('No order initiations yet'), findsOneWidget);
+    expect(find.textContaining('No initiations yet'), findsOneWidget);
   });
 }

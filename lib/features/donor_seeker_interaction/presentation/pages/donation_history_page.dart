@@ -110,7 +110,7 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DonorAppBar(title: 'Order initiation history'),
+      appBar: const DonorAppBar(title: 'Initiations'),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: _buildBody(context),
@@ -153,7 +153,7 @@ class _DonationHistoryPageState extends State<DonationHistoryPage> {
         padding: const EdgeInsets.all(24),
         children: <Widget>[
           Text(
-            'No order initiations yet. Register one from Help a seeker when you copy delivery instructions.',
+            'No initiations yet. Start one from Help a seeker or Start initiation.',
             style: Theme.of(context).textTheme.bodyLarge,
             textAlign: TextAlign.center,
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../domain/models/seeker_demand_summary.dart';
 
@@ -29,13 +30,16 @@ class SeekerDemandDetailPage extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: const DonorAppBar(
-        title: 'Meal need',
+        title: InitiationRouteLabels.forPledging,
         showSignOut: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
-          Text('Meal need', style: theme.textTheme.labelLarge),
+          Text(
+            InitiationRouteLabels.forPledging,
+            style: theme.textTheme.labelLarge,
+          ),
           const SizedBox(height: 4),
           Text(
             demand.menuLabel ?? demand.seekerDemandId,
@@ -56,8 +60,9 @@ class SeekerDemandDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Payment is handled through pledges and vendor bids on the supply board — '
-            'not direct checkout by you in a vendor app.',
+            'Opened for pledging — fulfilment is coordinated on the SharingBridge '
+            'dashboard (Actions tab: pledges and community kitchens), not direct '
+            'checkout in a vendor app.',
             style: theme.textTheme.bodyMedium,
           ),
           if (demand.verbalNotes?.trim().isNotEmpty == true) ...<Widget>[

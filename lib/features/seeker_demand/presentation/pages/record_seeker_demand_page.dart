@@ -10,6 +10,7 @@ import '../../../donor_seeker_interaction/presentation/widgets/reference_photo_p
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
+import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/http_seeker_demand_client.dart';
 import '../../data/http_standard_offers_client.dart';
@@ -225,7 +226,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Meal need recorded (${result.seekerDemandId}). '
+            'Opened for pledging (${result.seekerDemandId}). '
             'View it under Initiations.',
           ),
         ),
@@ -275,7 +276,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DonorAppBar(title: 'Record meal need'),
+      appBar: const DonorAppBar(title: InitiationRouteLabels.forPledging),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: <Widget>[
@@ -425,7 +426,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
             OutlinedButton.icon(
               onPressed: _recordAnother,
               icon: const Icon(Icons.add),
-              label: const Text('Record another meal need'),
+              label: const Text('Record another for pledging'),
             )
           else
             FilledButton.icon(
@@ -438,7 +439,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.check),
-              label: Text(_submitting ? 'Recording…' : 'Record meal need'),
+              label: Text(_submitting ? 'Recording…' : 'Open for pledging'),
             ),
         ],
       ),
