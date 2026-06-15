@@ -4,11 +4,11 @@
 
 ## Status
 
-**Shipped:** Vendor preset setup, **Help a seeker** (guidance → instruction pack → register order intent), **Order initiation history**, **Google Sign-In** (JWT role `donor` today). Push notifications are not in this MVP.
+**Shipped:** Vendor preset setup, **Start initiation** (Direct order + For pledging), **Help a seeker** (direct order path), **Initiations** (merged list), **Google Sign-In**.
 
-**Product language:** [README § Documentation verbiage](https://github.com/sharingbridge/sharingbridge/blob/main/README.md#documentation-guide).
+**Product model:** [Eco_Kitchen_Initiation_Flow.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Eco_Kitchen_Initiation_Flow.md) — three routes; **Eco kitchen · I pay** coming soon.
 
-**Doc map and live status:** [AGENT_HANDOFF.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_HANDOFF.md) § Documentation map.
+**Doc map:** [AGENT_HANDOFF.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_HANDOFF.md).
 
 ## Run locally
 
@@ -17,7 +17,7 @@ flutter pub get
 flutter test
 ```
 
-**Backends:** user-service (`8081`) + integration-service (`8080`) running. See [configuration/e2e-deployment-sequence.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/e2e-deployment-sequence.md).
+**Backends:** user-service (`8081`) + integration-service (`8080`). See [e2e-deployment-sequence.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/e2e-deployment-sequence.md).
 
 ### Google Sign-In (recommended)
 
@@ -28,30 +28,17 @@ flutter run -d <device> `
   --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
-**API URLs depend on the device:** emulator → `10.0.2.2`; physical phone → PC LAN IP (`ipconfig`, same Wi‑Fi); hosted → `https://…onrender.com`. Do not use `localhost` on Android devices. See [mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md) § Local networking and [MANUAL_TESTING_GUIDE §3-host](https://github.com/sharingbridge/sharingbridge/blob/main/testing/MANUAL_TESTING_GUIDE.md).
+Device URLs: [mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md).
 
-**Windows desktop:** Google Sign-In is not supported by `google_sign_in`; use Android emulator or dev token below.
+## Key flows
 
-### Dev token (local only)
+| Flow | Route |
+|------|--------|
+| Help a seeker | **Direct order** |
+| Start initiation → For pledging | **Eco kitchen · open for pledging** (partial) |
+| Initiations | Merged history |
 
-Mint a JWT with the same `AUTH_TOKEN_SECRET` as user-service:
-
-```powershell
-cd ..\sharingbridge-user-service
-$token = node scripts/mint-dev-jwt.mjs demo-user donor
-cd ..\sharingbridge-mobile-app
-flutter run --dart-define=API_BASE_URL=http://localhost:8080 --dart-define=AUTH_TOKEN=$token
-```
-
-## Key APIs (via integration-service)
-
-| Flow | Endpoint |
-|------|----------|
-| Vendor preset setup | `POST /v1/initiator-setup/suggest-vendors`, preferences CRUD |
-| Help a seeker | `POST /v1/instruction-pack` |
-| Order intent | `POST` / `GET /v1/order-intents` |
-
-Details: [configuration/field-handoff.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/field-handoff.md).
+Details: [field-handoff.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/field-handoff.md).
 
 ## License
 

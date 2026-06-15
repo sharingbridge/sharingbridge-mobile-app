@@ -1,13 +1,14 @@
-/// Payment / fulfilment routes (mobile will expose all three; two ship today).
+/// Payment / fulfilment routes (three initiation options; two ship today).
 ///
-/// - [directOrder] — initiator pays at a chosen vendor.
-/// - [forPledging] — others fund the need.
-/// - [communityKitchens] — open vendors commit to a standard menu for
-///   crowd-scale preparation (nutrition, hygiene, economical).
+/// - [directOrder] — initiator pays in a vendor app.
+/// - [ecoKitchenSelfPay] — initiator pays eco kitchen after commit (off-platform).
+/// - [ecoKitchenPledge] — pledgers fund; eco kitchen fulfils (off-platform payment).
 abstract final class InitiationRouteLabels {
   static const directOrder = 'Direct order';
   static const forPledging = 'For pledging';
-  static const communityKitchens = 'Community kitchens';
+  static const ecoKitchens = 'Eco kitchens';
+  static const ecoKitchenSelfPay = 'Eco kitchen · I pay';
+  static const ecoKitchenPledge = 'Eco kitchen · open for pledging';
 }
 
 enum InitiationFeedKind { vendorOrder, mealNeed }

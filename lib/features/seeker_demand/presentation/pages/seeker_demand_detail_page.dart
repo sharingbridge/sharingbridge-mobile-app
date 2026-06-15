@@ -61,7 +61,7 @@ class SeekerDemandDetailPage extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Opened for pledging — fulfilment is coordinated on the SharingBridge '
-            'dashboard (Actions tab: pledges and community kitchens), not direct '
+            'dashboard (Actions tab: pledges and eco kitchen commitments), not direct '
             'checkout in a vendor app.',
             style: theme.textTheme.bodyMedium,
           ),

@@ -71,14 +71,14 @@ class StartInitiationPage extends StatelessWidget {
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
               ),
               title: Text(
-                InitiationRouteLabels.communityKitchens,
+                InitiationRouteLabels.ecoKitchenSelfPay,
                 style: TextStyle(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
                 ),
               ),
               subtitle: Text(
-                'Open kitchens commit to a standard menu — nutritious, hygienic, '
-                'economical meals at scale. Coming soon.',
+                'Eco kitchens commit to a standard menu — nutritious, hygienic, '
+                'eco-friendly packaging at economical scale. Coming soon.',
                 style: TextStyle(
                   color: theme.colorScheme.onSurfaceVariant.withValues(
                     alpha: 0.7,
