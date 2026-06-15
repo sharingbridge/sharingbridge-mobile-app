@@ -45,6 +45,7 @@ class HttpSeekerDemandClient {
       body: _auth.withOptionalUserId(<String, dynamic>{
         'standard_offer_id': standardOfferId.trim(),
         'meal_units': mealUnits,
+        'email_share_consent': true,
         if (verbalNotes != null && verbalNotes.trim().isNotEmpty)
           'verbal_notes': verbalNotes.trim(),
         if (locationLat != null && locationLng != null) ...<String, dynamic>{
