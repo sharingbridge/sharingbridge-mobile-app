@@ -1,0 +1,2 @@
+# Copy from Firebase Console → Project settings → Your apps → Android (app.sharingbridge)
+# Download google-services.json and save as google-services.json (do not commit secrets to public repos).

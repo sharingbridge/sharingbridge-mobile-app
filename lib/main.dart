@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'features/auth/presentation/auth_gate.dart';
+import 'features/push/push_registration.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PushRegistration.bootstrap();
   runApp(const SharingBridgeApp());
 }
 

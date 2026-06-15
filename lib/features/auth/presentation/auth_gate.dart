@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../presentation/donor_navigator_shell.dart';
+import '../../push/push_registration.dart';
 import '../data/auth_jwt.dart';
 import '../data/auth_logout.dart';
 import '../data/auth_session_holder.dart';
@@ -53,6 +54,7 @@ class _AuthGateState extends State<AuthGate> {
           token: stored.token,
         );
         signedIn = true;
+        await PushRegistration.tryRegisterAfterAuth();
         return;
       }
       if (stored != null &&
@@ -81,6 +83,8 @@ class _AuthGateState extends State<AuthGate> {
 
   void _handleSignedIn() {
     setState(() => _signedIn = true);
+    void tryPush() => PushRegistration.tryRegisterAfterAuth();
+    tryPush();
   }
 
   @override
