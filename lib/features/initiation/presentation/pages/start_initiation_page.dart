@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../connection_consent.dart';
 import '../../../../initiation_labels.dart';
 import '../../../../presentation/navigate_to_help_a_seeker.dart';
 import '../../../seeker_demand/presentation/pages/record_seeker_demand_page.dart';
@@ -7,6 +8,22 @@ import '../../../seeker_demand/presentation/pages/record_seeker_demand_page.dart
 /// Choose how payment will happen, then continue into the shared initiation flow.
 class StartInitiationPage extends StatelessWidget {
   const StartInitiationPage({super.key});
+
+  Future<void> _openForPledging(BuildContext context) async {
+    final ok = await confirmInitiatorEmailSharingConsent(
+      context,
+      title: ConnectionConsentCopy.initiatorOpenForPledgingTitle,
+      body: ConnectionConsentCopy.initiatorOpenForPledgingBody,
+    );
+    if (!ok || !context.mounted) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const RecordSeekerDemandPage(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +66,7 @@ class StartInitiationPage extends StatelessWidget {
                 'Record a standard menu item for this area. Others fund it via '
                 'pledges on the SharingBridge dashboard.',
               ),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>
-                        const RecordSeekerDemandPage(),
-                  ),
-                );
-              },
+              onTap: () => _openForPledging(context),
             ),
           ),
           const SizedBox(height: 12),

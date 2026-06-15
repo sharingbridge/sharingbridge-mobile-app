@@ -10,6 +10,7 @@ import '../../../donor_seeker_interaction/presentation/widgets/reference_photo_p
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
+import '../../../../connection_consent.dart';
 import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/http_seeker_demand_client.dart';
@@ -45,6 +46,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   bool _submitting = false;
   bool _loadingOffers = false;
   bool _recorded = false;
+  bool _emailShareConsent = false;
   String? _errorText;
   String? _lastDemandId;
   String? _areaLocalityKey;
@@ -270,6 +272,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       _referencePhotoViewUrl = null;
       _referencePhotoThumbnailUrl = null;
       _errorText = null;
+      _emailShareConsent = false;
     });
   }
 
@@ -414,6 +417,43 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ],
+          if (!_recorded) ...<Widget>[
+            const SizedBox(height: 16),
+            Card.outlined(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      ConnectionConsentCopy.initiatorOpenForPledgingTitle,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      ConnectionConsentCopy.initiatorOpenForPledgingBody,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: _emailShareConsent,
+                      onChanged: _submitting
+                          ? null
+                          : (bool? value) {
+                              setState(
+                                () => _emailShareConsent = value ?? false,
+                              );
+                            },
+                      title: const Text(
+                        ConnectionConsentCopy.initiatorOpenForPledgingCheckbox,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           if (_lastDemandId != null) ...<Widget>[
             const SizedBox(height: 12),
             Text(
@@ -431,7 +471,9 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           else
             FilledButton.icon(
               key: const Key('record_seeker_demand_submit'),
-              onPressed: _submitting || _offers.isEmpty ? null : _submit,
+              onPressed: _submitting || _offers.isEmpty || !_emailShareConsent
+                  ? null
+                  : _submit,
               icon: _submitting
                   ? const SizedBox(
                       width: 20,
