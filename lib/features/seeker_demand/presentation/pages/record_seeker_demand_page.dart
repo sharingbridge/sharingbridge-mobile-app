@@ -15,6 +15,7 @@ import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/http_seeker_demand_client.dart';
 import '../../data/http_standard_offers_client.dart';
+import '../../../../seeker_demand_initiation_route.dart';
 
 /// Record seeker-expressed meal demand for neighbourhood aggregation.
 class RecordSeekerDemandPage extends StatefulWidget {
@@ -22,10 +23,12 @@ class RecordSeekerDemandPage extends StatefulWidget {
     super.key,
     this.authContext,
     this.captureLocationResult,
+    this.initiationRoute = SeekerDemandInitiationRoute.ecoKitchenPledge,
   });
 
   final AuthContext? authContext;
   final Future<HandoverLocationResult> Function()? captureLocationResult;
+  final String initiationRoute;
 
   @override
   State<RecordSeekerDemandPage> createState() => _RecordSeekerDemandPageState();
@@ -49,6 +52,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   bool _emailShareConsent = false;
   String? _errorText;
   String? _lastDemandId;
+  String? _lastOrderCode;
   String? _areaLocalityKey;
   List<StandardOfferOption> _offers = <StandardOfferOption>[];
   String? _selectedOfferId;
@@ -59,6 +63,32 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
 
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();
+
+  bool get _isSelfPay =>
+      widget.initiationRoute == SeekerDemandInitiationRoute.ecoKitchenSelfPay;
+
+  String get _routeTitle => initiationApiRouteLabel(widget.initiationRoute);
+
+  String get _introCopy => _isSelfPay
+      ? 'Pick a standard menu item for this postal area. Eco kitchens in the pool '
+          'can commit; you pay them off-platform after connection is ready.'
+      : 'Pick a standard menu item for this postal area. Add an optional reference '
+          'photo and notes so pledgers understand the handover context.';
+
+  String get _consentTitle => _isSelfPay
+      ? ConnectionConsentCopy.initiatorEcoKitchenSelfPayTitle
+      : ConnectionConsentCopy.initiatorOpenForPledgingTitle;
+
+  String get _consentBody => _isSelfPay
+      ? ConnectionConsentCopy.initiatorEcoKitchenSelfPayBody
+      : ConnectionConsentCopy.initiatorOpenForPledgingBody;
+
+  String get _submitLabel =>
+      _isSelfPay ? 'Open for eco kitchens' : 'Open for pledging';
+
+  String get _successSnackCopy => _isSelfPay
+      ? 'Opened for eco kitchens'
+      : 'Opened for pledging';
 
   Future<HandoverLocationResult> _captureLocationResult() {
     final fn = widget.captureLocationResult ?? captureHandoverLocationResult;
@@ -216,6 +246,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
         locationLat: resolvedLocation.lat,
         locationLng: resolvedLocation.lng,
         locationLabel: resolvedLocation.label,
+        initiationRoute: widget.initiationRoute,
       );
       if (!mounted) {
         return;
@@ -224,11 +255,15 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
         _submitting = false;
         _recorded = true;
         _lastDemandId = result.seekerDemandId;
+        _lastOrderCode = result.orderCode;
       });
+      final orderBit = result.orderCode != null && result.orderCode!.isNotEmpty
+          ? ' · ${result.orderCode}'
+          : '';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Opened for pledging (${result.seekerDemandId}). '
+            '$_successSnackCopy (${result.seekerDemandId}$orderBit). '
             'View it under Initiations.',
           ),
         ),
@@ -266,6 +301,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     setState(() {
       _recorded = false;
       _lastDemandId = null;
+      _lastOrderCode = null;
       _mealUnits = 1;
       _notesController.clear();
       _referencePhoto = null;
@@ -279,18 +315,19 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DonorAppBar(title: InitiationRouteLabels.forPledging),
+      appBar: DonorAppBar(title: _routeTitle),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: <Widget>[
           Text(
-            'Record what a seeker is asking for',
+            _isSelfPay
+                ? 'Record your eco kitchen initiation'
+                : 'Record what a seeker is asking for',
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'Pick a standard menu item for this postal area. Add an optional reference '
-            'photo and notes so others understand the handover context.',
+            _introCopy,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -426,14 +463,21 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      ConnectionConsentCopy.initiatorOpenForPledgingTitle,
+                      _consentTitle,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      ConnectionConsentCopy.initiatorOpenForPledgingBody,
+                      _consentBody,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                    if (!_isSelfPay) ...<Widget>[
+                      const SizedBox(height: 8),
+                      Text(
+                        ConnectionConsentCopy.pledgingRouteHint,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
                     CheckboxListTile(
                       contentPadding: EdgeInsets.zero,
                       controlAffinity: ListTileControlAffinity.leading,
@@ -454,6 +498,13 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
               ),
             ),
           ],
+          if (_lastOrderCode != null) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              'Order code: $_lastOrderCode',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
           if (_lastDemandId != null) ...<Widget>[
             const SizedBox(height: 12),
             Text(
@@ -466,7 +517,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
             OutlinedButton.icon(
               onPressed: _recordAnother,
               icon: const Icon(Icons.add),
-              label: const Text('Record another for pledging'),
+              label: Text('Record another · ${_isSelfPay ? 'I pay' : 'pledging'}'),
             )
           else
             FilledButton.icon(
@@ -481,7 +532,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.check),
-              label: Text(_submitting ? 'Recording…' : 'Open for pledging'),
+              label: Text(_submitting ? 'Recording…' : _submitLabel),
             ),
         ],
       ),

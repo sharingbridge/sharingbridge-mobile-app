@@ -25,19 +25,31 @@ class SeekerDemandDetailPage extends StatelessWidget {
     return '${local.year}-$month-$day $hour:$minute';
   }
 
+  bool get _isSelfPay => demand.initiationRoute == 'eco_kitchen_self_pay';
+
+  String get _routeLabel => initiationApiRouteLabel(demand.initiationRoute);
+
+  String get _bodyCopy => _isSelfPay
+      ? 'Eco kitchen pool — coordinators commit on the SharingBridge dashboard '
+          '(Actions tab). After a kitchen commits, open Connection with order code '
+          '${demand.orderCode ?? 'SB-…'} to pay off-platform.'
+      : 'Open for pledging — pledgers and eco kitchens coordinate on the '
+          'SharingBridge dashboard (Actions tab: pledges and kitchen commitments), '
+          'not direct checkout in a vendor app.';
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: const DonorAppBar(
-        title: InitiationRouteLabels.forPledging,
+      appBar: DonorAppBar(
+        title: _routeLabel,
         showSignOut: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: <Widget>[
           Text(
-            InitiationRouteLabels.forPledging,
+            _routeLabel,
             style: theme.textTheme.labelLarge,
           ),
           const SizedBox(height: 4),
@@ -46,6 +58,8 @@ class SeekerDemandDetailPage extends StatelessWidget {
             style: theme.textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
+          if (demand.orderCode != null && demand.orderCode!.isNotEmpty)
+            _DetailRow(label: 'Order code', value: demand.orderCode!),
           _DetailRow(label: 'Reference', value: demand.seekerDemandId),
           _DetailRow(
             label: 'Units',
@@ -60,9 +74,7 @@ class SeekerDemandDetailPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Opened for pledging — fulfilment is coordinated on the SharingBridge '
-            'dashboard (Actions tab: pledges and eco kitchen commitments), not direct '
-            'checkout in a vendor app.',
+            _bodyCopy,
             style: theme.textTheme.bodyMedium,
           ),
           if (demand.verbalNotes?.trim().isNotEmpty == true) ...<Widget>[

@@ -251,15 +251,16 @@ class _OperationsPageState extends State<OperationsPage> {
     }
 
     final demand = row.demand!;
+    final routeLabel = initiationApiRouteLabel(demand.initiationRoute);
     return Card(
       child: ListTile(
         leading: const Icon(Icons.restaurant_outlined),
         title: Text(demand.menuLabel ?? demand.seekerDemandId),
         subtitle: Text(
-          '${initiationKindLabel(InitiationFeedKind.mealNeed)} · '
+          '$routeLabel · '
           '${demand.mealUnits} unit${demand.mealUnits == 1 ? '' : 's'}'
           '${demand.localityKey != null ? ' · ${demand.localityKey}' : ''}'
-          ' · for pledging',
+          '${demand.orderCode != null ? ' · ${demand.orderCode}' : ''}',
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => _openMealNeed(demand),

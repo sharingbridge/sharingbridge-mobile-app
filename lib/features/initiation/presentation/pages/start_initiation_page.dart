@@ -4,6 +4,7 @@ import '../../../../connection_consent.dart';
 import '../../../../initiation_labels.dart';
 import '../../../../presentation/navigate_to_help_a_seeker.dart';
 import '../../../seeker_demand/presentation/pages/record_seeker_demand_page.dart';
+import '../../../../seeker_demand_initiation_route.dart';
 
 /// Choose how payment will happen, then continue into the shared initiation flow.
 class StartInitiationPage extends StatelessWidget {
@@ -20,7 +21,27 @@ class StartInitiationPage extends StatelessWidget {
     }
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => const RecordSeekerDemandPage(),
+        builder: (BuildContext context) => const RecordSeekerDemandPage(
+          initiationRoute: SeekerDemandInitiationRoute.ecoKitchenPledge,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openEcoKitchenSelfPay(BuildContext context) async {
+    final ok = await confirmInitiatorEmailSharingConsent(
+      context,
+      title: ConnectionConsentCopy.initiatorEcoKitchenSelfPayTitle,
+      body: ConnectionConsentCopy.initiatorEcoKitchenSelfPayBody,
+    );
+    if (!ok || !context.mounted) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const RecordSeekerDemandPage(
+          initiationRoute: SeekerDemandInitiationRoute.ecoKitchenSelfPay,
+        ),
       ),
     );
   }
@@ -61,40 +82,26 @@ class StartInitiationPage extends StatelessWidget {
             child: ListTile(
               key: const Key('start_initiation_meal_need'),
               leading: const Icon(Icons.volunteer_activism_outlined),
-              title: const Text(InitiationRouteLabels.forPledging),
+              title: const Text(InitiationRouteLabels.ecoKitchenPledge),
               subtitle: const Text(
-                'Record a standard menu item for this area. Others fund it via '
-                'pledges on the SharingBridge dashboard.',
+                'Record a standard menu item for this area. Pledgers fund units on '
+                'the SharingBridge dashboard; an eco kitchen commits to fulfil.',
               ),
               onTap: () => _openForPledging(context),
             ),
           ),
           const SizedBox(height: 12),
           Card(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(
-              alpha: 0.6,
-            ),
             child: ListTile(
-              enabled: false,
-              leading: Icon(
-                Icons.groups_outlined,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.45),
-              ),
-              title: Text(
-                InitiationRouteLabels.ecoKitchenSelfPay,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
-                ),
-              ),
-              subtitle: Text(
+              key: const Key('start_initiation_eco_kitchen_self_pay'),
+              leading: const Icon(Icons.groups_outlined),
+              title: const Text(InitiationRouteLabels.ecoKitchenSelfPay),
+              subtitle: const Text(
                 'Eco kitchens commit to a standard menu — nutritious, hygienic, '
-                'eco-friendly packaging at economical scale. Coming soon.',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurfaceVariant.withValues(
-                    alpha: 0.7,
-                  ),
-                ),
+                'eco-friendly packaging at economical scale. You pay off-platform '
+                'after connection is ready.',
               ),
+              onTap: () => _openEcoKitchenSelfPay(context),
             ),
           ),
         ],

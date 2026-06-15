@@ -7,9 +7,11 @@ import '../domain/models/seeker_demand_summary.dart';
 class SeekerDemandRegistration {
   const SeekerDemandRegistration({
     required this.seekerDemandId,
+    this.orderCode,
   });
 
   final String seekerDemandId;
+  final String? orderCode;
 }
 
 /// Records a seeker demand on integration-service.
@@ -39,6 +41,7 @@ class HttpSeekerDemandClient {
     double? locationLat,
     double? locationLng,
     String? locationLabel,
+    String? initiationRoute,
   }) async {
     final decoded = await _api.postDonorSeekerJson(
       path: '/v1/seeker-demands',
@@ -46,6 +49,8 @@ class HttpSeekerDemandClient {
         'standard_offer_id': standardOfferId.trim(),
         'meal_units': mealUnits,
         'email_share_consent': true,
+        if (initiationRoute != null && initiationRoute.trim().isNotEmpty)
+          'initiation_route': initiationRoute.trim(),
         if (verbalNotes != null && verbalNotes.trim().isNotEmpty)
           'verbal_notes': verbalNotes.trim(),
         if (locationLat != null && locationLng != null) ...<String, dynamic>{
@@ -69,7 +74,10 @@ class HttpSeekerDemandClient {
         'seeker_demand_id missing from response',
       );
     }
-    return SeekerDemandRegistration(seekerDemandId: id);
+    return SeekerDemandRegistration(
+      seekerDemandId: id,
+      orderCode: demand['order_code']?.toString(),
+    );
   }
 
   Future<List<SeekerDemandSummary>> listSeekerDemands() async {

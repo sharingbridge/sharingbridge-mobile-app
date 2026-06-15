@@ -7,6 +7,8 @@ class SeekerDemandSummary {
     this.menuLabel,
     this.localityKey,
     this.verbalNotes,
+    this.orderCode,
+    this.initiationRoute,
   });
 
   factory SeekerDemandSummary.fromJson(Map<String, dynamic> json) {
@@ -18,6 +20,8 @@ class SeekerDemandSummary {
       menuLabel: json['menu_label']?.toString(),
       localityKey: json['locality_key']?.toString(),
       verbalNotes: json['verbal_notes']?.toString(),
+      orderCode: json['order_code']?.toString(),
+      initiationRoute: json['initiation_route']?.toString(),
     );
   }
 
@@ -28,4 +32,6 @@ class SeekerDemandSummary {
   final String? menuLabel;
   final String? localityKey;
   final String? verbalNotes;
+  final String? orderCode;
+  final String? initiationRoute;
 }

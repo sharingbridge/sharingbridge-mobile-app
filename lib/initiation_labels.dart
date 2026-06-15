@@ -18,6 +18,18 @@ String initiationKindLabel(InitiationFeedKind kind) {
     case InitiationFeedKind.vendorOrder:
       return InitiationRouteLabels.directOrder;
     case InitiationFeedKind.mealNeed:
-      return InitiationRouteLabels.forPledging;
+      return InitiationRouteLabels.ecoKitchenPledge;
+  }
+}
+
+/// User-facing label from API `initiation_route` (seeker demands).
+String initiationApiRouteLabel(String? route) {
+  switch (route) {
+    case 'eco_kitchen_self_pay':
+      return InitiationRouteLabels.ecoKitchenSelfPay;
+    case 'eco_kitchen_pledge':
+      return InitiationRouteLabels.ecoKitchenPledge;
+    default:
+      return InitiationRouteLabels.ecoKitchenPledge;
   }
 }
