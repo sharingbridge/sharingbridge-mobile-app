@@ -4,11 +4,11 @@
 
 ## Status
 
-**Shipped:** Vendor preset setup, **Start initiation** (Direct order + For pledging), **Help a seeker** (direct order path), **Initiations** (merged list), **Google Sign-In**.
+**Shipped:** Vendor preset setup, **Start initiation** (all three routes including **Eco kitchen · I pay**), **Help a seeker**, **Initiations**, **Google Sign-In**, FCM registration when Firebase is configured.
 
-**Product model:** [Eco_Kitchen_Initiation_Flow.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Eco_Kitchen_Initiation_Flow.md) — three routes; **Eco kitchen · I pay** coming soon.
+**Product model:** [Eco_Kitchen_Initiation_Flow.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Eco_Kitchen_Initiation_Flow.md)
 
-**Doc map:** [AGENT_HANDOFF.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_HANDOFF.md).
+**Doc map:** [STATUS.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/STATUS.md) · [AGENT_SESSION.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_SESSION.md)
 
 ## Run locally
 
@@ -35,7 +35,8 @@ Device URLs: [mobile-client.md](https://github.com/sharingbridge/sharingbridge/b
 | Flow | Route |
 |------|--------|
 | Help a seeker | **Direct order** |
-| Start initiation → For pledging | **Eco kitchen · open for pledging** (partial) |
+| Start initiation → For pledging | **Eco kitchen · open for pledging** |
+| Start initiation → Eco kitchen · I pay | **Eco kitchen · I pay** |
 | Initiations | Merged history |
 
 Details: [field-handoff.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/field-handoff.md).
