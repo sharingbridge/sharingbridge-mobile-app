@@ -6,4 +6,7 @@ abstract final class IntegrationApiPaths {
       '/v1/initiator-setup/preferences/delete-item';
   static const String instructionPack = '/v1/instruction-pack';
   static const String orderIntents = '/v1/order-intents';
+
+  static String connection(String orderCode) =>
+      '/v1/connections/${Uri.encodeComponent(orderCode.trim())}';
 }

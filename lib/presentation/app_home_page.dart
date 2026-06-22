@@ -17,6 +17,7 @@ import '../features/operations/presentation/pages/operations_page.dart';
 import '../features/donor_setup/presentation/pages/donor_setup_page.dart';
 
 import 'about_page.dart';
+import 'navigate_to_order_contacts.dart';
 
 import 'donor_app_bar.dart';
 
@@ -339,6 +340,30 @@ class _AppHomePageState extends State<AppHomePage> {
                 );
 
               },
+
+            ),
+
+          ),
+
+          const SizedBox(height: 8),
+
+          Card(
+
+            child: ListTile(
+
+              key: const Key('nav_order_contacts'),
+
+              leading: const Icon(Icons.contact_mail_outlined),
+
+              title: const Text('Order contacts'),
+
+              subtitle: const Text(
+
+                'Look up an eco-kitchen order code for login emails after a kitchen commits.',
+
+              ),
+
+              onTap: () => navigateToOrderContacts(context),
 
             ),
 

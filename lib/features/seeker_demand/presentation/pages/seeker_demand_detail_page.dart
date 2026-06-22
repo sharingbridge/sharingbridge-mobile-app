@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
+import '../../../../presentation/navigate_to_order_contacts.dart';
 import '../../domain/models/seeker_demand_summary.dart';
 
 class SeekerDemandDetailPage extends StatelessWidget {
@@ -31,11 +32,12 @@ class SeekerDemandDetailPage extends StatelessWidget {
 
   String get _bodyCopy => _isSelfPay
       ? 'Eco kitchen pool — coordinators commit on the SharingBridge dashboard '
-          '(Actions tab). After a kitchen commits, open Connection with order code '
+          '(Actions tab). After a kitchen commits, open Order contacts with code '
           '${demand.orderCode ?? 'SB-…'} to pay off-platform.'
       : 'Open for pledging — pledgers and eco kitchens coordinate on the '
           'SharingBridge dashboard (Actions tab: pledges and kitchen commitments), '
-          'not direct checkout in a vendor app.';
+          'not direct checkout in a vendor app. After a kitchen commits, use '
+          'Order contacts for login emails.';
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +79,18 @@ class SeekerDemandDetailPage extends StatelessWidget {
             _bodyCopy,
             style: theme.textTheme.bodyMedium,
           ),
+          if (demand.orderCode != null && demand.orderCode!.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              key: const Key('seeker_demand_open_order_contacts'),
+              onPressed: () => navigateToOrderContacts(
+                context,
+                initialOrderCode: demand.orderCode,
+              ),
+              icon: const Icon(Icons.contact_mail_outlined),
+              label: const Text('Open order contacts'),
+            ),
+          ],
           if (demand.verbalNotes?.trim().isNotEmpty == true) ...<Widget>[
             const SizedBox(height: 16),
             Text('Notes', style: theme.textTheme.titleSmall),
