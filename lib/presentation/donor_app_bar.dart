@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../features/auth/presentation/sign_out_action.dart';
 import 'navigate_donor_home.dart';
 
-/// Shared app bar for donor flows: back, home, and sign-out.
-class DonorAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const DonorAppBar({
+/// Shared app bar for initiator signed-in flows: back, home, and sign-out.
+class InitiatorAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const InitiatorAppBar({
     super.key,
     required this.title,
     this.isHub = false,
@@ -71,3 +71,6 @@ class DonorAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
+
+/// Legacy name — prefer [InitiatorAppBar].
+typedef DonorAppBar = InitiatorAppBar;
