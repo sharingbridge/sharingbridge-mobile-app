@@ -13,6 +13,18 @@ class HandoverLocation {
   final double lat;
   final double lng;
   final String label;
+
+  HandoverLocation copyWith({
+    double? lat,
+    double? lng,
+    String? label,
+  }) {
+    return HandoverLocation(
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
+      label: label ?? this.label,
+    );
+  }
 }
 
 /// Returns coordinates when permission and services allow; otherwise null.

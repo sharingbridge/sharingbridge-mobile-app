@@ -15,6 +15,7 @@ import '../../data/http_order_intent_client.dart';
 import '../../data/http_reference_photo_client.dart';
 import '../../domain/models/reference_photo_upload.dart';
 import '../../domain/models/instruction_pack_result.dart';
+import '../widgets/handover_location_confirm_card.dart';
 import '../widgets/reference_photo_preview.dart';
 import '../../../donor_setup/application/load_presets_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
@@ -109,6 +110,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   String? _referencePhotoThumbnailUrl;
   final TextEditingController _verbalNotesController = TextEditingController();
   bool _generatingInstructions = false;
+  bool _refreshingHandoverLocation = false;
   HandoverLocation? _handoverLocation;
   String? _instructionLocationDescription;
   String? _instructionImageDescription;
@@ -310,14 +312,44 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     }
   }
 
+  Future<void> _captureHandoverLocationForConfirmation() async {
+    setState(() {
+      _refreshingHandoverLocation = true;
+      _errorText = null;
+    });
+    final location = await _captureLocation();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _refreshingHandoverLocation = false;
+      _handoverLocation = location;
+      if (location == null) {
+        _errorText =
+            'Location not available. Enable GPS, then capture again or enter coordinates manually.';
+      }
+    });
+  }
+
   Future<void> _generateInstructions() async {
     setState(() => _generatingInstructions = true);
     try {
-      final handoverLocation = await _captureLocation();
+      final handoverLocation = _handoverLocation;
+      if (handoverLocation == null) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _generatingInstructions = false;
+          _errorText =
+              'Capture and confirm handover location before generating instructions.';
+        });
+        return;
+      }
+
       if (!mounted) {
         return;
       }
-      setState(() => _handoverLocation = handoverLocation);
 
       ReferencePhotoUpload? uploaded;
       if (_referencePhoto != null) {
@@ -338,9 +370,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         referencePhotoViewUrl: _referencePhotoViewUrl,
         referencePhotoThumbnailUrl: _referencePhotoThumbnailUrl,
         verbalHandoverNotes: _verbalNotesController.text,
-        lat: handoverLocation?.lat,
-        lng: handoverLocation?.lng,
-        locationLabel: handoverLocation?.label,
+        lat: handoverLocation.lat,
+        lng: handoverLocation.lng,
+        locationLabel: handoverLocation.label,
       );
       if (!mounted) {
         return;
@@ -359,12 +391,11 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _orderIntentId = null;
         _orderIntentError = null;
       });
-      if (handoverLocation == null) {
+      if (handoverLocation.label.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Location not available — instructions omit GPS. '
-              'Enable location for this app to include handover coordinates.',
+              'Handover location captured — add a delivery area label if helpful.',
             ),
           ),
         );
@@ -546,6 +577,38 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
           'Optional reference photo (with consent) and notes for the courier.',
           style: theme.textTheme.bodyMedium,
         ),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          key: const Key('field_help_capture_location'),
+          onPressed: _generatingInstructions || _refreshingHandoverLocation
+              ? null
+              : _captureHandoverLocationForConfirmation,
+          icon: _refreshingHandoverLocation
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.my_location),
+          label: Text(
+            _handoverLocation == null
+                ? 'Capture handover location'
+                : 'Recapture handover location',
+          ),
+        ),
+        if (_handoverLocation != null) ...<Widget>[
+          const SizedBox(height: 12),
+          HandoverLocationConfirmCard(
+            location: _handoverLocation!,
+            refreshing: _refreshingHandoverLocation || _generatingInstructions,
+            onLocationChanged: (HandoverLocation updated) {
+              setState(() => _handoverLocation = updated);
+            },
+            onRefresh: _generatingInstructions
+                ? null
+                : _captureHandoverLocationForConfirmation,
+          ),
+        ],
         const SizedBox(height: 16),
         if (_generatingInstructions) const LinearProgressIndicator(),
         if (_generatingInstructions) const SizedBox(height: 16),

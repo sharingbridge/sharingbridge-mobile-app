@@ -7,6 +7,7 @@ import '../../../donor_seeker_interaction/data/handover_location_result.dart';
 import '../../../donor_seeker_interaction/data/http_reference_photo_client.dart';
 import '../../../donor_seeker_interaction/domain/models/reference_photo_upload.dart';
 import '../../../donor_seeker_interaction/presentation/widgets/reference_photo_preview.dart';
+import '../../../donor_seeker_interaction/presentation/widgets/handover_location_confirm_card.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
@@ -24,11 +25,13 @@ class RecordSeekerDemandPage extends StatefulWidget {
     this.authContext,
     this.captureLocationResult,
     this.initiationRoute = SeekerDemandInitiationRoute.ecoKitchenPledge,
+    this.emailSharingConsentAcknowledged = false,
   });
 
   final AuthContext? authContext;
   final Future<HandoverLocationResult> Function()? captureLocationResult;
   final String initiationRoute;
+  final bool emailSharingConsentAcknowledged;
 
   @override
   State<RecordSeekerDemandPage> createState() => _RecordSeekerDemandPageState();
@@ -50,6 +53,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   bool _loadingOffers = false;
   bool _recorded = false;
   bool _emailShareConsent = false;
+  bool _refreshingLocation = false;
   String? _errorText;
   String? _lastDemandId;
   String? _lastOrderCode;
@@ -96,6 +100,14 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.emailSharingConsentAcknowledged) {
+      _emailShareConsent = true;
+    }
+  }
+
+  @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
@@ -132,6 +144,34 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       baseUrl: _defaultPhotoServiceBaseUrl,
       authContext: _session,
     ).uploadSeekerReference(_referencePhoto!);
+  }
+
+  Future<void> _refreshHandoverLocation() async {
+    setState(() {
+      _refreshingLocation = true;
+      _errorText = null;
+    });
+    final capture = await _captureLocationResult();
+    if (!mounted) {
+      return;
+    }
+    if (!capture.isSuccess) {
+      setState(() {
+        _refreshingLocation = false;
+        _errorText = capture.message.isNotEmpty
+            ? capture.message
+            : 'Could not refresh GPS.';
+      });
+      return;
+    }
+    setState(() {
+      _refreshingLocation = false;
+      _capturedLocation = capture.location;
+    });
+    if (_offers.isNotEmpty) {
+      return;
+    }
+    await _loadOffersForArea();
   }
 
   Future<void> _loadOffersForArea() async {
@@ -308,7 +348,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       _referencePhotoViewUrl = null;
       _referencePhotoThumbnailUrl = null;
       _errorText = null;
-      _emailShareConsent = false;
+      _emailShareConsent = widget.emailSharingConsentAcknowledged;
     });
   }
 
@@ -351,6 +391,19 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                       : 'Reload menu for area',
             ),
           ),
+          if (_capturedLocation != null) ...<Widget>[
+            const SizedBox(height: 12),
+            HandoverLocationConfirmCard(
+              location: _capturedLocation!,
+              refreshing: _refreshingLocation || _loadingOffers,
+              onLocationChanged: (HandoverLocation updated) {
+                setState(() => _capturedLocation = updated);
+              },
+              onRefresh: _submitting || _recorded
+                  ? null
+                  : () => _refreshHandoverLocation(),
+            ),
+          ],
           if (_areaLocalityKey != null) ...<Widget>[
             const SizedBox(height: 8),
             Text(
@@ -454,7 +507,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ],
-          if (!_recorded) ...<Widget>[
+          if (!_recorded && !widget.emailSharingConsentAcknowledged) ...<Widget>[
             const SizedBox(height: 16),
             Card.outlined(
               child: Padding(

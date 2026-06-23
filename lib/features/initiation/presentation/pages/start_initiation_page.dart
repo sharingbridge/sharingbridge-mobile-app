@@ -23,6 +23,7 @@ class StartInitiationPage extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (BuildContext context) => const RecordSeekerDemandPage(
           initiationRoute: SeekerDemandInitiationRoute.ecoKitchenPledge,
+          emailSharingConsentAcknowledged: true,
         ),
       ),
     );
@@ -41,6 +42,7 @@ class StartInitiationPage extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (BuildContext context) => const RecordSeekerDemandPage(
           initiationRoute: SeekerDemandInitiationRoute.ecoKitchenSelfPay,
+          emailSharingConsentAcknowledged: true,
         ),
       ),
     );

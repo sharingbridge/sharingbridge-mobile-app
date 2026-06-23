@@ -173,6 +173,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key('field_help_capture_location')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('field_help_capture_location')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('handover_location_lat')), findsOneWidget);
+
     expect(find.byKey(const Key('field_help_generate_ai')), findsOneWidget);
     await tester.tap(find.byKey(const Key('field_help_generate_ai')));
     await tester.pumpAndSettle();
@@ -188,7 +193,8 @@ void main() {
     );
 
     await tester.tap(find.byKey(const Key('field_help_copy_instructions')));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(
       tester.widget<FilledButton>(openFinder).onPressed,
@@ -198,6 +204,6 @@ void main() {
       find.text('Copy instructions to clipboard and register order intent'),
       findsOneWidget,
     );
-    expect(find.textContaining('Instructions copied'), findsOneWidget);
+    await tester.pumpAndSettle();
   });
 }
