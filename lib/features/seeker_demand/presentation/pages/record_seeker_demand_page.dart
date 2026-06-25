@@ -48,6 +48,8 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   );
 
   final TextEditingController _notesController = TextEditingController();
+  final GlobalKey<HandoverLocationConfirmCardState> _locationCardKey =
+      GlobalKey<HandoverLocationConfirmCardState>();
   int _mealUnits = 1;
   bool _submitting = false;
   bool _loadingOffers = false;
@@ -262,6 +264,17 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     }
 
     final resolvedLocation = location!;
+    if (_locationCardKey.currentState?.validate() != true) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _submitting = false;
+        _errorText =
+            'Confirm handover location — add a delivery area or address label.';
+      });
+      return;
+    }
     try {
       ReferencePhotoUpload? uploaded;
       if (_referencePhoto != null) {
@@ -394,6 +407,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           if (_capturedLocation != null) ...<Widget>[
             const SizedBox(height: 12),
             HandoverLocationConfirmCard(
+              key: _locationCardKey,
               location: _capturedLocation!,
               refreshing: _refreshingLocation || _loadingOffers,
               onLocationChanged: (HandoverLocation updated) {

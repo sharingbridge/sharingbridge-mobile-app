@@ -177,6 +177,11 @@ void main() {
     await tester.tap(find.byKey(const Key('field_help_capture_location')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('handover_location_lat')), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('handover_location_label')),
+      'North gate',
+    );
+    await tester.pump();
 
     expect(find.byKey(const Key('field_help_generate_ai')), findsOneWidget);
     await tester.tap(find.byKey(const Key('field_help_generate_ai')));

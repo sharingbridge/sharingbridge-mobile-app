@@ -109,6 +109,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   String? _referencePhotoViewUrl;
   String? _referencePhotoThumbnailUrl;
   final TextEditingController _verbalNotesController = TextEditingController();
+  final GlobalKey<HandoverLocationConfirmCardState> _locationCardKey =
+      GlobalKey<HandoverLocationConfirmCardState>();
   bool _generatingInstructions = false;
   bool _refreshingHandoverLocation = false;
   HandoverLocation? _handoverLocation;
@@ -346,6 +348,17 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         });
         return;
       }
+      if (_locationCardKey.currentState?.validate() != true) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _generatingInstructions = false;
+          _errorText =
+              'Confirm handover location — add a delivery area or address label.';
+        });
+        return;
+      }
 
       if (!mounted) {
         return;
@@ -391,15 +404,6 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         _orderIntentId = null;
         _orderIntentError = null;
       });
-      if (handoverLocation.label.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Handover location captured — add a delivery area label if helpful.',
-            ),
-          ),
-        );
-      }
     } on DonorSetupApiException catch (e) {
       if (!mounted) {
         return;
@@ -599,6 +603,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         if (_handoverLocation != null) ...<Widget>[
           const SizedBox(height: 12),
           HandoverLocationConfirmCard(
+            key: _locationCardKey,
             location: _handoverLocation!,
             refreshing: _refreshingHandoverLocation || _generatingInstructions,
             onLocationChanged: (HandoverLocation updated) {
