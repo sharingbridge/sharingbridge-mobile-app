@@ -153,6 +153,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       _refreshingLocation = true;
       _errorText = null;
     });
+    final preservedLabel = _capturedLocation?.label.trim() ?? '';
     final capture = await _captureLocationResult();
     if (!mounted) {
       return;
@@ -168,34 +169,39 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     }
     setState(() {
       _refreshingLocation = false;
-      _capturedLocation = capture.location!.copyWith(
-        label: _capturedLocation?.label.trim() ?? '',
-      );
+      _capturedLocation = capture.location!.copyWith(label: preservedLabel);
     });
-    if (_offers.isNotEmpty) {
-      return;
-    }
     await _loadOffersForArea();
   }
 
-  Future<void> _loadOffersForArea() async {
+  /// Loads standard menu for [location_lat]/[location_lng]. Postal area is never
+  /// derived from the label — only from coordinates (server reverse-geocode).
+  Future<void> _loadOffersForArea({bool captureFreshGps = false}) async {
     setState(() {
       _loadingOffers = true;
       _errorText = null;
     });
 
-    final capture = await _captureLocationResult();
-    if (!mounted) {
-      return;
-    }
-    if (!capture.isSuccess) {
-      setState(() {
-        _loadingOffers = false;
-        _errorText = capture.message.isNotEmpty
-            ? capture.message
-            : 'Location is required to load standard menu items for this area.';
-      });
-      return;
+    final preservedLabel = _capturedLocation?.label.trim() ?? '';
+    HandoverLocation? location;
+
+    if (captureFreshGps || _capturedLocation == null) {
+      final capture = await _captureLocationResult();
+      if (!mounted) {
+        return;
+      }
+      if (!capture.isSuccess) {
+        setState(() {
+          _loadingOffers = false;
+          _errorText = capture.message.isNotEmpty
+              ? capture.message
+              : 'Location is required to load standard menu items for this area.';
+        });
+        return;
+      }
+      location = capture.location!.copyWith(label: preservedLabel);
+    } else {
+      location = _capturedLocation;
     }
 
     try {
@@ -203,15 +209,17 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
         baseUrl: _defaultApiBaseUrl,
         authContext: _session,
       ).listForLocation(
-        locationLat: capture.location!.lat,
-        locationLng: capture.location!.lng,
+        locationLat: location!.lat,
+        locationLng: location.lng,
       );
       if (!mounted) {
         return;
       }
       setState(() {
         _loadingOffers = false;
-        _capturedLocation = capture.location;
+        _capturedLocation = location!.copyWith(
+          label: preservedLabel.isNotEmpty ? preservedLabel : location.label,
+        );
         _offers = offers;
         _selectedOfferId =
             offers.isNotEmpty ? offers.first.standardOfferId : null;
@@ -390,7 +398,9 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
             key: const Key('record_seeker_demand_load_offers'),
             onPressed: _submitting || _loadingOffers || _recorded
                 ? null
-                : () => _loadOffersForArea(),
+                : () => _loadOffersForArea(
+                      captureFreshGps: _capturedLocation == null,
+                    ),
             icon: _loadingOffers
                 ? const SizedBox(
                     width: 18,
