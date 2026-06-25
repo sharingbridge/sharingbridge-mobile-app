@@ -44,12 +44,16 @@ class HandoverLocationConfirmCardState extends State<HandoverLocationConfirmCard
   @override
   void didUpdateWidget(covariant HandoverLocationConfirmCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.location.lat != widget.location.lat ||
-        oldWidget.location.lng != widget.location.lng ||
-        oldWidget.location.label != widget.location.label) {
-      _labelController.text = widget.location.label;
+    if (oldWidget.location.lat != widget.location.lat) {
       _latController.text = _formatCoord(widget.location.lat);
+    }
+    if (oldWidget.location.lng != widget.location.lng) {
       _lngController.text = _formatCoord(widget.location.lng);
+    }
+    // GPS refresh returns an empty label — keep what the user already typed.
+    if (widget.location.label.isNotEmpty &&
+        widget.location.label != oldWidget.location.label) {
+      _labelController.text = widget.location.label;
     }
   }
 
@@ -144,8 +148,8 @@ class HandoverLocationConfirmCardState extends State<HandoverLocationConfirmCard
                 controller: _labelController,
                 enabled: !widget.refreshing,
                 decoration: const InputDecoration(
-                  labelText: 'Delivery area / address label',
-                  hintText: 'e.g. North gate, Block B',
+                labelText: 'Delivery area / address label',
+                hintText: 'Landmark or short address, e.g. North gate, 12 Temple St',
                   border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.sentences,

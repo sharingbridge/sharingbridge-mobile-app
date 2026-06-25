@@ -325,7 +325,9 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
     }
     setState(() {
       _refreshingHandoverLocation = false;
-      _handoverLocation = location;
+      _handoverLocation = location?.copyWith(
+        label: _handoverLocation?.label.trim() ?? '',
+      );
       if (location == null) {
         _errorText =
             'Location not available. Enable GPS, then capture again or enter coordinates manually.';

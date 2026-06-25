@@ -168,7 +168,9 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     }
     setState(() {
       _refreshingLocation = false;
-      _capturedLocation = capture.location;
+      _capturedLocation = capture.location!.copyWith(
+        label: _capturedLocation?.label.trim() ?? '',
+      );
     });
     if (_offers.isNotEmpty) {
       return;
