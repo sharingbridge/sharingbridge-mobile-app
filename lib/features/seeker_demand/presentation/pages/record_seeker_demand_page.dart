@@ -63,6 +63,9 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   List<StandardOfferOption> _offers = <StandardOfferOption>[];
   String? _selectedOfferId;
   HandoverLocation? _capturedLocation;
+  double? _menuLoadedLat;
+  double? _menuLoadedLng;
+  bool _requiresMenuReload = false;
   XFile? _referencePhoto;
   String? _referencePhotoViewUrl;
   String? _referencePhotoThumbnailUrl;
@@ -95,6 +98,52 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   String get _successSnackCopy => _isSelfPay
       ? 'Opened for eco kitchens'
       : 'Opened for pledging';
+
+  bool get _menuReady =>
+      _offers.isNotEmpty && !_requiresMenuReload && !_loadingOffers;
+
+  bool get _showMenuLoadButton =>
+      _capturedLocation == null || _requiresMenuReload;
+
+  static bool _coordsDiffer(
+    double aLat,
+    double aLng,
+    double bLat,
+    double bLng,
+  ) {
+    const epsilon = 0.000001;
+    return (aLat - bLat).abs() > epsilon || (aLng - bLng).abs() > epsilon;
+  }
+
+  void _invalidateMenuForCoordinateChange() {
+    _offers = <StandardOfferOption>[];
+    _selectedOfferId = null;
+    _areaLocalityKey = null;
+    _requiresMenuReload = true;
+  }
+
+  void _markMenuLoadedFor(HandoverLocation location) {
+    _menuLoadedLat = location.lat;
+    _menuLoadedLng = location.lng;
+    _requiresMenuReload = false;
+  }
+
+  void _onHandoverLocationChanged(HandoverLocation updated) {
+    final divergedFromMenu = _menuLoadedLat != null &&
+        _menuLoadedLng != null &&
+        _coordsDiffer(
+          _menuLoadedLat!,
+          _menuLoadedLng!,
+          updated.lat,
+          updated.lng,
+        );
+    setState(() {
+      _capturedLocation = updated;
+      if (divergedFromMenu && !_requiresMenuReload) {
+        _invalidateMenuForCoordinateChange();
+      }
+    });
+  }
 
   Future<HandoverLocationResult> _captureLocationResult() {
     final fn = widget.captureLocationResult ?? captureHandoverLocationResult;
@@ -226,6 +275,13 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
         _areaLocalityKey = offers.isNotEmpty
             ? offers.first.localityKey
             : null;
+        if (offers.isNotEmpty) {
+          _markMenuLoadedFor(_capturedLocation!);
+        } else {
+          _menuLoadedLat = null;
+          _menuLoadedLng = null;
+          _requiresMenuReload = false;
+        }
         if (offers.isEmpty) {
           _errorText =
               'No standard menu items are configured for this postal area.';
@@ -248,6 +304,12 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     }
     if (_selectedOfferId == null || _selectedOfferId!.isEmpty) {
       setState(() => _errorText = 'Choose a standard menu item.');
+      return;
+    }
+    if (_requiresMenuReload) {
+      setState(
+        () => _errorText = 'Reload the menu for the updated coordinates.',
+      );
       return;
     }
 
@@ -372,11 +434,19 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       _referencePhotoThumbnailUrl = null;
       _errorText = null;
       _emailShareConsent = widget.emailSharingConsentAcknowledged;
+      _offers = <StandardOfferOption>[];
+      _selectedOfferId = null;
+      _areaLocalityKey = null;
+      _capturedLocation = null;
+      _menuLoadedLat = null;
+      _menuLoadedLng = null;
+      _requiresMenuReload = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final menuReady = _menuReady;
     return Scaffold(
       appBar: DonorAppBar(title: _routeTitle),
       body: ListView(
@@ -394,43 +464,51 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          OutlinedButton.icon(
-            key: const Key('record_seeker_demand_load_offers'),
-            onPressed: _submitting || _loadingOffers || _recorded
-                ? null
-                : () => _loadOffersForArea(
-                      captureFreshGps: _capturedLocation == null,
-                    ),
-            icon: _loadingOffers
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.my_location),
-            label: Text(
-              _loadingOffers
-                  ? 'Loading menu…'
-                  : _capturedLocation == null
-                      ? 'Allow location & load menu'
-                      : 'Reload menu for area',
+          if (_showMenuLoadButton)
+            OutlinedButton.icon(
+              key: const Key('record_seeker_demand_load_offers'),
+              onPressed: _submitting || _loadingOffers || _recorded
+                  ? null
+                  : () => _loadOffersForArea(
+                        captureFreshGps: _capturedLocation == null,
+                      ),
+              icon: _loadingOffers
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.restaurant_menu_outlined),
+              label: Text(
+                _loadingOffers
+                    ? 'Loading menu…'
+                    : _capturedLocation == null
+                        ? 'Allow location & load menu'
+                        : 'Reload menu for updated coordinates',
+              ),
             ),
-          ),
+          if (_requiresMenuReload) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              'Coordinates changed — reload the menu before choosing a menu item.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+            ),
+          ],
           if (_capturedLocation != null) ...<Widget>[
             const SizedBox(height: 12),
             HandoverLocationConfirmCard(
               key: _locationCardKey,
               location: _capturedLocation!,
               refreshing: _refreshingLocation || _loadingOffers,
-              onLocationChanged: (HandoverLocation updated) {
-                setState(() => _capturedLocation = updated);
-              },
+              onLocationChanged: _onHandoverLocationChanged,
               onRefresh: _submitting || _recorded
                   ? null
                   : () => _refreshHandoverLocation(),
             ),
           ],
-          if (_areaLocalityKey != null) ...<Widget>[
+          if (_areaLocalityKey != null && !_requiresMenuReload) ...<Widget>[
             const SizedBox(height: 8),
             Text(
               'Postal area: $_areaLocalityKey',
@@ -439,7 +517,9 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           ],
           const SizedBox(height: 16),
           OutlinedButton.icon(
-            onPressed: _submitting || _recorded ? null : _pickReferencePhoto,
+            onPressed: _submitting || _recorded || !menuReady
+                ? null
+                : _pickReferencePhoto,
             icon: const Icon(Icons.photo_camera_outlined),
             label: Text(
               _referencePhoto == null
@@ -454,7 +534,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
               thumbnailUrl: _referencePhotoThumbnailUrl,
               viewUrl: _referencePhotoViewUrl,
               caption: 'Reference photo',
-              onRemove: _submitting || _recorded
+              onRemove: _submitting || _recorded || !menuReady
                   ? null
                   : () => setState(() {
                         _referencePhoto = null;
@@ -464,12 +544,12 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
             ),
           ],
           const SizedBox(height: 16),
-          if (_offers.isEmpty)
+          if (!menuReady && !_requiresMenuReload)
             Text(
               'Load menu items for the seeker\'s location before recording.',
               style: Theme.of(context).textTheme.bodyMedium,
             )
-          else
+          else if (menuReady)
             DropdownButtonFormField<String>(
               key: const Key('record_seeker_demand_offer'),
               value: _selectedOfferId,
@@ -489,7 +569,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                     ),
                   )
                   .toList(growable: false),
-              onChanged: _submitting || _recorded
+              onChanged: _submitting || _recorded || !menuReady
                   ? null
                   : (value) => setState(() => _selectedOfferId = value),
             ),
@@ -500,7 +580,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
               const SizedBox(width: 12),
               IconButton(
                 key: const Key('record_seeker_demand_units_dec'),
-                onPressed: _submitting || _recorded || _mealUnits <= 1
+                onPressed: _submitting || _recorded || !menuReady || _mealUnits <= 1
                     ? null
                     : () => setState(() => _mealUnits -= 1),
                 icon: const Icon(Icons.remove_circle_outline),
@@ -508,7 +588,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
               Text('$_mealUnits', style: Theme.of(context).textTheme.titleMedium),
               IconButton(
                 key: const Key('record_seeker_demand_units_inc'),
-                onPressed: _submitting || _recorded || _mealUnits >= 50
+                onPressed: _submitting || _recorded || !menuReady || _mealUnits >= 50
                     ? null
                     : () => setState(() => _mealUnits += 1),
                 icon: const Icon(Icons.add_circle_outline),
@@ -519,7 +599,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           TextField(
             key: const Key('record_seeker_demand_notes'),
             controller: _notesController,
-            enabled: !_submitting && !_recorded,
+            enabled: !_submitting && !_recorded && menuReady,
             decoration: const InputDecoration(
               labelText: 'Handover notes (optional)',
               border: OutlineInputBorder(),
@@ -601,7 +681,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           else
             FilledButton.icon(
               key: const Key('record_seeker_demand_submit'),
-              onPressed: _submitting || _offers.isEmpty || !_emailShareConsent
+              onPressed: _submitting || !menuReady || !_emailShareConsent
                   ? null
                   : _submit,
               icon: _submitting
