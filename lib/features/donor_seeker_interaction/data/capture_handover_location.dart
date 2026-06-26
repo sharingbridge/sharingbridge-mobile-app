@@ -8,21 +8,29 @@ class HandoverLocation {
     required this.lat,
     required this.lng,
     this.label = '',
+    this.formattedAddress = '',
+    this.localityKey = '',
   });
 
   final double lat;
   final double lng;
   final String label;
+  final String formattedAddress;
+  final String localityKey;
 
   HandoverLocation copyWith({
     double? lat,
     double? lng,
     String? label,
+    String? formattedAddress,
+    String? localityKey,
   }) {
     return HandoverLocation(
       lat: lat ?? this.lat,
       lng: lng ?? this.lng,
       label: label ?? this.label,
+      formattedAddress: formattedAddress ?? this.formattedAddress,
+      localityKey: localityKey ?? this.localityKey,
     );
   }
 }

@@ -7,7 +7,7 @@ import '../../../donor_seeker_interaction/data/handover_location_result.dart';
 import '../../../donor_seeker_interaction/data/http_reference_photo_client.dart';
 import '../../../donor_seeker_interaction/domain/models/reference_photo_upload.dart';
 import '../../../donor_seeker_interaction/presentation/widgets/reference_photo_preview.dart';
-import '../../../donor_seeker_interaction/presentation/widgets/handover_location_confirm_card.dart';
+import '../../../donor_seeker_interaction/presentation/widgets/handover_location_picker.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
@@ -48,8 +48,8 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   );
 
   final TextEditingController _notesController = TextEditingController();
-  final GlobalKey<HandoverLocationConfirmCardState> _locationCardKey =
-      GlobalKey<HandoverLocationConfirmCardState>();
+  final GlobalKey<HandoverLocationPickerState> _locationPickerKey =
+      GlobalKey<HandoverLocationPickerState>();
   int _mealUnits = 1;
   bool _submitting = false;
   bool _loadingOffers = false;
@@ -336,7 +336,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
     }
 
     final resolvedLocation = location!;
-    if (_locationCardKey.currentState?.validate() != true) {
+    if (_locationPickerKey.currentState?.validate() != true) {
       if (!mounted) {
         return;
       }
@@ -498,8 +498,8 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           ],
           if (_capturedLocation != null) ...<Widget>[
             const SizedBox(height: 12),
-            HandoverLocationConfirmCard(
-              key: _locationCardKey,
+            HandoverLocationPicker(
+              key: _locationPickerKey,
               location: _capturedLocation!,
               refreshing: _refreshingLocation || _loadingOffers,
               onLocationChanged: _onHandoverLocationChanged,

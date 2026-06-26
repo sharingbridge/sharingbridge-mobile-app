@@ -1,0 +1,2 @@
+# Copy to android/local.properties (gitignored). Required for map picker UI.
+GOOGLE_MAPS_API_KEY=

@@ -15,7 +15,7 @@ import '../../data/http_order_intent_client.dart';
 import '../../data/http_reference_photo_client.dart';
 import '../../domain/models/reference_photo_upload.dart';
 import '../../domain/models/instruction_pack_result.dart';
-import '../widgets/handover_location_confirm_card.dart';
+import '../widgets/handover_location_picker.dart';
 import '../widgets/reference_photo_preview.dart';
 import '../../../donor_setup/application/load_presets_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
@@ -109,8 +109,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
   String? _referencePhotoViewUrl;
   String? _referencePhotoThumbnailUrl;
   final TextEditingController _verbalNotesController = TextEditingController();
-  final GlobalKey<HandoverLocationConfirmCardState> _locationCardKey =
-      GlobalKey<HandoverLocationConfirmCardState>();
+  final GlobalKey<HandoverLocationPickerState> _locationPickerKey =
+      GlobalKey<HandoverLocationPickerState>();
   bool _generatingInstructions = false;
   bool _refreshingHandoverLocation = false;
   HandoverLocation? _handoverLocation;
@@ -350,7 +350,7 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         });
         return;
       }
-      if (_locationCardKey.currentState?.validate() != true) {
+      if (_locationPickerKey.currentState?.validate() != true) {
         if (!mounted) {
           return;
         }
@@ -604,8 +604,8 @@ class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage>
         ),
         if (_handoverLocation != null) ...<Widget>[
           const SizedBox(height: 12),
-          HandoverLocationConfirmCard(
-            key: _locationCardKey,
+          HandoverLocationPicker(
+            key: _locationPickerKey,
             location: _handoverLocation!,
             refreshing: _refreshingHandoverLocation || _generatingInstructions,
             onLocationChanged: (HandoverLocation updated) {
