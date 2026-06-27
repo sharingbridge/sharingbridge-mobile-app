@@ -4,9 +4,11 @@
 
 ## Status
 
-**Shipped:** Vendor preset setup, **Start initiation** (all three routes including **Eco kitchen · I pay**), **Help a seeker**, **Initiations**, **Google Sign-In**, FCM registration when Firebase is configured.
+**Shipped:** Vendor preset setup, **Start initiation** (all three routes including **Eco kitchen · I pay**), **Help a seeker**, **Initiations**, **Google Sign-In**, FCM registration when Firebase is configured, **handover map picker** (Google tiles + server geocode when `GOOGLE_MAPS_API_KEY` set).
 
 **Product model:** [Eco_Kitchen_Initiation_Flow.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Eco_Kitchen_Initiation_Flow.md)
+
+**Location services:** [Location_Services_Vendor_Abstraction.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Location_Services_Vendor_Abstraction.md) · [Handover_Location_Map_Picker.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Handover_Location_Map_Picker.md) · [mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md)
 
 **Doc map:** [STATUS.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/STATUS.md) · [AGENT_SESSION.md](https://github.com/sharingbridge/sharingbridge/blob/main/development/AGENT_SESSION.md)
 

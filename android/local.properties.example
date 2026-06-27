@@ -1,2 +1,4 @@
-# Copy to android/local.properties (gitignored). Required for map picker UI.
+# Copy to android/local.properties (gitignored). Required for native Google Maps SDK (map tiles only).
+# Also pass the same key: --dart-define=GOOGLE_MAPS_API_KEY=…
+# Geocoding uses integration-service (Nominatim), not Google Geocoding — see sharingbridge/design/Location_Services_Vendor_Abstraction.md
 GOOGLE_MAPS_API_KEY=
