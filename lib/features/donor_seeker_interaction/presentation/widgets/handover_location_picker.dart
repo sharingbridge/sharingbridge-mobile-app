@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import '../../data/capture_handover_location.dart';
 import 'handover_location_confirm_card.dart';
 import 'handover_location_map_picker.dart';
+import 'handover_map_enabled.dart';
 
-/// Map picker when [GOOGLE_MAPS_API_KEY] is set; otherwise coordinate form fallback.
+/// Map picker when [isHandoverMapPickerEnabled] is true; otherwise form fallback.
+///
+/// Android: set `GOOGLE_MAPS_API_KEY` in `android/local.properties` (Gradle sets
+/// `HANDOVER_MAP_ENABLED=true` automatically). Override with
+/// `--dart-define=HANDOVER_MAP_ENABLED=false` if needed.
 class HandoverLocationPicker extends StatefulWidget {
   const HandoverLocationPicker({
     super.key,
@@ -19,13 +24,7 @@ class HandoverLocationPicker extends StatefulWidget {
   final VoidCallback? onRefresh;
   final bool refreshing;
 
-  static bool get mapEnabled {
-    const key = String.fromEnvironment(
-      'GOOGLE_MAPS_API_KEY',
-      defaultValue: '',
-    );
-    return key.trim().isNotEmpty;
-  }
+  static bool get mapEnabled => isHandoverMapPickerEnabled;
 
   @override
   State<HandoverLocationPicker> createState() => HandoverLocationPickerState();
