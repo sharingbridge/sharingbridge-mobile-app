@@ -1,6 +1,7 @@
 # Copy to android/local.properties (gitignored).
 # GOOGLE_MAPS_API_KEY — native Google Maps tiles (Maps SDK for Android).
-# When set, Gradle also sets HANDOVER_MAP_ENABLED=true for the Flutter map picker.
-# Optional override: --dart-define=HANDOVER_MAP_ENABLED=false (force form fallback).
+# Pair with --dart-define=HANDOVER_MAP_ENABLED=true on flutter run / flutter build (map UI).
+# Gradle may auto-add HANDOVER_MAP_ENABLED=true when this key is set and the define is omitted.
+# Force form fallback: --dart-define=HANDOVER_MAP_ENABLED=false
 # Geocoding uses integration-service (Nominatim), not Google Geocoding.
 GOOGLE_MAPS_API_KEY=

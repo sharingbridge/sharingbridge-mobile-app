@@ -7,9 +7,9 @@ import 'handover_map_enabled.dart';
 
 /// Map picker when [isHandoverMapPickerEnabled] is true; otherwise form fallback.
 ///
-/// Android: set `GOOGLE_MAPS_API_KEY` in `android/local.properties` (Gradle sets
-/// `HANDOVER_MAP_ENABLED=true` automatically). Override with
-/// `--dart-define=HANDOVER_MAP_ENABLED=false` if needed.
+/// Android: `GOOGLE_MAPS_API_KEY` in `android/local.properties` (tiles) and
+/// `--dart-define=HANDOVER_MAP_ENABLED=true` (map UI). Gradle may auto-set the
+/// define when the key is present; explicit `true` is recommended.
 class HandoverLocationPicker extends StatefulWidget {
   const HandoverLocationPicker({
     super.key,
