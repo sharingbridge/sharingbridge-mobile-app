@@ -4,7 +4,7 @@
 
 ## Status
 
-**Shipped:** Vendor preset setup, **Start initiation** (all three routes including **Eco kitchen · I pay**), **Help a seeker**, **Initiations**, **Google Sign-In**, FCM registration when Firebase is configured, **handover map picker** (Google tiles when `GOOGLE_MAPS_API_KEY` is in `android/local.properties`; Gradle sets `HANDOVER_MAP_ENABLED`).
+**Shipped:** Vendor preset setup, **Start initiation** (all three routes including **Eco kitchen · I pay**), **Help a seeker**, **Initiations**, **Google Sign-In**, FCM registration when Firebase is configured, **handover map picker** (Google tiles when `GOOGLE_MAPS_API_KEY` is in `android/local.properties`; pass `--dart-define=HANDOVER_MAP_ENABLED=true` for the map UI).
 
 **Product model:** [Eco_Kitchen_Initiation_Flow.md](https://github.com/sharingbridge/sharingbridge/blob/main/design/Eco_Kitchen_Initiation_Flow.md)
 
