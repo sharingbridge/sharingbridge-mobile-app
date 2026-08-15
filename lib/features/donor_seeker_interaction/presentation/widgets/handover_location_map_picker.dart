@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
 import '../../../donor_setup/data/donor_seeker_api_errors.dart';
@@ -18,10 +19,7 @@ class HandoverLocationMapPicker extends StatefulWidget {
     required this.onLocationChanged,
     this.onRefresh,
     this.refreshing = false,
-    this.apiBaseUrl = const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://localhost:8080',
-    ),
+    this.apiBaseUrl = IntegrationApiPaths.baseUrl,
     this.authContext,
   });
 

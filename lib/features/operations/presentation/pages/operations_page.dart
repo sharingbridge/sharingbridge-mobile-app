@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../../auth/data/auth_session_holder.dart';
@@ -44,10 +45,7 @@ class OperationsPage extends StatefulWidget {
 }
 
 class _OperationsPageState extends State<OperationsPage> {
-  static const String _defaultApiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _defaultApiBaseUrl = IntegrationApiPaths.baseUrl;
 
   AuthContext get _session =>
       widget.authContext ?? AuthSessionHolder.resolve();

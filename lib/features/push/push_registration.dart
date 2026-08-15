@@ -1,16 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import '../../config/integration_api_paths.dart';
 import 'data/device_token_client.dart';
 
 /// Registers FCM after sign-in. Requires `google-services.json` on Android.
 class PushRegistration {
   static bool _firebaseReady = false;
 
-  static const String _apiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _apiBaseUrl = IntegrationApiPaths.baseUrl;
 
   static Future<void> bootstrap() async {
     try {

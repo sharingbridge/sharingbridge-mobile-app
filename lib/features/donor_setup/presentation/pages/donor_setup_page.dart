@@ -11,6 +11,7 @@ import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../application/suggest_vendors_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
+import '../../../../config/integration_api_paths.dart';
 import '../../../../presentation/ai_source_notice_banner.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../domain/models/ai_content_source.dart';
@@ -47,10 +48,7 @@ class DonorSetupPage extends StatefulWidget {
 }
 
 class _DonorSetupPageState extends State<DonorSetupPage> {
-  static const String _defaultApiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _defaultApiBaseUrl = IntegrationApiPaths.baseUrl;
   final TextEditingController _queryController = TextEditingController();
   final TextEditingController _manualAreaController = TextEditingController();
   final Map<int, TextEditingController> _manualUrlByIndex =

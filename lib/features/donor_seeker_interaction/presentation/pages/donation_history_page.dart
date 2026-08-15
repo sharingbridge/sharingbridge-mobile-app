@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../../../presentation/donor_app_bar.dart';
 
 import '../../../auth/data/auth_session_holder.dart';
@@ -28,10 +29,7 @@ class DonationHistoryPage extends StatefulWidget {
 }
 
 class _DonationHistoryPageState extends State<DonationHistoryPage> {
-  static const String _defaultApiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _defaultApiBaseUrl = IntegrationApiPaths.baseUrl;
 
   /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>

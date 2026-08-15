@@ -27,7 +27,7 @@ flutter test
 flutter run -d <device> `
   --dart-define=GOOGLE_CLIENT_ID=<WEB_OAuth_client_id> `
   --dart-define=USER_SERVICE_BASE_URL=http://localhost:8081 `
-  --dart-define=API_BASE_URL=http://localhost:8080
+  --dart-define=INTG_SRVC_BASE_URL=http://localhost:8080
 ```
 
 Device URLs: [mobile-client.md](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md). Hosted sideload: `flutter build apk --release` with the same `--dart-define` flags — [mobile-client.md § Release APK](https://github.com/sharingbridge/sharingbridge/blob/main/configuration/mobile-client.md#release-apk-flutter-build-apk---release).

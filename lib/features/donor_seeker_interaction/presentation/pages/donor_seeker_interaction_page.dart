@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../application/api_delivery_instructions_request.dart';
 import '../../data/capture_handover_location.dart';
 import '../../data/http_order_intent_client.dart';
@@ -77,10 +78,7 @@ class DonorSeekerInteractionPage extends StatefulWidget {
 }
 
 class _DonorSeekerInteractionPageState extends State<DonorSeekerInteractionPage> {
-  static const String _defaultApiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _defaultApiBaseUrl = IntegrationApiPaths.baseUrl;
   static const String _defaultPhotoServiceBaseUrl = String.fromEnvironment(
     'PHOTO_SERVICE_BASE_URL',
     defaultValue: 'http://localhost:8092',

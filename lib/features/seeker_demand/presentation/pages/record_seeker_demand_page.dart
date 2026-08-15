@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_seeker_interaction/data/capture_handover_location.dart';
 import '../../../donor_seeker_interaction/data/handover_location_result.dart';
@@ -38,10 +39,7 @@ class RecordSeekerDemandPage extends StatefulWidget {
 }
 
 class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
-  static const String _defaultApiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _defaultApiBaseUrl = IntegrationApiPaths.baseUrl;
   static const String _defaultPhotoServiceBaseUrl = String.fromEnvironment(
     'PHOTO_SERVICE_BASE_URL',
     defaultValue: 'http://localhost:8092',

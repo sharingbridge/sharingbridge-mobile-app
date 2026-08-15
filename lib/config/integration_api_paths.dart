@@ -1,5 +1,11 @@
 /// Initiator-facing integration-service routes (legacy `/v1/donor-*` still accepted).
 abstract final class IntegrationApiPaths {
+  /// Compile-time `--dart-define=INTG_SRVC_BASE_URL=…` (Experience API).
+  static const String baseUrl = String.fromEnvironment(
+    'INTG_SRVC_BASE_URL',
+    defaultValue: 'http://localhost:8080',
+  );
+
   static const String suggestVendors = '/v1/initiator-setup/suggest-vendors';
   static const String preferences = '/v1/initiator-setup/preferences';
   static const String preferencesDeleteItem =

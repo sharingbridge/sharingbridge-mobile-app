@@ -6,6 +6,7 @@ import '../../application/clear_presets_usecase.dart';
 import '../../application/load_presets_usecase.dart';
 import '../../application/remove_preset_usecase.dart';
 import '../../../auth/data/auth_session_holder.dart';
+import '../../../../config/integration_api_paths.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/auth_context.dart';
 import '../../data/donor_setup_api_exceptions.dart';
@@ -33,10 +34,7 @@ class DonorPresetsPage extends StatefulWidget {
 }
 
 class _DonorPresetsPageState extends State<DonorPresetsPage> {
-  static const String _defaultApiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  static const String _defaultApiBaseUrl = IntegrationApiPaths.baseUrl;
 
   /// Current sign-in (re-reads holder; do not cache in initState).
   AuthContext get _session =>

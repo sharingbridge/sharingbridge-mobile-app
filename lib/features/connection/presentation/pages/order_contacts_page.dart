@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../../../connection_copy.dart';
 import '../../../../initiation_labels.dart';
 import '../../../../presentation/donor_app_bar.dart';
@@ -13,10 +14,7 @@ class OrderContactsPage extends StatefulWidget {
     super.key,
     this.initialOrderCode,
     this.client,
-    this.apiBaseUrl = const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://localhost:8080',
-    ),
+    this.apiBaseUrl = IntegrationApiPaths.baseUrl,
   });
 
   final String? initialOrderCode;

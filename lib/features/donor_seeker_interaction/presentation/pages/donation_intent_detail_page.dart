@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../config/integration_api_paths.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../../auth/data/auth_session_holder.dart';
 import '../../../donor_setup/data/auth_context.dart';
@@ -14,10 +15,7 @@ class DonationIntentDetailPage extends StatefulWidget {
     super.key,
     required this.intent,
     this.authContext,
-    this.apiBaseUrl = const String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://localhost:8080',
-    ),
+    this.apiBaseUrl = IntegrationApiPaths.baseUrl,
   });
 
   final DonationIntent intent;
