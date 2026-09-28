@@ -28,10 +28,14 @@ class DonorSetupBadRequestException extends DonorSetupApiException {
     required this.statusCode,
     required this.errorCode,
     required String message,
+    this.detail,
   }) : super(message);
 
   final int statusCode;
   final String? errorCode;
+
+  /// Optional support-facing detail from the API (`detail` field).
+  final String? detail;
 }
 
 /// Raised for HTTP 5xx responses after retries have been exhausted.

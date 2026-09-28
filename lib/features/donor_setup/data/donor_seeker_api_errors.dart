@@ -23,27 +23,59 @@ String formatDonorSeekerError(
   }
   if (error is DonorSetupBadRequestException) {
     if (_isAuthFailure(error.statusCode, error.errorCode, error.message)) {
-      return _reloginMessage;
+      return _authReloginWithSupport(
+        statusCode: error.statusCode,
+        errorCode: error.errorCode,
+        detail: error.detail ?? error.message,
+      );
     }
     return error.message;
   }
   if (error is DonorSetupServerException) {
     if (_isAuthFailure(error.statusCode, null, error.message)) {
-      return _reloginMessage;
+      return _authReloginWithSupport(
+        statusCode: error.statusCode,
+        detail: error.message,
+      );
     }
     return error.message;
   }
   if (error is DonorSetupApiException) {
     if (_looksLikeAuthMessage(error.message)) {
-      return _reloginMessage;
+      return _authReloginWithSupport(detail: error.message);
     }
     return error.message;
   }
   final raw = error.toString();
   if (_looksLikeAuthMessage(raw)) {
-    return _reloginMessage;
+    return _authReloginWithSupport(detail: raw);
   }
   return 'Something went wrong: $error';
+}
+
+String _authReloginWithSupport({
+  int? statusCode,
+  String? errorCode,
+  String? detail,
+}) {
+  final parts = <String>[];
+  if (statusCode != null) {
+    parts.add('HTTP $statusCode');
+  }
+  final code = errorCode?.trim() ?? '';
+  if (code.isNotEmpty) {
+    parts.add(code);
+  }
+  final technical = detail?.trim() ?? '';
+  if (technical.isNotEmpty &&
+      technical.toLowerCase() != _reloginMessage.toLowerCase() &&
+      !technical.toLowerCase().startsWith('your sign-in has expired')) {
+    parts.add(technical);
+  }
+  if (parts.isEmpty) {
+    return _reloginMessage;
+  }
+  return '$_reloginMessage (Support: ${parts.join(' · ')})';
 }
 
 bool _isAuthFailure(int? statusCode, String? errorCode, String? message) {

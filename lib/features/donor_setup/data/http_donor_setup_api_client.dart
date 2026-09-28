@@ -342,6 +342,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         statusCode: status,
         errorCode: parsed.code,
         message: parsed.message ?? 'HTTP $status',
+        detail: parsed.detail,
       );
     }
     throw DonorSetupServerException(
@@ -390,6 +391,7 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
         return _ParsedError(
           code: decoded['code']?.toString(),
           message: decoded['message']?.toString(),
+          detail: decoded['detail']?.toString(),
         );
       }
     } on FormatException {
@@ -400,8 +402,9 @@ class HttpDonorSetupApiClient implements DonorSetupApiClient {
 }
 
 class _ParsedError {
-  const _ParsedError({this.code, this.message});
+  const _ParsedError({this.code, this.message, this.detail});
 
   final String? code;
   final String? message;
+  final String? detail;
 }
