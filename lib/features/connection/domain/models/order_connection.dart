@@ -82,6 +82,7 @@ class OrderConnection {
     required this.menuLabel,
     this.mealUnits,
     this.priceInr,
+    this.currency,
     required this.localityKey,
     this.seekerDemandId,
     this.demand,
@@ -106,6 +107,10 @@ class OrderConnection {
       menuLabel: json['menu_label']?.toString() ?? '',
       mealUnits: _parseNullableInt(json['meal_units']),
       priceInr: _parseNullableInt(json['price_inr']),
+      currency: () {
+        final raw = json['currency']?.toString().trim() ?? '';
+        return raw.isEmpty ? null : raw.toUpperCase();
+      }(),
       localityKey: json['locality_key']?.toString() ?? '',
       seekerDemandId: json['seeker_demand_id']?.toString(),
       demand: demandRaw is Map<String, dynamic>
@@ -135,6 +140,7 @@ class OrderConnection {
   final String menuLabel;
   final int? mealUnits;
   final int? priceInr;
+  final String? currency;
   final String localityKey;
   final String? seekerDemandId;
   final OrderConnectionDemand? demand;

@@ -14,6 +14,7 @@ import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../../donor_setup/data/donor_setup_api_exceptions.dart';
 import '../../../../connection_consent.dart';
 import '../../../../initiation_labels.dart';
+import '../../../../presentation/catalog_price.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../data/http_seeker_demand_client.dart';
 import '../../data/http_standard_offers_client.dart';
@@ -561,7 +562,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
                       value: offer.standardOfferId,
                       child: Text(
                         offer.priceInr != null
-                            ? '${offer.menuLabel} (₹${offer.priceInr})'
+                            ? '${offer.menuLabel} (${formatCatalogPrice(offer.priceInr, offer.currency)})'
                             : offer.menuLabel,
                       ),
                     ),

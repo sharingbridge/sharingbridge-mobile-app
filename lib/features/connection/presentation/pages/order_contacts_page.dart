@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../config/integration_api_paths.dart';
 import '../../../../connection_copy.dart';
 import '../../../../initiation_labels.dart';
+import '../../../../presentation/catalog_price.dart';
 import '../../../../presentation/donor_app_bar.dart';
 import '../../../donor_setup/data/donor_seeker_api_errors.dart';
 import '../../data/http_connection_client.dart';
@@ -212,7 +213,10 @@ class _ConnectionDetail extends StatelessWidget {
                     '${connection.mealUnits} meal unit'
                     '${connection.mealUnits == 1 ? '' : 's'}',
                   if (connection.priceInr != null)
-                    '₹${connection.priceInr}',
+                    formatCatalogPrice(
+                      connection.priceInr,
+                      connection.currency,
+                    ),
                 ].join(' · '),
               ),
             ),

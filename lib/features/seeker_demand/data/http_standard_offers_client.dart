@@ -8,12 +8,16 @@ class StandardOfferOption {
     required this.localityKey,
     required this.menuLabel,
     this.priceInr,
+    this.currency,
   });
 
   final String standardOfferId;
   final String localityKey;
   final String menuLabel;
+
+  /// Catalog amount (API field `price_inr`; unit is [currency] from DB).
   final int? priceInr;
+  final String? currency;
 }
 
 /// Lists standard menu items for a postal locality (resolved from GPS on the server).
@@ -48,14 +52,18 @@ class HttpStandardOffersClient {
     return rows
         .whereType<Map<String, dynamic>>()
         .map(
-          (row) => StandardOfferOption(
-            standardOfferId: row['standard_offer_id']?.toString() ?? '',
-            localityKey: row['locality_key']?.toString() ?? '',
-            menuLabel: row['menu_label']?.toString() ?? 'Menu item',
-            priceInr: row['price_inr'] is num
-                ? (row['price_inr'] as num).round()
-                : null,
-          ),
+          (row) {
+            final rawCurrency = row['currency']?.toString().trim() ?? '';
+            return StandardOfferOption(
+              standardOfferId: row['standard_offer_id']?.toString() ?? '',
+              localityKey: row['locality_key']?.toString() ?? '',
+              menuLabel: row['menu_label']?.toString() ?? 'Menu item',
+              priceInr: row['price_inr'] is num
+                  ? (row['price_inr'] as num).round()
+                  : null,
+              currency: rawCurrency.isEmpty ? null : rawCurrency.toUpperCase(),
+            );
+          },
         )
         .where((offer) => offer.standardOfferId.isNotEmpty)
         .toList(growable: false);

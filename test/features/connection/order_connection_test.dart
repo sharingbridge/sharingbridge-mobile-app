@@ -13,6 +13,7 @@ void main() {
         'menu_label': 'Lemon rice',
         'meal_units': 2,
         'price_inr': 120,
+        'currency': 'INR',
         'locality_key': 'IN:TN:600001',
         'seeker_demand_id': 'sd-1',
         'demand': <String, dynamic>{
@@ -32,10 +33,37 @@ void main() {
       });
 
       expect(connection.orderCode, 'SB-7K2M-9F3');
+      expect(connection.priceInr, 120);
+      expect(connection.currency, 'INR');
       expect(connection.contactsReady, isTrue);
       expect(connection.kitchenLoginEmail, 'kitchen@example.com');
       expect(connection.demand?.locationLabel, 'Adyar');
       expect(connection.pledgers, isEmpty);
+    });
+
+    test('uses API currency and does not invent a default', () {
+      final missing = OrderConnection.fromJson(<String, dynamic>{
+        'order_code': 'SB-ABCD-123',
+        'status': 'pending_kitchen',
+        'initiation_route': 'eco_kitchen_pledge',
+        'viewer_role': 'initiator',
+        'menu_label': 'Meals',
+        'price_inr': 12,
+        'locality_key': 'US:CA',
+      });
+      expect(missing.currency, isNull);
+
+      final usd = OrderConnection.fromJson(<String, dynamic>{
+        'order_code': 'SB-ABCD-124',
+        'status': 'pending_kitchen',
+        'initiation_route': 'eco_kitchen_pledge',
+        'viewer_role': 'initiator',
+        'menu_label': 'California default lunch',
+        'price_inr': 12,
+        'currency': 'usd',
+        'locality_key': 'US:CA',
+      });
+      expect(usd.currency, 'USD');
     });
 
     test('parses pending kitchen without contacts', () {
