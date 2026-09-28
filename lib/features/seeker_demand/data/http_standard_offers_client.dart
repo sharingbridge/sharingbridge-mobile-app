@@ -21,6 +21,9 @@ class StandardOfferOption {
 }
 
 /// Lists standard menu items for a postal locality (resolved from GPS on the server).
+///
+/// Uses [donorSeekerWriteRequestTimeout] (not the 8s default): the API reverse-geocodes
+/// via Nominatim and may hit a Render cold start before returning the catalog.
 class HttpStandardOffersClient {
   HttpStandardOffersClient({
     required this.baseUrl,
@@ -30,6 +33,7 @@ class HttpStandardOffersClient {
             HttpDonorSetupApiClient(
               baseUrl: baseUrl,
               authContext: authContext,
+              requestTimeout: donorSeekerWriteRequestTimeout,
             );
 
   final String baseUrl;

@@ -11,7 +11,9 @@ String formatDonorSeekerError(
           'This can happen when photo analysis or AI handover text runs — '
           'not because the app is waking up. Wait a moment and tap Retry.';
     }
-    return 'The server took too long to respond. Check your connection and try again.';
+    return 'The server took too long to respond. '
+        'If this is the first request after idle, wait a moment and try again '
+        '(the API may be waking up).';
   }
   if (error is DonorSetupNetworkException) {
     return 'Network error. Check your connection and try again.';
