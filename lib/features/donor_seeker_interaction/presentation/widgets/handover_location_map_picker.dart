@@ -327,8 +327,8 @@ class HandoverLocationMapPickerState extends State<HandoverLocationMapPicker> {
                 controller: _pickupNoteController,
                 enabled: !busy,
                 decoration: const InputDecoration(
-                  labelText: 'Pickup note (landmark / gate)',
-                  hintText: 'e.g. North gate, Block B',
+                  labelText: 'Pickup note (landmark / gate) — required',
+                  hintText: 'e.g. North gate, Block B, Lembi Park',
                   border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.sentences,

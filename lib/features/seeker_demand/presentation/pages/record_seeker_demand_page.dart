@@ -47,6 +47,7 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
   );
 
   final TextEditingController _notesController = TextEditingController();
+  final GlobalKey _locationSectionKey = GlobalKey();
   final GlobalKey<HandoverLocationPickerState> _locationPickerKey =
       GlobalKey<HandoverLocationPickerState>();
   int _mealUnits = 1;
@@ -339,10 +340,24 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
       if (!mounted) {
         return;
       }
+      final pickupHint = HandoverLocationPicker.mapEnabled
+          ? 'Scroll up and fill Pickup note (landmark / gate) under the map — '
+              'for example a gate or park name. Use current location only sets GPS and Address.'
+          : 'Scroll up and fill Delivery area / address label under Confirm handover location.';
       setState(() {
         _submitting = false;
-        _errorText =
-            'Confirm handover location — add a delivery area or address label.';
+        _errorText = pickupHint;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final ctx = _locationSectionKey.currentContext;
+        if (ctx != null) {
+          Scrollable.ensureVisible(
+            ctx,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.1,
+          );
+        }
       });
       return;
     }
@@ -497,14 +512,17 @@ class _RecordSeekerDemandPageState extends State<RecordSeekerDemandPage> {
           ],
           if (_capturedLocation != null) ...<Widget>[
             const SizedBox(height: 12),
-            HandoverLocationPicker(
-              key: _locationPickerKey,
-              location: _capturedLocation!,
-              refreshing: _refreshingLocation || _loadingOffers,
-              onLocationChanged: _onHandoverLocationChanged,
-              onRefresh: _submitting || _recorded
-                  ? null
-                  : () => _refreshHandoverLocation(),
+            KeyedSubtree(
+              key: _locationSectionKey,
+              child: HandoverLocationPicker(
+                key: _locationPickerKey,
+                location: _capturedLocation!,
+                refreshing: _refreshingLocation || _loadingOffers,
+                onLocationChanged: _onHandoverLocationChanged,
+                onRefresh: _submitting || _recorded
+                    ? null
+                    : () => _refreshHandoverLocation(),
+              ),
             ),
           ],
           if (_areaLocalityKey != null && !_requiresMenuReload) ...<Widget>[
